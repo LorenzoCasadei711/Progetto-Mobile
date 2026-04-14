@@ -4,20 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.progettomobile.ui.theme.ProgettoMobileTheme
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navigation
-import ui.screens.homeScreen
+import kotlinx.serialization.Serializable
+import ui.screens.HomeScreen
 import ui.screens.SettingsScreen
 
 class MainActivity : ComponentActivity() {
@@ -25,49 +18,44 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            mainActivity()
+            val navController = rememberNavController()
+            NavGraph(navController)
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+sealed interface NavigationRoute {
+
+    @Serializable
+    data object Login : NavigationRoute
+    @Serializable
+    data object HomeScreen : NavigationRoute
+
+    @Serializable
+    data object Settings : NavigationRoute
+
+    @Serializable
+    data object Add : NavigationRoute
+
+    @Serializable
+    data object Search : NavigationRoute
+
+    @Serializable
+    data object Profile : NavigationRoute
+
 }
 
-@Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
-    ProgettoMobileTheme {
-        Greeting("Android")
-    }
-}
-@Composable
-fun mainActivity(){
-    val navController = rememberNavController()
+fun NavGraph(navController : NavHostController){
     NavHost(
         navController = navController,
-        startDestination = "Home"
+        startDestination = NavigationRoute.HomeScreen
     ){
-        composable(
-            route = "Home"
-        ){
-            homeScreen(
-                onSettingsClick = { navController.navigate("Settings")},
-                onAddClick = {navController.navigate("Add")},
-                onHomeClick = {navController.navigate("Home")},
-                onSearchClick = {navController.navigate("Search")},
-                onProfileClick = {navController.navigate("Account")}
-            )
-        }
-        composable(
-            route = "Settings"
-        ){
-            SettingsScreen()
-        }
+        //composable<NavigationRoute.Login> {  }
+        composable<NavigationRoute.HomeScreen> { HomeScreen(navController) }
+        composable<NavigationRoute.Settings> { SettingsScreen(navController) }
+        //composable<NavigationRoute.Add> {  }
+        //composable<NavigationRoute.Search> {  }
+        //composable<NavigationRoute.Profile> {  }
     }
-
 }
