@@ -56,7 +56,11 @@ fun mainActivity(){
             route = "Home"
         ){
             homeScreen(
-                onSettingsClick = { navController.navigate("Settings")}
+                onSettingsClick = { navController.navigate("Settings")},
+                onAddClick = {navController.navigate("Add")},
+                onHomeClick = {navController.navigate("Home")},
+                onSearchClick = {navController.navigate("Search")},
+                onProfileClick = {navController.navigate("Account")}
             )
         }
         composable(
