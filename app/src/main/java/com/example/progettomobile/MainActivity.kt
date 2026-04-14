@@ -12,20 +12,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.progettomobile.ui.theme.ProgettoMobileTheme
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navigation
+import ui.screens.homeScreen
+import ui.screens.SettingsScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            ProgettoMobileTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
+            mainActivity()
         }
     }
 }
@@ -44,4 +44,26 @@ fun GreetingPreview() {
     ProgettoMobileTheme {
         Greeting("Android")
     }
+}
+@Composable
+fun mainActivity(){
+    val navController = rememberNavController()
+    NavHost(
+        navController = navController,
+        startDestination = "Home"
+    ){
+        composable(
+            route = "Home"
+        ){
+            homeScreen(
+                onSettingsClick = { navController.navigate("Settings")}
+            )
+        }
+        composable(
+            route = "Settings"
+        ){
+            SettingsScreen()
+        }
+    }
+
 }
