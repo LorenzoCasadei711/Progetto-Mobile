@@ -34,7 +34,10 @@ fun SettingsScreen(navController : NavHostController,
     Scaffold(
         containerColor = MaterialTheme.colorScheme.secondaryContainer,
         contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        bottomBar = {BottomAppBar(navController)},
+        topBar = {TopAppBar("AppMobile",navController)}
+
     ) { innerPadding ->
         Column(Modifier.padding(innerPadding).selectableGroup()) {
             Text(
