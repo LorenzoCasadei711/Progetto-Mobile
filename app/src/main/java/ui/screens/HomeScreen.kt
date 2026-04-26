@@ -16,7 +16,7 @@ import com.example.progettomobile.composable.TopAppBar
 @Composable
 fun HomeScreen(navController: NavHostController) {
     Scaffold(
-        topBar = { TopAppBar("Home", navController) },
+        topBar = { TopAppBar("Feed", navController) },
         bottomBar = { BottomAppBar(navController) }
     ) { paddingValues ->
         Box(
