@@ -94,3 +94,58 @@ data class User_Badges(
     val badge : Int,
     val user : Int
 )
+
+@Entity(foreignKeys = [
+    ForeignKey(
+        entity = Events::class,
+        parentColumns=arrayOf("event_id"),
+        childColumns = arrayOf("event"),
+        onDelete = ForeignKey.CASCADE
+    ),
+    ForeignKey(
+        entity= Tags::class,
+        parentColumns = arrayOf("tag_id"),
+        childColumns = arrayOf("tag"),
+        onDelete = ForeignKey.CASCADE
+    )
+], primaryKeys = ["event", "tag"])
+data class Event_Tags(
+    val event : Int,
+    val tag: Int
+)
+
+@Entity(foreignKeys = [
+    ForeignKey(
+        entity=Profiles::class,
+        parentColumns = arrayOf("user_id"),
+        childColumns = arrayOf("user"),
+        onDelete = ForeignKey.CASCADE
+    ),
+    ForeignKey(
+        entity = Events::class,
+        parentColumns = arrayOf("event_id"),
+        childColumns = arrayOf("event"),
+        onDelete = ForeignKey.CASCADE
+    )
+], primaryKeys = ["user", "event"],
+    indices = [Index(value = ["user", "event"], unique = true)])
+data class Event_Following(
+    val user: Int,
+    val event: Int
+)
+
+@Entity
+data class Details(
+    @PrimaryKey(autoGenerate = true) val details_id: Int = 0,
+    @ColumnInfo val event_details : String,
+    val event_id : Int
+)
+
+data class Event_Details(
+    @Embedded val event : Events,
+    @Relation(
+        parentColumn = "event_id",
+        entityColumn = "event_id"
+    )
+    val details : Details
+)
