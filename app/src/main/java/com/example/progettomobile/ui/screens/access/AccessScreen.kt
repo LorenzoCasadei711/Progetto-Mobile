@@ -5,6 +5,6 @@ import androidx.navigation.NavHostController
 import io.github.jan.supabase.SupabaseClient
 
 @Composable
-fun LoginScreen(accessViewModel: AccessViewModel, navController : NavHostController){
+fun ToAccessScreen(accessViewModel: AccessViewModel, navController : NavHostController){
 
 }

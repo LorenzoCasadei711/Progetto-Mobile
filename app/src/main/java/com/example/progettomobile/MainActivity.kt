@@ -14,26 +14,29 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.progettomobile.composable.rememberCameraLauncher
-import kotlinx.serialization.Serializable
+import com.example.progettomobile.data.supabase.Supabase
+import com.example.progettomobile.data.supabase.SupabaseAuth
 import com.example.progettomobile.ui.screens.HomeScreen
 import com.example.progettomobile.ui.screens.SettingsScreen
 import com.example.progettomobile.ui.screens.Theme
+import com.example.progettomobile.ui.screens.access.AccessViewModel
 import com.example.progettomobile.ui.theme.ProgettoMobileTheme
-import io.github.jan.supabase.auth.Auth
-import io.github.jan.supabase.createSupabaseClient
-import io.github.jan.supabase.postgrest.Postgrest
-import io.github.jan.supabase.realtime.Realtime
+import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.auth.handleDeeplinks
+import kotlinx.serialization.Serializable
+import org.koin.androidx.compose.koinViewModel
 import ui.screens.camera.CameraScreen
 
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        val supabase = Supabase()
         super.onCreate(savedInstanceState)
+        supabase.handleDeeplinks(intent)
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
-            NavGraph(navController)
+            NavGraph(navController, supabase)
         }
     }
 }
@@ -62,12 +65,15 @@ sealed interface NavigationRoute {
 }
 
 @Composable
-fun NavGraph(navController : NavHostController){
+fun NavGraph(navController : NavHostController, supabase : SupabaseClient){
     NavHost(
         navController = navController,
         startDestination = NavigationRoute.HomeScreen
     ){
-        //composable<NavigationRoute.Login> {  }
+        composable<NavigationRoute.Login> {
+            val viewModel = koinViewModel<AccessViewModel>()
+
+        }
         composable<NavigationRoute.HomeScreen> { HomeScreen(navController) }
         composable<NavigationRoute.Settings> {
             var selectedTheme by rememberSaveable { mutableStateOf(Theme.System)}
