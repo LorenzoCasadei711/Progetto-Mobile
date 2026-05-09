@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.CameraEnhance
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.BottomAppBar
@@ -43,6 +44,12 @@ fun BottomAppBar(navController: NavHostController){
                     Icon(
                         imageVector = Icons.Default.AccountCircle,
                         contentDescription = "Account"
+                    )
+                }
+                IconButton(onClick = {navController.navigate(NavigationRoute.Camera)}) {
+                    Icon(
+                        imageVector = Icons.Default.CameraEnhance,
+                        contentDescription = "Camera"
                     )
                 }
             }

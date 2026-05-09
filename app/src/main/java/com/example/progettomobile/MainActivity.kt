@@ -14,11 +14,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.progettomobile.composable.rememberCameraLauncher
 import kotlinx.serialization.Serializable
 import ui.screens.HomeScreen
 import ui.screens.SettingsScreen
 import ui.screens.Theme
 import com.example.progettomobile.ui.theme.ProgettoMobileTheme
+import ui.screens.camera.CameraScreen
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,7 +52,9 @@ sealed interface NavigationRoute {
 
     @Serializable
     data object Profile : NavigationRoute
-
+    @Serializable
+    data object Camera : NavigationRoute{
+    }
 }
 
 @Composable
@@ -80,6 +85,7 @@ fun NavGraph(navController : NavHostController){
                 )
             }
         }
+        composable<NavigationRoute.Camera> { CameraScreen(navController) }
         //composable<NavigationRoute.Add> {  }
         //composable<NavigationRoute.Search> {  }
         //composable<NavigationRoute.Profile> {  }
