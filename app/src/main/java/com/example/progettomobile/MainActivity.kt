@@ -14,6 +14,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.progettomobile.composable.rememberCameraLauncher
 import kotlinx.serialization.Serializable
 import com.example.progettomobile.ui.screens.HomeScreen
 import com.example.progettomobile.ui.screens.SettingsScreen
@@ -23,6 +24,8 @@ import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.realtime.Realtime
+import ui.screens.camera.CameraScreen
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,7 +56,9 @@ sealed interface NavigationRoute {
 
     @Serializable
     data object Profile : NavigationRoute
-
+    @Serializable
+    data object Camera : NavigationRoute{
+    }
 }
 
 @Composable
@@ -84,6 +89,7 @@ fun NavGraph(navController : NavHostController){
                 )
             }
         }
+        composable<NavigationRoute.Camera> { CameraScreen(navController) }
         //composable<NavigationRoute.Add> {  }
         //composable<NavigationRoute.Search> {  }
         //composable<NavigationRoute.Profile> {  }
