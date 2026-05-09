@@ -15,10 +15,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import kotlinx.serialization.Serializable
-import ui.screens.HomeScreen
-import ui.screens.SettingsScreen
-import ui.screens.Theme
+import com.example.progettomobile.ui.screens.HomeScreen
+import com.example.progettomobile.ui.screens.SettingsScreen
+import com.example.progettomobile.ui.screens.Theme
 import com.example.progettomobile.ui.theme.ProgettoMobileTheme
+import io.github.jan.supabase.auth.Auth
+import io.github.jan.supabase.createSupabaseClient
+import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.realtime.Realtime
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

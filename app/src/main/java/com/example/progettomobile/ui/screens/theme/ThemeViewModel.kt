@@ -1,12 +1,11 @@
-package ui.screens.theme
+package com.example.progettomobile.ui.screens.theme
 
 
 import androidx.lifecycle.ViewModel
+import com.example.progettomobile.ui.screens.Theme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import ui.screens.SettingsScreen
-import ui.screens.Theme
 
 
 data class ThemeState(
