@@ -1,14 +1,17 @@
 package com.example.progettomobile.data.supabase
 
 import kotlinx.serialization.Serializable
+import java.sql.Timestamp
 
 @Serializable
 data class Profiles(
-    val user_id: String,
+    val id_user: String,
     val level : Float,
-    val password: String,
+    val email: String,
     val nickname: String,
-    val birth_date: String
+    val birth_date: String,
+    val avatar_url: String,
+    val createdAt: String
 )
 @Serializable
 data class Events(

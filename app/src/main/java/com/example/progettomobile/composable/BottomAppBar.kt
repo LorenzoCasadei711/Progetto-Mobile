@@ -16,7 +16,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
-import com.example.progettomobile.NavigationRoute
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,25 +27,43 @@ fun BottomAppBar(navController: NavHostController){
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                IconButton(onClick = { navController.navigate(NavigationRoute.HomeScreen) }) {
+                IconButton(onClick = {
+                    if((navController.currentDestination
+                            ?: NavigationRoute.HomeScreen) == NavigationRoute.HomeScreen
+                    ){
+                        navController.navigate(NavigationRoute.HomeScreen)
+                    }
+                }) {
                     Icon(
                         imageVector = Icons.Default.Home,
                         contentDescription = "Home"
                     )
                 }
-                IconButton(onClick = { navController.navigate(NavigationRoute.Search) }) {
+                IconButton(onClick = {
+                    if(navController.currentDestination != NavigationRoute.Search){
+                        navController.navigate(NavigationRoute.Search)
+                    }
+                }) {
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = "Search"
                     )
                 }
-                IconButton(onClick = { navController.navigate(NavigationRoute.Profile) }){
+                IconButton(onClick = {
+                    if(navController.currentDestination != NavigationRoute.Profile){
+                        navController.navigate(NavigationRoute.Profile)
+                    }
+                }){
                     Icon(
                         imageVector = Icons.Default.AccountCircle,
                         contentDescription = "Account"
                     )
                 }
-                IconButton(onClick = {navController.navigate(NavigationRoute.Camera)}) {
+                IconButton(onClick = {
+                    if(navController.currentDestination != NavigationRoute.Camera){
+                        navController.navigate(NavigationRoute.Camera)
+                    }
+                }) {
                     Icon(
                         imageVector = Icons.Default.CameraEnhance,
                         contentDescription = "Camera"

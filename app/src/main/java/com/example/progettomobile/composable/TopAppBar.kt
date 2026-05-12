@@ -13,7 +13,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
-import com.example.progettomobile.NavigationRoute
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,17 +29,21 @@ fun TopAppBar(title: String,navController: NavHostController){
             }
         },
         actions = {
+
             IconButton(onClick = { navController.navigate(NavigationRoute.Settings) }) {
                 Icon(
                     imageVector = Icons.Default.Settings,
                     contentDescription = "Settings"
                 )
             }
-            IconButton(onClick = { navController.navigate(NavigationRoute.Add) }) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add"
-                )
+
+            if(title != "Login"){
+                IconButton(onClick = { navController.navigate(NavigationRoute.Add) }) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add"
+                    )
+                }
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(

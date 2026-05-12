@@ -2,6 +2,8 @@ package com.example.progettomobile.data.supabase
 
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.OtpType
+import io.github.jan.supabase.auth.admin.LinkType
+import io.github.jan.supabase.auth.admin.generateLinkFor
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.Github
 import io.github.jan.supabase.auth.providers.Google
@@ -12,14 +14,16 @@ import io.github.jan.supabase.auth.providers.builtin.OTP
 class SupabaseAuth(val supabase: SupabaseClient) {
     val auth = supabase.auth
 
-    suspend fun signUp(signEmail: String, signPw: String) {
-        auth.signUpWith(Email) {
+    suspend fun signUp(signEmail: String, signPw: String) = auth.signUpWith(Email) {
             email = signEmail
             password = signPw
         }
-    }
 
     suspend fun resendEmailOTP(email: String) = auth.resendEmail(OtpType.Email.SIGNUP, email);
+
+    suspend fun recoveryEmail(emailRecovery: String) = auth.admin.generateLinkFor(LinkType.RecoveryLink){
+        email = emailRecovery
+    }
 
     suspend fun signInEmail(signEmail: String, signPw: String) = auth.signInWith(Email) {
         email = signEmail
@@ -36,7 +40,9 @@ class SupabaseAuth(val supabase: SupabaseClient) {
         email = signEmail
     }
 
-    suspend fun signInGit() = auth.signInWith(Github)
+    suspend fun signInGit() = auth.signInWith(Github, "it.supabase.remembermy://login-callback"){
+
+    }
 
     suspend fun signInGoogle() = auth.signInWith(Google)
 
