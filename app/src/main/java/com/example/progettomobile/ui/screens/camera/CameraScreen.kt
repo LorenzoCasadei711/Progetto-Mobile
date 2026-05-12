@@ -1,4 +1,4 @@
-package ui.screens.camera
+package com.example.progettomobile.ui.screens.camera
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth

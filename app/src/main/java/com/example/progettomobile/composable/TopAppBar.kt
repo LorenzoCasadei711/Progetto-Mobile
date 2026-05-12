@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,7 +31,8 @@ fun TopAppBar(title: String,navController: NavHostController){
         },
         actions = {
 
-            IconButton(onClick = { navController.navigate(NavigationRoute.Settings) }) {
+            IconButton(onClick = { navController.navigate(NavigationRoute.Settings) },
+                enabled = navController.currentDestination?.hasRoute<NavigationRoute.Settings>() == false) {
                 Icon(
                     imageVector = Icons.Default.Settings,
                     contentDescription = "Settings"
@@ -38,7 +40,8 @@ fun TopAppBar(title: String,navController: NavHostController){
             }
 
             if(title != "Login"){
-                IconButton(onClick = { navController.navigate(NavigationRoute.Add) }) {
+                IconButton(onClick = { navController.navigate(NavigationRoute.Add) },
+                    enabled = navController.currentDestination?.hasRoute<NavigationRoute.Add>() == false) {
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = "Add"

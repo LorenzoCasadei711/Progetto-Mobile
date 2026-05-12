@@ -6,8 +6,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -24,7 +26,7 @@ import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.status.SessionStatus
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
-import ui.screens.camera.CameraScreen
+import com.example.progettomobile.ui.screens.camera.CameraScreen
 
 sealed interface NavigationRoute {
 
@@ -54,29 +56,31 @@ fun NavGraph(navController : NavHostController, supabase : SupabaseClient){
     val accessModel = koinViewModel<AccessViewModel>()
     val sessionStatus by supabase.auth.sessionStatus.collectAsState()
     LaunchedEffect(sessionStatus) {
-        if(sessionStatus !is SessionStatus.Authenticated){
+        when(sessionStatus){
+        is SessionStatus.NotAuthenticated->{
             navController.navigate(NavigationRoute.Login){
                 popUpTo(0)
             }
 
         }
+        is SessionStatus.Authenticated -> {
+        if (navController.currentDestination?.hasRoute<NavigationRoute.Login>() == true) {
+            navController.navigate(NavigationRoute.HomeScreen) {
+                popUpTo(NavigationRoute.Login) { inclusive = true }
+            }
+        }
+    }
+        else -> {}
+    }
     }
 
     NavHost(
         navController = navController,
-        startDestination = NavigationRoute.Login
+        startDestination = if(sessionStatus is SessionStatus.NotAuthenticated) NavigationRoute.Login else NavigationRoute.HomeScreen
     ){
 
         composable<NavigationRoute.Login> {
-            when (sessionStatus) {
-                is SessionStatus.Authenticated -> {
-                    HomeScreen(navController)
-                }
-                else -> {
-                    ToAccessScreen(accessModel, navController)
-                }
-            }
-
+            ToAccessScreen(accessModel, navController)
         }
         composable<NavigationRoute.HomeScreen> { HomeScreen(navController) }
         composable<NavigationRoute.Settings> {

@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import io.github.jan.supabase.SupabaseClient
 import androidx.compose.runtime.collectAsState
+import com.example.progettomobile.composable.BottomAppBar
 import com.example.progettomobile.composable.TopAppBar
 import com.example.progettomobile.data.supabase.Profiles
 
@@ -21,6 +22,7 @@ fun ToProfile(navController : NavHostController, profileModel : ProfileViewModel
     val user : Profiles? = profileModel.state.collectAsState().value.info
     Scaffold(
         topBar = { TopAppBar("Profile", navController) },
+        bottomBar = { BottomAppBar(navController) },
         modifier = Modifier.fillMaxSize()
     ) { innerPadding->
         Column(

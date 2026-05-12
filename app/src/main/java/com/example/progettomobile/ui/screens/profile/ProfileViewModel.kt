@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 data class ProfileState(
@@ -56,7 +57,22 @@ class ProfileViewModel(private val data : SupabaseData) : ViewModel(){
     val actions = ProfileActions(
         update = { fetchInitialData() },
         logout = {
-            viewModelScope.launch { data.logout() }
+            println("Logout action triggered. Scope active: ${viewModelScope.isActive}")
+
+            // If the scope is inactive, we need to know why
+            if (!viewModelScope.isActive) {
+                println("WARNING: viewModelScope is already cancelled!")
+            }
+
+            viewModelScope.launch {
+                try {
+                    println("Coroutine started")
+                    data.logout()
+                    println("Data logout finished")
+                } catch (e: Exception) {
+                    println("Logout failed: ${e.message}")
+                }
+            }
         }
     )
 

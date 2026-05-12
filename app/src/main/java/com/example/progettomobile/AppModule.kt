@@ -5,7 +5,9 @@ import com.example.progettomobile.data.supabase.SupabaseData
 import com.example.progettomobile.data.supabase.supabase
 import com.example.progettomobile.ui.screens.access.AccessViewModel
 import com.example.progettomobile.ui.screens.profile.ProfileViewModel
+import com.example.progettomobile.viewModule
 import io.github.jan.supabase.SupabaseClient
+import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val supabaseModule = module {
@@ -15,6 +17,6 @@ val supabaseModule = module {
 }
 
 val viewModule = module {
-    single { AccessViewModel(get()) }
-    single { ProfileViewModel(get()) }
+    viewModel { AccessViewModel(get()) }
+    viewModel { ProfileViewModel(get()) }
 }
