@@ -1,7 +1,8 @@
-package it.supabase.remembermy.ui.screens.access
+package it.supabase.remembermy.ui.screens.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.jan.supabase.auth.exception.AuthRestException
 import it.supabase.remembermy.data.supabase.SupabaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -22,7 +23,8 @@ data class AccessActions(
     val signIngGoogle : ()-> Unit,
     val recoveryPassword : ()->Boolean
 )
-class AccessViewModel (auth : SupabaseAuth ) : ViewModel() {
+
+class AccessViewModel (auth : SupabaseAuth) : ViewModel() {
 
     private val email = MutableStateFlow("")
     private val password = MutableStateFlow("")
@@ -32,11 +34,11 @@ class AccessViewModel (auth : SupabaseAuth ) : ViewModel() {
 
     val state = combine(
         email, password, error
-    ){email, password, error ->
+    ) { email, password, error ->
         AccessState(email, password, error)
     }.stateIn(
         viewModelScope,
-        SharingStarted.WhileSubscribed(),
+        SharingStarted.Companion.WhileSubscribed(),
         AccessState("","", "")
     )
 
@@ -46,9 +48,9 @@ class AccessViewModel (auth : SupabaseAuth ) : ViewModel() {
                 try {
                     auth.signUp(email, password)
                     error.value = ""
-                } catch (e : Exception){
-                    e.printStackTrace()
-                    error.value = e.message.orEmpty().substringBefore("\n")
+                } catch (e : AuthRestException){
+                    println(e.description)
+                    error.value = e.description.orEmpty().substringBefore(":")
                 }
             }
 
@@ -58,9 +60,9 @@ class AccessViewModel (auth : SupabaseAuth ) : ViewModel() {
                 try {
                     auth.signInEmail(email, password)
                     error.value = ""
-                } catch(e : Exception){
-                    e.printStackTrace()
-                    error.value = e.message.orEmpty().substringBefore("\n")
+                } catch(e : AuthRestException){
+                    println(e.description)
+                    error.value = e.description.orEmpty().substringBefore(":")
                 }
             }
         },
@@ -69,9 +71,9 @@ class AccessViewModel (auth : SupabaseAuth ) : ViewModel() {
                 try {
                     auth.signInGit()
                     error.value = ""
-                } catch (e: Exception){
-                    e.printStackTrace()
-                    error.value = e.message.orEmpty().substringBefore("\n")
+                } catch (e: AuthRestException){
+                    println(e.description)
+                    error.value = e.description.orEmpty().substringBefore(":")
                 }
             }
         },
@@ -80,9 +82,9 @@ class AccessViewModel (auth : SupabaseAuth ) : ViewModel() {
                 try {
                     auth.signInGoogle()
                     error.value = ""
-                } catch (e: Exception){
-                    e.printStackTrace()
-                    error.value = e.message.orEmpty().substringBefore("\n")
+                } catch (e: AuthRestException){
+                    println(e.description)
+                    error.value = e.description.orEmpty().substringBefore(":")
                 }
             }
         },

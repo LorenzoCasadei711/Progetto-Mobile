@@ -1,4 +1,4 @@
-package com.example.progettomobile.ui.screens.access
+package it.supabase.remembermy.ui.screens.auth.register
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -41,12 +41,13 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.progettomobile.R
+import com.example.progettomobile.composable.NavigationRoute
 import io.ktor.utils.io.InternalAPI
-import it.supabase.remembermy.ui.screens.access.AccessViewModel
+import it.supabase.remembermy.ui.screens.auth.AccessViewModel
 
 @OptIn(InternalAPI::class)
 @Composable
-fun ToAccessScreen(accessViewModel: AccessViewModel, navController : NavHostController){
+fun RegisterScreen(accessViewModel: AccessViewModel, navController : NavHostController){
 
     var emailValue by remember {
         mutableStateOf("")
@@ -173,12 +174,12 @@ fun ToAccessScreen(accessViewModel: AccessViewModel, navController : NavHostCont
                         focusedIndicatorColor = Color.Transparent,
                         focusedTextColor = Color.White,
                         unfocusedTextColor = Color.White,
-                        errorTextColor = Color.Red,
-                        errorContainerColor = Color.Red
+                        errorTextColor = Color.White,
+                        errorContainerColor = Color.Red.copy(0.1f)
                     ),
                     modifier = Modifier.fillMaxWidth(),
                     isError = errorText.contains("credentials") || errorText.contains("email"),
-                    supportingText = {Text(errorText)}
+                    supportingText = {Text(errorText, color = Color.White)}
                 )
             }
             Spacer(Modifier.height(25.dp))
@@ -209,8 +210,8 @@ fun ToAccessScreen(accessViewModel: AccessViewModel, navController : NavHostCont
                         focusedIndicatorColor = Color.Transparent,
                         focusedTextColor = Color.White,
                         unfocusedTextColor = Color.White,
-                        errorTextColor = Color.Red,
-                        errorContainerColor = Color.Red
+                        errorTextColor = Color.White,
+                        errorContainerColor = Color.Red.copy(0.1f)
                     ),
                     visualTransformation = if(isPasswordHidden) PasswordVisualTransformation()
                                             else VisualTransformation.None,
@@ -218,7 +219,7 @@ fun ToAccessScreen(accessViewModel: AccessViewModel, navController : NavHostCont
                     isError = errorText.contains("password")
                 )
             }
-            Spacer(modifier = Modifier.height(35.dp))
+            Spacer(modifier = Modifier.height(62.dp))
 
             Button(
                 onClick = {
@@ -237,7 +238,9 @@ fun ToAccessScreen(accessViewModel: AccessViewModel, navController : NavHostCont
 
             Spacer(modifier = Modifier.height(25.dp))
             TextButton(
-                onClick = {}
+                onClick = {navController.navigate(NavigationRoute.Login){
+                    popUpTo(0)
+                } }
             ) {
                 Text(text = buildAnnotatedString {
                     withStyle(

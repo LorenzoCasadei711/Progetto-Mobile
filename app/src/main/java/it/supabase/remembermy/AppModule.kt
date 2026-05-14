@@ -3,7 +3,7 @@ package it.supabase.remembermy
 import it.supabase.remembermy.data.supabase.SupabaseAuth
 import it.supabase.remembermy.data.supabase.SupabaseData
 import it.supabase.remembermy.data.supabase.supabase
-import it.supabase.remembermy.ui.screens.access.AccessViewModel
+import it.supabase.remembermy.ui.screens.auth.AccessViewModel
 import it.supabase.remembermy.ui.screens.profile.ProfileViewModel
 import io.github.jan.supabase.SupabaseClient
 import org.koin.core.module.dsl.viewModel

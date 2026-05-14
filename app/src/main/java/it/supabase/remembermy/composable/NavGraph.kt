@@ -15,14 +15,16 @@ import androidx.navigation.compose.composable
 import it.supabase.remembermy.ui.screens.HomeScreen
 import it.supabase.remembermy.ui.screens.SettingsScreen
 import it.supabase.remembermy.ui.screens.Theme
-import it.supabase.remembermy.ui.screens.access.AccessViewModel
-import com.example.progettomobile.ui.screens.access.ToAccessScreen
+import it.supabase.remembermy.ui.screens.auth.AccessViewModel
+import it.supabase.remembermy.ui.screens.auth.register.RegisterScreen
 import it.supabase.remembermy.ui.screens.profile.ProfileViewModel
 import it.supabase.remembermy.ui.screens.profile.ToProfile
 import it.supabase.remembermy.ui.theme.ProgettoMobileTheme
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.status.SessionStatus
+import it.supabase.remembermy.ui.screens.auth.login.LoginScreen
+import it.supabase.remembermy.ui.screens.auth.recovery.RecoveryScreen
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 import it.supabase.remembermy.ui.screens.camera.CameraScreen
@@ -31,6 +33,11 @@ sealed interface NavigationRoute {
 
     @Serializable
     data object Login : NavigationRoute
+
+    @Serializable
+    data object Register : NavigationRoute
+    @Serializable
+    data object Recovery : NavigationRoute
     @Serializable
     data object HomeScreen : NavigationRoute
 
@@ -78,9 +85,17 @@ fun NavGraph(navController : NavHostController, supabase : SupabaseClient){
         startDestination = if(sessionStatus is SessionStatus.NotAuthenticated) NavigationRoute.Login else NavigationRoute.HomeScreen
     ){
 
-        composable<NavigationRoute.Login> {
-            ToAccessScreen(accessModel, navController)
+        composable<NavigationRoute.Register> {
+            RegisterScreen(accessModel, navController)
         }
+        composable<NavigationRoute.Login> {
+            LoginScreen(accessModel, navController)
+        }
+
+        composable<NavigationRoute.Recovery> {
+            RecoveryScreen(accessModel, navController)
+        }
+
         composable<NavigationRoute.HomeScreen> { HomeScreen(navController) }
         composable<NavigationRoute.Settings> {
             var selectedTheme by rememberSaveable { mutableStateOf(Theme.System)}
