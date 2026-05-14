@@ -14,7 +14,7 @@
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28"/>
     <application
-        android:name=".MainApplication"
+        android:name="it.supabase.remembermy.MainApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -24,7 +24,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ProgettoMobile">
         <activity
-            android:name=".MainActivity"
+            android:name="it.supabase.remembermy.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.ProgettoMobile">
             <intent-filter>
