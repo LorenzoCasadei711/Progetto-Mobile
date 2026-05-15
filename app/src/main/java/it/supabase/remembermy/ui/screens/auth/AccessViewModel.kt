@@ -13,15 +13,16 @@ import kotlinx.coroutines.launch
 data class AccessState(
     val email : String,
     val password: String,
-    val error : String
+    var error : String,
+    val isLoading : Boolean
 )
 
 data class AccessActions(
     val signUp : (email:String, password:String)-> Unit,
     val signIn : (email:String, password:String) -> Unit,
     val signInGit : ()-> Unit,
-    val signIngGoogle : ()-> Unit,
-    val recoveryPassword : ()->Boolean
+    val recoveryPassword : (email : String)->Boolean,
+    val changePassword : (password : String)->Unit
 )
 
 class AccessViewModel (auth : SupabaseAuth) : ViewModel() {
@@ -29,21 +30,24 @@ class AccessViewModel (auth : SupabaseAuth) : ViewModel() {
     private val email = MutableStateFlow("")
     private val password = MutableStateFlow("")
 
-    private var error = MutableStateFlow("")
+    private val error = MutableStateFlow("")
+
+    private val isLoading = MutableStateFlow(false)
 
 
     val state = combine(
-        email, password, error
-    ) { email, password, error ->
-        AccessState(email, password, error)
+        email, password, error, isLoading
+    ) { email, password, error, isLoading ->
+        AccessState(email, password, error, isLoading)
     }.stateIn(
         viewModelScope,
         SharingStarted.Companion.WhileSubscribed(),
-        AccessState("","", "")
+        AccessState("","", "", false)
     )
 
     val actions = AccessActions(
         signUp = {email, password->
+            isLoading.value=true
             viewModelScope.launch {
                 try {
                     auth.signUp(email, password)
@@ -53,9 +57,10 @@ class AccessViewModel (auth : SupabaseAuth) : ViewModel() {
                     error.value = e.description.orEmpty().substringBefore(":")
                 }
             }
-
+            isLoading.value = false
         },
         signIn = { email, password ->
+            isLoading.value = true
             viewModelScope.launch {
                 try {
                     auth.signInEmail(email, password)
@@ -65,8 +70,10 @@ class AccessViewModel (auth : SupabaseAuth) : ViewModel() {
                     error.value = e.description.orEmpty().substringBefore(":")
                 }
             }
+            isLoading.value = false
         },
         signInGit = {
+            isLoading.value = true
             viewModelScope.launch {
                 try {
                     auth.signInGit()
@@ -76,32 +83,41 @@ class AccessViewModel (auth : SupabaseAuth) : ViewModel() {
                     error.value = e.description.orEmpty().substringBefore(":")
                 }
             }
+            isLoading.value = false
         },
-        signIngGoogle = {
-            viewModelScope.launch {
-                try {
-                    auth.signInGoogle()
-                    error.value = ""
-                } catch (e: AuthRestException){
-                    println(e.description)
-                    error.value = e.description.orEmpty().substringBefore(":")
-                }
-            }
-        },
-        recoveryPassword = {
+        recoveryPassword = { email ->
+            println("Started recovery form")
             var sent = MutableStateFlow(false)
-            if(email.value.isEmpty()){
+            if(email.isEmpty()){
+                println("Email value was found as empty: $email")
                 return@AccessActions sent.value;
             }
+            println("Email value wasnt empty $email")
+            isLoading.value = true
             viewModelScope.launch {
                 try {
-                    auth.recoveryEmail(email.value)
+                    auth.recoveryEmail(email)
                     sent.value = true
+                    println("Email sent")
                 } catch (e : Exception){
+                    e.printStackTrace()
+                    println("Job resulted in exception ${e.cause}")
+                }
+            }
+            isLoading.value = false
+            println("isLoading set to false")
+            return@AccessActions sent.value;
+        },
+        changePassword = { password ->
+            isLoading.value = true
+            viewModelScope.launch {
+                try {
+                    auth.changePassword(password)
+                } catch (e : AuthRestException){
                     e.printStackTrace()
                 }
             }
-            return@AccessActions sent.value;
+            isLoading.value = false
         }
     )
 }

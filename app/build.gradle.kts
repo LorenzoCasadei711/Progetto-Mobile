@@ -11,11 +11,11 @@ kotlin{
 }
 
 android {
-    namespace = "com.example.progettomobile"
+    namespace = "it.supabase.remembermy"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.progettomobile"
+        applicationId = "it.supabase.remembermy"
         minSdk = 26
         targetSdk = 36
         versionCode = 1

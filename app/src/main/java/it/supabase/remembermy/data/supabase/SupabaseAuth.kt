@@ -21,9 +21,9 @@ class SupabaseAuth(val supabase: SupabaseClient) {
 
     suspend fun resendEmailOTP(email: String) = auth.resendEmail(OtpType.Email.SIGNUP, email);
 
-    suspend fun recoveryEmail(emailRecovery: String) = auth.admin.generateLinkFor(LinkType.RecoveryLink){
-        email = emailRecovery
-    }
+    suspend fun recoveryEmail(emailRecovery: String) = auth.resetPasswordForEmail(
+        email = emailRecovery,
+        redirectUrl = "it.supabase.remembermy://reset-password")
 
     suspend fun signInEmail(signEmail: String, signPw: String) = auth.signInWith(Email) {
         email = signEmail
@@ -44,11 +44,6 @@ class SupabaseAuth(val supabase: SupabaseClient) {
 
     }
 
-    suspend fun signInGoogle() = auth.signInWith(Google, "it.supabase.remembermy://login-callback")
-
-    suspend fun signOut() = auth.signOut();
-
-
     suspend fun pwResetRequest(email: String) = auth.resetPasswordForEmail(email = email)
 
     suspend fun pwReset(newPassword: String) = auth.updateUser {
@@ -67,5 +62,9 @@ class SupabaseAuth(val supabase: SupabaseClient) {
     suspend fun codeForSession(code : String) = auth.exchangeCodeForSession(code)
 
     suspend fun importSession(code : String) = auth.importSession(codeForSession(code))
+
+    suspend fun changePassword(passwordChange : String) = auth.updateUser {
+        password = passwordChange
+    }
 
 }

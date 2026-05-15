@@ -23,6 +23,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,9 +41,10 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.progettomobile.R
+import it.supabase.remembermy.R
 import com.example.progettomobile.composable.NavigationRoute
 import io.ktor.utils.io.InternalAPI
+import it.supabase.remembermy.composable.LoadingImage
 import it.supabase.remembermy.ui.screens.auth.AccessViewModel
 
 @OptIn(InternalAPI::class)
@@ -57,13 +59,14 @@ fun RegisterScreen(accessViewModel: AccessViewModel, navController : NavHostCont
         mutableStateOf("")
     }
 
-    var isPasswordHidden by remember {
+    val isPasswordHidden by remember {
         mutableStateOf(true)
     }
 
-    var errorText by remember {
+    val errorText by remember {
         mutableStateOf(accessViewModel.state.value.error)
     }
+
 
     Box(
         modifier = Modifier
@@ -223,6 +226,7 @@ fun RegisterScreen(accessViewModel: AccessViewModel, navController : NavHostCont
 
             Button(
                 onClick = {
+                    accessViewModel.state.value.error = ""
                     accessViewModel.actions.signUp(emailValue, passwordValue)
                           },
                 colors = ButtonDefaults.buttonColors(
@@ -231,14 +235,20 @@ fun RegisterScreen(accessViewModel: AccessViewModel, navController : NavHostCont
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "Sign up",
-                    modifier=Modifier.padding(vertical = 4.dp),
-                    color = Color.Black)
+                if(!accessViewModel.state.collectAsState().value.isLoading){
+                    Text(text = "Sign up",
+                        modifier=Modifier.padding(vertical = 4.dp),
+                        color = Color.Black)
+                }else{
+                    LoadingImage()
+                }
             }
 
             Spacer(modifier = Modifier.height(25.dp))
             TextButton(
-                onClick = {navController.navigate(NavigationRoute.Login){
+                onClick = {
+                    accessViewModel.state.value.error = ""
+                    navController.navigate(NavigationRoute.Login){
                     popUpTo(0)
                 } }
             ) {

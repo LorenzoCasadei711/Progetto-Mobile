@@ -1,4 +1,5 @@
-package it.supabase.remembermy.ui.screens.auth.recovery
+package it.supabase.remembermy.ui.screens.auth.reset
+
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -41,17 +42,14 @@ import it.supabase.remembermy.ui.screens.auth.AccessViewModel
 
 @OptIn(InternalAPI::class)
 @Composable
-fun RecoveryScreen(accessViewModel: AccessViewModel, navController: NavHostController) {
+fun ResetPasswordScreen(accessViewModel: AccessViewModel, navController: NavHostController) {
 
-    var emailValue by remember {
+    var passwordValue by remember {
         mutableStateOf("")
     }
 
     val errorText = accessViewModel.state.collectAsState().value.error
 
-    var emailSent by remember {
-        mutableStateOf(false)
-    }
 
     Box(
         modifier = Modifier
@@ -84,7 +82,7 @@ fun RecoveryScreen(accessViewModel: AccessViewModel, navController: NavHostContr
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Send a Recovery Link to Your Email",
+                text = "Change your Password",
                 style = MaterialTheme.typography.titleLarge,
                 color = Color.White,
                 fontWeight = FontWeight.Bold
@@ -108,19 +106,19 @@ fun RecoveryScreen(accessViewModel: AccessViewModel, navController: NavHostContr
                 horizontalAlignment = Alignment.Start
             ) {
                 Text(
-                    text = "Email",
+                    text = "New Password",
                     color = Color.White,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 TextField(
-                    value = emailValue,
+                    value = passwordValue,
                     onValueChange = { it ->
-                        emailValue = it
+                        passwordValue = it
                     },
                     placeholder = {
                         Text(
-                            text = "john.doe@example.com",
+                            text = "Enter your new Password",
                             color = Color.White.copy(alpha = 0.7f)
                         )
                     },
@@ -136,8 +134,8 @@ fun RecoveryScreen(accessViewModel: AccessViewModel, navController: NavHostContr
                         errorContainerColor = Color.Red.copy(0.1f)
                     ),
                     modifier = Modifier.fillMaxWidth(),
-                    isError = errorText.contains("credentials") || errorText.contains("email"),
-                    supportingText = { Text(errorText, color = Color.White) }
+                    isError = errorText.isNotEmpty(),
+                    supportingText = { Text(errorText, color = MaterialTheme.colorScheme.onBackground) }
                 )
             }
             Spacer(Modifier.height(25.dp))
@@ -146,9 +144,11 @@ fun RecoveryScreen(accessViewModel: AccessViewModel, navController: NavHostContr
 
             Button(
                 onClick = {
-                    accessViewModel.actions.recoveryPassword(emailValue)
-                    navController.navigate(NavigationRoute.Login){
-                        popUpTo(0)
+                    accessViewModel.actions.recoveryPassword(passwordValue)
+                    if(errorText.isEmpty()){
+                        navController.navigate(NavigationRoute.Login){
+                            popUpTo(0)
+                        }
                     }
                 },
                 colors = ButtonDefaults.buttonColors(
@@ -158,7 +158,7 @@ fun RecoveryScreen(accessViewModel: AccessViewModel, navController: NavHostContr
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Send Email",
+                    text = "Change Password",
                     modifier = Modifier.padding(vertical = 4.dp),
                     color = Color.Black
                 )

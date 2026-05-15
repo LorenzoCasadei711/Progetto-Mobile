@@ -40,13 +40,12 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.progettomobile.R
+import it.supabase.remembermy.R
 import com.example.progettomobile.composable.NavigationRoute
-import io.ktor.util.collections.getValue
-import io.ktor.util.collections.setValue
 import io.ktor.utils.io.InternalAPI
 import it.supabase.remembermy.ui.screens.auth.AccessViewModel
 import androidx.compose.runtime.collectAsState
+import it.supabase.remembermy.composable.LoadingImage
 
 @OptIn(InternalAPI::class)
 @Composable
@@ -63,8 +62,6 @@ fun LoginScreen(accessViewModel: AccessViewModel, navController : NavHostControl
     var isPasswordHidden by remember {
         mutableStateOf(true)
     }
-
-    val errorText = accessViewModel.state.collectAsState().value.error
 
     Box(
         modifier = Modifier
@@ -181,8 +178,8 @@ fun LoginScreen(accessViewModel: AccessViewModel, navController : NavHostControl
                         errorContainerColor = Color.Red.copy(0.1f)
                     ),
                     modifier = Modifier.fillMaxWidth(),
-                    isError = errorText.contains("credentials") || errorText.contains("email"),
-                    supportingText = {Text(errorText, color = Color.White)}
+                    isError = accessViewModel.state.collectAsState().value.error.contains("credentials") || accessViewModel.state.collectAsState().value.error.contains("email"),
+                    supportingText = {Text(accessViewModel.state.collectAsState().value.error, color = Color.White)}
                 )
             }
             Spacer(Modifier.height(25.dp))
@@ -219,7 +216,7 @@ fun LoginScreen(accessViewModel: AccessViewModel, navController : NavHostControl
                     visualTransformation = if(isPasswordHidden) PasswordVisualTransformation()
                     else VisualTransformation.None,
                     modifier = Modifier.fillMaxWidth(),
-                    isError = errorText.contains("password") || errorText.contains("credentials")
+                    isError = accessViewModel.state.collectAsState().value.error.contains("password") || accessViewModel.state.collectAsState().value.error.contains("credentials")
                 )
                 TextButton(
                     onClick = {navController.navigate(NavigationRoute.Recovery){
@@ -250,6 +247,7 @@ fun LoginScreen(accessViewModel: AccessViewModel, navController : NavHostControl
 
             Button(
                 onClick = {
+                    accessViewModel.state.value.error = ""
                     accessViewModel.actions.signIn(emailValue, passwordValue)
                 },
                 colors = ButtonDefaults.buttonColors(
@@ -258,14 +256,21 @@ fun LoginScreen(accessViewModel: AccessViewModel, navController : NavHostControl
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "Sign in",
-                    modifier=Modifier.padding(vertical = 4.dp),
-                    color = Color.Black)
+                if(!accessViewModel.state.collectAsState().value.isLoading){
+                    Text(text = "Sign in",
+                        modifier=Modifier.padding(vertical = 4.dp),
+                        color = Color.Black)
+                }else{
+                    LoadingImage()
+                }
+
             }
 
             Spacer(modifier = Modifier.height(25.dp))
             TextButton(
-                onClick = { navController.navigate(NavigationRoute.Register){
+                onClick = {
+                    accessViewModel.state.value.error = ""
+                    navController.navigate(NavigationRoute.Register){
                         popUpTo(0)
                     }
                 }

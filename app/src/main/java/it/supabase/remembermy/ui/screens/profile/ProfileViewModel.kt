@@ -18,8 +18,8 @@ data class ProfileState(
 )
 
 data class ProfileActions(
-    val update : ()->(Unit),
-    val logout : ()->(Unit)
+    val update : ()->Unit,
+    val logout : ()->Unit
 )
 
 class ProfileViewModel(private val data : SupabaseData) : ViewModel(){
