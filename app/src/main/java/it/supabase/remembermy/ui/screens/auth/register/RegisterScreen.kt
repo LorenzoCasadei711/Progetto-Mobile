@@ -13,9 +13,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.HorizontalRule
+import androidx.compose.material.icons.filled.RemoveRedEye
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -59,7 +67,7 @@ fun RegisterScreen(accessViewModel: AccessViewModel, navController : NavHostCont
         mutableStateOf("")
     }
 
-    val isPasswordHidden by remember {
+    var isPasswordHidden by remember {
         mutableStateOf(true)
     }
 
@@ -95,7 +103,8 @@ fun RegisterScreen(accessViewModel: AccessViewModel, navController : NavHostCont
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 20.dp)
-                .padding(vertical = 110.dp),
+                .padding(vertical = 110.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(text = "Create An Account",
@@ -219,7 +228,22 @@ fun RegisterScreen(accessViewModel: AccessViewModel, navController : NavHostCont
                     visualTransformation = if(isPasswordHidden) PasswordVisualTransformation()
                                             else VisualTransformation.None,
                     modifier = Modifier.fillMaxWidth(),
-                    isError = errorText.contains("password")
+                    isError = errorText.contains("password"),
+                    trailingIcon = {
+                        IconButton(
+                            onClick = {isPasswordHidden=!isPasswordHidden},
+                            colors = IconButtonDefaults.iconButtonColors(
+                                contentColor = Color.White
+                            )
+                        ) {
+                            if(isPasswordHidden){
+                                Icon(Icons.Default.RemoveRedEye, "Open Eye")
+                            }else{
+                                Icon(Icons.Default.HorizontalRule, "Open Eye")
+
+                            }
+                        }
+                    }
                 )
             }
             Spacer(modifier = Modifier.height(62.dp))

@@ -18,7 +18,9 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.handleDeeplinks
 import io.github.jan.supabase.auth.status.SessionStatus
+import it.supabase.remembermy.ui.screens.auth.AccessViewModel
 import org.koin.android.ext.android.inject
+import org.koin.androidx.compose.koinViewModel
 
 
 class MainActivity : ComponentActivity() {
@@ -31,10 +33,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             navController = rememberNavController()
             val sessionStatus by supabase.auth.sessionStatus.collectAsState()
-
-            val start = startingPage(sessionStatus)
+            val start = startingPage(sessionStatus, intent)
             NavGraph(navController, supabase,start)
-            navController.handleDeepLink(intent)
         }
     }
 
@@ -45,14 +45,12 @@ class MainActivity : ComponentActivity() {
         if(::navController.isInitialized){
             navController.handleDeepLink(intent)
         }
+
     }
-
-
-
-    private fun startingPage(sessionStatus: SessionStatus) : NavigationRoute{
+    private fun startingPage(sessionStatus: SessionStatus, intent: Intent) : NavigationRoute{
+            if(intent.data?.getQueryParameter("type")=="recovery" && sessionStatus is SessionStatus.Authenticated) return NavigationRoute.ResetPassword
             return if(sessionStatus is SessionStatus.Authenticated) NavigationRoute.HomeScreen
             else NavigationRoute.Login
-
     }
 
 }

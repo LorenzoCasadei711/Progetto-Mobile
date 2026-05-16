@@ -13,6 +13,7 @@ val supabase = createSupabaseClient(
 ) {
     install(Auth) {
         scheme = "it.supabase.remembermy"
+        host = "login-callback"
         flowType = FlowType.PKCE
     }
     install(Postgrest)

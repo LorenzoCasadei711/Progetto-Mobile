@@ -1,8 +1,6 @@
-package it.supabase.remembermy.ui.screens.auth.reset
-
+package it.supabase.remembermy.ui.screens.auth.magiclogin
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,21 +13,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.HorizontalRule
-import androidx.compose.material.icons.filled.RemoveRedEye
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,8 +33,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -53,18 +42,13 @@ import it.supabase.remembermy.ui.screens.auth.AccessViewModel
 
 @OptIn(InternalAPI::class)
 @Composable
-fun ResetPasswordScreen(accessViewModel: AccessViewModel, navController: NavHostController) {
+fun MagicLinkScreen(accessViewModel: AccessViewModel, navController: NavHostController) {
 
-    var passwordValue by remember {
+    var emailValue by remember {
         mutableStateOf("")
     }
 
-    var shown by remember {
-        mutableStateOf(false)
-    }
-
     val errorText = accessViewModel.state.collectAsState().value.error
-
 
     Box(
         modifier = Modifier
@@ -98,7 +82,7 @@ fun ResetPasswordScreen(accessViewModel: AccessViewModel, navController: NavHost
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Change your Password",
+                text = "Send a Link to your Email",
                 style = MaterialTheme.typography.titleLarge,
                 color = Color.White,
                 fontWeight = FontWeight.Bold
@@ -122,19 +106,19 @@ fun ResetPasswordScreen(accessViewModel: AccessViewModel, navController: NavHost
                 horizontalAlignment = Alignment.Start
             ) {
                 Text(
-                    text = "New Password",
+                    text = "Email",
                     color = Color.White,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 TextField(
-                    value = passwordValue,
+                    value = emailValue,
                     onValueChange = { it ->
-                        passwordValue = it
+                        emailValue = it
                     },
                     placeholder = {
                         Text(
-                            text = "Enter your new Password",
+                            text = "john.doe@example.com",
                             color = Color.White.copy(alpha = 0.7f)
                         )
                     },
@@ -151,23 +135,7 @@ fun ResetPasswordScreen(accessViewModel: AccessViewModel, navController: NavHost
                     ),
                     modifier = Modifier.fillMaxWidth(),
                     isError = errorText.isNotEmpty(),
-                    visualTransformation = if(!shown)PasswordVisualTransformation() else VisualTransformation.None,
-                    supportingText = { Text(errorText, color = MaterialTheme.colorScheme.onBackground)},
-                    trailingIcon = {
-                        IconButton(
-                            onClick = {shown=!shown},
-                            colors = IconButtonDefaults.iconButtonColors(
-                                contentColor = Color.White
-                            )
-                        ) {
-                            if(!shown){
-                                Icon(Icons.Default.RemoveRedEye, "Open Eye")
-                            }else{
-                                Icon(Icons.Default.HorizontalRule, "Open Eye")
-
-                            }
-                        }
-                    }
+                    supportingText = { Text(errorText, color = Color.White) }
                 )
             }
             Spacer(Modifier.height(25.dp))
@@ -176,8 +144,8 @@ fun ResetPasswordScreen(accessViewModel: AccessViewModel, navController: NavHost
 
             Button(
                 onClick = {
-                    accessViewModel.actions.changePassword(passwordValue)
-                    if(errorText.isEmpty()){
+                    accessViewModel.actions.sendMagicLink(emailValue)
+                    if(errorText.isEmpty() && emailValue.isNotEmpty()){
                         navController.navigate(NavigationRoute.Login){
                             popUpTo(0)
                         }
@@ -190,7 +158,7 @@ fun ResetPasswordScreen(accessViewModel: AccessViewModel, navController: NavHost
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Change Password",
+                    text = "Send Email",
                     modifier = Modifier.padding(vertical = 4.dp),
                     color = Color.Black
                 )
@@ -200,7 +168,7 @@ fun ResetPasswordScreen(accessViewModel: AccessViewModel, navController: NavHost
 
             TextButton(
                 onClick = {
-                    navController.navigate(NavigationRoute.Login) {
+                    navController.navigate(NavigationRoute.Register) {
                         popUpTo(0)
                     }
                 }
@@ -212,7 +180,7 @@ fun ResetPasswordScreen(accessViewModel: AccessViewModel, navController: NavHost
                             color = Color.White.copy(alpha = 0.8f)
                         )
                     ) {
-                        append("Remembered your password? ")
+                        append("You are not registered? ")
                     }
                     withStyle(
                         style = SpanStyle(
@@ -220,7 +188,7 @@ fun ResetPasswordScreen(accessViewModel: AccessViewModel, navController: NavHost
                             color = Color.White
                         )
                     ) {
-                        append("Login")
+                        append("Register")
                     }
                 })
             }

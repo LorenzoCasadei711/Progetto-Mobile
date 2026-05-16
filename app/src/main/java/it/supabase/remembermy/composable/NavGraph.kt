@@ -27,6 +27,7 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.status.SessionStatus
 import it.supabase.remembermy.ui.screens.auth.login.LoginScreen
+import it.supabase.remembermy.ui.screens.auth.magiclogin.MagicLinkScreen
 import it.supabase.remembermy.ui.screens.auth.recovery.RecoveryScreen
 import it.supabase.remembermy.ui.screens.auth.reset.ResetPasswordScreen
 import kotlinx.serialization.Serializable
@@ -40,8 +41,10 @@ sealed interface NavigationRoute {
 
     @Serializable
     data object Register : NavigationRoute
+
     @Serializable
     data object Recovery : NavigationRoute
+
     @Serializable
     data object HomeScreen : NavigationRoute
 
@@ -56,44 +59,50 @@ sealed interface NavigationRoute {
 
     @Serializable
     data object Profile : NavigationRoute
+
     @Serializable
-    data object Camera : NavigationRoute{
+    data object Camera : NavigationRoute {
     }
+
     @Serializable
     data object ResetPassword : NavigationRoute
+    @Serializable
+    data object MagicLink : NavigationRoute
 }
 
 @Composable
-fun NavGraph(navController : NavHostController, supabase : SupabaseClient, start : NavigationRoute){
+fun NavGraph(navController: NavHostController, supabase: SupabaseClient, start: NavigationRoute) {
     val accessModel = koinViewModel<AccessViewModel>()
     val sessionStatus by supabase.auth.sessionStatus.collectAsState()
     LaunchedEffect(sessionStatus) {
-        when(sessionStatus){
-        is SessionStatus.NotAuthenticated->{
-            val currentRoute = navController.currentDestination?.route
-            val isResetting = currentRoute?.contains("ResetPassword") == true
-            if (!isResetting) {
-                navController.navigate(NavigationRoute.Login) {
-                    popUpTo(0)
+        val currentDestination = navController.currentDestination
+        val isHandlingDeepLink = currentDestination?.hasRoute<NavigationRoute.ResetPassword>() == true
+        if (!isHandlingDeepLink) {
+            when (sessionStatus) {
+                is SessionStatus.NotAuthenticated -> {
+                    navController.navigate(NavigationRoute.Login) {
+                        popUpTo(0)
+                    }
                 }
+
+                is SessionStatus.Authenticated -> {
+                    if (currentDestination?.hasRoute<NavigationRoute.Login>() == true ||
+                        currentDestination?.hasRoute<NavigationRoute.Register>() == true
+                    ) {
+                        navController.navigate(NavigationRoute.HomeScreen) {
+                            popUpTo(NavigationRoute.Login) { inclusive = true }
+                        }
+                    }
+                }
+                else -> {}
             }
         }
-        is SessionStatus.Authenticated -> {
-        if (navController.currentDestination?.hasRoute<NavigationRoute.Login>() == true ||
-            navController.currentDestination?.hasRoute<NavigationRoute.Register>() == true) {
-            navController.navigate(NavigationRoute.HomeScreen) {
-                popUpTo(NavigationRoute.Login) { inclusive = true }
-            }
-        }
-    }
-        else -> {}
-    }
     }
 
     NavHost(
         navController = navController,
         startDestination = start
-    ){
+    ) {
 
         composable<NavigationRoute.Register> {
             RegisterScreen(accessModel, navController)
@@ -108,22 +117,22 @@ fun NavGraph(navController : NavHostController, supabase : SupabaseClient, start
 
         composable<NavigationRoute.HomeScreen> { HomeScreen(navController) }
         composable<NavigationRoute.Settings> {
-            var selectedTheme by rememberSaveable { mutableStateOf(Theme.System)}
-            var dynamicColor by rememberSaveable {mutableStateOf(true)}
-            ProgettoMobileTheme (
-                darkTheme = when(selectedTheme){
+            var selectedTheme by rememberSaveable { mutableStateOf(Theme.System) }
+            var dynamicColor by rememberSaveable { mutableStateOf(true) }
+            ProgettoMobileTheme(
+                darkTheme = when (selectedTheme) {
                     Theme.Light -> false
                     Theme.Dark -> true
                     Theme.System -> isSystemInDarkTheme()
                 },
                 dynamicColor = dynamicColor
-            ){
+            ) {
                 SettingsScreen(
                     navController,
                     selectedTheme = selectedTheme,
-                    onThemeChange = {selectedTheme = it},
+                    onThemeChange = { selectedTheme = it },
                     dynamicColor = dynamicColor,
-                    onDynamicColorChange = {dynamicColor = it}
+                    onDynamicColorChange = { dynamicColor = it }
                 )
             }
         }
@@ -138,15 +147,15 @@ fun NavGraph(navController : NavHostController, supabase : SupabaseClient, start
         composable<NavigationRoute.ResetPassword>(
             deepLinks = listOf(
                 navDeepLink {
-                    uriPattern = "it.supabase.remembermy://reset-password.*"
+                    uriPattern = "it.supabase.remembermy://login-callback*type=recovery*"
                 }
             )
-        ){backStackEntry->
-            val intentData = backStackEntry.arguments?.getParcelable<Intent>(
-                NavController.KEY_DEEP_LINK_INTENT)
-            val fullUri = intentData?.data?.getQueryParameter("code")
-            println(fullUri)
+        ) {
             ResetPasswordScreen(accessModel, navController)
+        }
+
+        composable<NavigationRoute.MagicLink> {
+            MagicLinkScreen(accessModel, navController)
         }
     }
 }

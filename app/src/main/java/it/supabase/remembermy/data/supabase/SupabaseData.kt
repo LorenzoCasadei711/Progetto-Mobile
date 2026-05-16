@@ -20,6 +20,4 @@ class SupabaseData(val supabase: SupabaseClient) {
 
     suspend fun logout() = supabase.auth.signOut()
 
-    suspend fun deleteUser() = supabase.auth.currentUserOrNull()?.id?.let { supabase.auth.admin.deleteUser(it) }
-
 }

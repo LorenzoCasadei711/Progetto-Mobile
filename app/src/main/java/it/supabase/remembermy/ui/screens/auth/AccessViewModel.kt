@@ -1,7 +1,10 @@
 package it.supabase.remembermy.ui.screens.auth
 
+import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.jan.supabase.annotations.SupabaseInternal
+import io.github.jan.supabase.auth.FlowType
 import io.github.jan.supabase.auth.exception.AuthRestException
 import it.supabase.remembermy.data.supabase.SupabaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +25,8 @@ data class AccessActions(
     val signIn : (email:String, password:String) -> Unit,
     val signInGit : ()-> Unit,
     val recoveryPassword : (email : String)->Boolean,
-    val changePassword : (password : String)->Unit
+    val changePassword : (password : String)->Unit,
+    val sendMagicLink : (email : String) -> Unit
 )
 
 class AccessViewModel (auth : SupabaseAuth) : ViewModel() {
@@ -45,6 +49,7 @@ class AccessViewModel (auth : SupabaseAuth) : ViewModel() {
         AccessState("","", "", false)
     )
 
+    @OptIn(SupabaseInternal::class)
     val actions = AccessActions(
         signUp = {email, password->
             isLoading.value=true
@@ -92,7 +97,7 @@ class AccessViewModel (auth : SupabaseAuth) : ViewModel() {
                 println("Email value was found as empty: $email")
                 return@AccessActions sent.value;
             }
-            println("Email value wasnt empty $email")
+            println("Email value wasn't empty $email")
             isLoading.value = true
             viewModelScope.launch {
                 try {
@@ -114,6 +119,17 @@ class AccessViewModel (auth : SupabaseAuth) : ViewModel() {
                 try {
                     auth.changePassword(password)
                 } catch (e : AuthRestException){
+                    e.printStackTrace()
+                }
+            }
+            isLoading.value = false
+        },
+        sendMagicLink = {email ->
+            isLoading.value = true
+            viewModelScope.launch {
+                try {
+                    auth.signInOTP(email)
+                } catch (e : Exception){
                     e.printStackTrace()
                 }
             }

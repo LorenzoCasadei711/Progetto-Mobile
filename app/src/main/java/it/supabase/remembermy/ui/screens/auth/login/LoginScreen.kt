@@ -13,9 +13,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.HorizontalRule
+import androidx.compose.material.icons.filled.RemoveRedEye
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -90,7 +99,8 @@ fun LoginScreen(accessViewModel: AccessViewModel, navController : NavHostControl
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 20.dp)
-                .padding(vertical = 110.dp),
+                .padding(vertical = 110.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(text = "Log Into Your Account",
@@ -120,6 +130,21 @@ fun LoginScreen(accessViewModel: AccessViewModel, navController : NavHostControl
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(text = "Login With Github",
+                    color=Color.White)
+            }
+            //Magic Link Login
+            OutlinedButton(
+                onClick = {navController.navigate(NavigationRoute.MagicLink)},
+                shape = RoundedCornerShape(10.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.gmail_new_logo_icon_159149),
+                    contentDescription = "Github Logo",
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(text = "Login With A One Time Link",
                     color=Color.White)
             }
 
@@ -216,7 +241,22 @@ fun LoginScreen(accessViewModel: AccessViewModel, navController : NavHostControl
                     visualTransformation = if(isPasswordHidden) PasswordVisualTransformation()
                     else VisualTransformation.None,
                     modifier = Modifier.fillMaxWidth(),
-                    isError = accessViewModel.state.collectAsState().value.error.contains("password") || accessViewModel.state.collectAsState().value.error.contains("credentials")
+                    isError = accessViewModel.state.collectAsState().value.error.isNotEmpty(),
+                    trailingIcon = {
+                        IconButton(
+                            onClick = {isPasswordHidden=!isPasswordHidden},
+                            colors = IconButtonDefaults.iconButtonColors(
+                                contentColor = Color.White
+                            )
+                        ) {
+                            if(isPasswordHidden){
+                                Icon(Icons.Default.RemoveRedEye, "Open Eye")
+                            }else{
+                                Icon(Icons.Default.HorizontalRule, "Open Eye")
+
+                            }
+                        }
+                    }
                 )
                 TextButton(
                     onClick = {navController.navigate(NavigationRoute.Recovery){
