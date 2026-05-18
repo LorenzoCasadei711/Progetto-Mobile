@@ -7,10 +7,10 @@ data class Profiles(
     val id_user: String,
     val level : Float,
     val email: String,
-    val nickname: String,
-    val birth_date: String,
-    val avatar_url: String,
-    val createdAt: String
+    val nickname: String?,
+    val birth_date: String?,
+    val avatar_url: String?,
+    val created_at: String
 )
 @Serializable
 data class Events(

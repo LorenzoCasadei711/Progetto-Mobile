@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.progettomobile.composable.BottomAppBar
-import com.example.progettomobile.composable.TopAppBar
+import it.supabase.remembermy.composable.TopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

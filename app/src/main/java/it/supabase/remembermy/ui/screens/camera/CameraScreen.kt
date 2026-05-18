@@ -12,7 +12,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.progettomobile.composable.BottomAppBar
-import com.example.progettomobile.composable.TopAppBar
+import it.supabase.remembermy.composable.TopAppBar
 import com.example.progettomobile.composable.rememberCameraLauncher
 
 @Composable

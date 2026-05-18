@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 data class ProfileState(
@@ -19,6 +18,7 @@ data class ProfileState(
 
 data class ProfileActions(
     val update : ()->Unit,
+    val editProfile: (Profiles)->Unit,
     val logout : ()->Unit
 )
 
@@ -39,12 +39,12 @@ class ProfileViewModel(private val data : SupabaseData) : ViewModel(){
     fun fetchInitialData() {
         viewModelScope.launch {
             try {
+                println(data.getUser())
                 _info.value = data.getUser()
                 _events.value = data.getListEvents()
-                println("Le informazioni fetchate sono: "+_info.value?.id_user)
+                println("Le informazioni fetchate sono: "+_events.value)
             } catch (e: Exception) {
                 e.printStackTrace()
-                println("Informazioni non fetchate risultate in errore")
             }
         }
     }
@@ -56,19 +56,20 @@ class ProfileViewModel(private val data : SupabaseData) : ViewModel(){
 
     val actions = ProfileActions(
         update = { fetchInitialData() },
-        logout = {
-            println("Logout action triggered. Scope active: ${viewModelScope.isActive}")
-
-            // If the scope is inactive, we need to know why
-            if (!viewModelScope.isActive) {
-                println("WARNING: viewModelScope is already cancelled!")
-            }
-
+        editProfile = {profile->
             viewModelScope.launch {
                 try {
-                    println("Coroutine started")
+                    data.editProfile(profile)
+                }catch (e : Exception){
+                    e.printStackTrace()
+                }
+            }
+
+        },
+        logout = {
+            viewModelScope.launch {
+                try {
                     data.logout()
-                    println("Data logout finished")
                 } catch (e: Exception) {
                     println("Logout failed: ${e.message}")
                 }
