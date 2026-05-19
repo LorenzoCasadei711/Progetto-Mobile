@@ -4,7 +4,7 @@ import android.widget.TextView
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.infowindow.InfoWindow
-import com.example.progettomobile.R
+import it.supabase.remembermy.R
 
 class PlaceInfoWindow(
     mapView: MapView,

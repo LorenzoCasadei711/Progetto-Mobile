@@ -11,8 +11,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import com.example.progettomobile.data.Coordinates
-import com.example.progettomobile.utils.rememberMultiplePermissions
-import com.example.progettomobile.utils.PermissionStatus
+import it.supabase.remembermy.utils.rememberMultiplePermissions
+import it.supabase.remembermy.utils.PermissionStatus
 import android.Manifest.permission
 import android.content.Intent
 import androidx.compose.ui.text.font.FontVariation

@@ -1,4 +1,4 @@
-package ui.screens
+package it.supabase.remembermy.ui.screens
 
 import android.view.ViewGroup
 import androidx.compose.runtime.Composable
@@ -10,7 +10,7 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import com.example.progettomobile.utils.PlaceInfoWindow
-import com.example.progettomobile.R
+import it.supabase.remembermy.R
 @Composable
 fun MapScreen(navController: NavController) {
     AndroidView(

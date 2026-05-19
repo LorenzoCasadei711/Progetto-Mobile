@@ -10,7 +10,8 @@
         android:id="@+id/placeImage"
         android:layout_width="match_parent"
         android:layout_height="90dp"
-        android:scaleType="centerCrop" />
+        android:scaleType="centerCrop"
+        android:contentDescription= "photo"/>
 
     <TextView
         android:id="@+id/placeTitle"

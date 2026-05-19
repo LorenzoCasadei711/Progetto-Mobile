@@ -16,12 +16,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.progettomobile.composable.rememberCameraLauncher
 import kotlinx.serialization.Serializable
-import ui.screens.HomeScreen
-import ui.screens.SettingsScreen
-import ui.screens.Theme
-import com.example.progettomobile.ui.theme.ProgettoMobileTheme
-import ui.screens.MapScreen
-import ui.screens.camera.CameraScreen
+import it.supabase.remembermy.ui.screens.HomeScreen
+import it.supabase.remembermy.ui.screens.SettingsScreen
+import it.supabase.remembermy.ui.screens.Theme
+import it.supabase.remembermy.ui.theme.ProgettoMobileTheme
+import it.supabase.remembermy.ui.screens.MapScreen
+import it.supabase.remembermy.ui.screens.camera.CameraScreen
 
 
 class MainActivity : ComponentActivity() {
