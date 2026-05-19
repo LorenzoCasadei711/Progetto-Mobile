@@ -53,6 +53,12 @@ fun BottomAppBar(navController: NavHostController){
                         contentDescription = "Camera"
                     )
                 }
+                IconButton(onClick = {navController.navigate(NavigationRoute.Map)}) {
+                    Icon(
+                        imageVector = Icons.Default.Map,
+                        contentDescription = "Map"
+                    )
+                }
             }
         },
         containerColor = MaterialTheme.colorScheme.secondary,
