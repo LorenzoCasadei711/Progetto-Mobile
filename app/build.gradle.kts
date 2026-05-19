@@ -6,13 +6,17 @@ plugins {
     alias(libs.plugins.kotlin.android)
 }
 
+kotlin{
+    jvmToolchain(17)
+}
+
 android {
-    namespace = "com.example.progettomobile"
+    namespace = "it.supabase.remembermy"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.progettomobile"
-        minSdk = 24
+        applicationId = "it.supabase.remembermy"
+        minSdk = 26
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -67,6 +71,10 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:3.0.0")
     implementation("org.osmdroid:osmdroid-android:6.1.20")
     implementation("io.ktor:ktor-serialization-kotlinx-json:3.0.0")
+    implementation(platform("io.github.jan-tennert.supabase:bom:3.6.0"))
+    implementation("io.github.jan-tennert.supabase:postgrest-kt")
+    implementation("io.github.jan-tennert.supabase:auth-kt")
+    implementation("io.github.jan-tennert.supabase:realtime-kt")
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
