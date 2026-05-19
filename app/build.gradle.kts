@@ -65,6 +65,7 @@ dependencies {
     implementation("io.ktor:ktor-client-core:3.0.0")
     implementation("io.ktor:ktor-client-okhttp:3.0.0")
     implementation("io.ktor:ktor-client-content-negotiation:3.0.0")
+    implementation("org.osmdroid:osmdroid-android:6.1.20")
     implementation("io.ktor:ktor-serialization-kotlinx-json:3.0.0")
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.runtime)

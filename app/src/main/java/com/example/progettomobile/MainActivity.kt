@@ -20,6 +20,7 @@ import ui.screens.HomeScreen
 import ui.screens.SettingsScreen
 import ui.screens.Theme
 import com.example.progettomobile.ui.theme.ProgettoMobileTheme
+import ui.screens.MapScreen
 import ui.screens.camera.CameraScreen
 
 
@@ -55,6 +56,8 @@ sealed interface NavigationRoute {
     @Serializable
     data object Camera : NavigationRoute{
     }
+    @Serializable
+    data object Map : NavigationRoute
 }
 
 @Composable
@@ -86,6 +89,7 @@ fun NavGraph(navController : NavHostController){
             }
         }
         composable<NavigationRoute.Camera> { CameraScreen(navController) }
+        composable<NavigationRoute.Map> { MapScreen(navController) }
         //composable<NavigationRoute.Add> {  }
         //composable<NavigationRoute.Search> {  }
         //composable<NavigationRoute.Profile> {  }
