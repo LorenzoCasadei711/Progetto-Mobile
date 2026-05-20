@@ -14,15 +14,33 @@ import coil.compose.AsyncImage
 import com.example.progettomobile.composable.BottomAppBar
 import it.supabase.remembermy.composable.TopAppBar
 import com.example.progettomobile.composable.rememberCameraLauncher
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.remember
+import com.example.progettomobile.data.LocationService
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun CameraScreen(
     navController: NavHostController,
     vm : CameraViewModel = viewModel()
 ){
+    val context = LocalContext.current
+    val locationService = remember { LocationService(context) }
+    val scope = rememberCoroutineScope()
     val (pictureUri,takePicture) = rememberCameraLauncher(
-        onPictureTaken = {uri ->
-            vm.onPictureTaken(uri)
+        onPictureTaken = { uri ->
+            scope.launch {
+                val coordinates = try {
+                    locationService.getCurrentLocation()
+                } catch (e: Exception) {
+                    null
+                }
+                vm.onPictureTaken(
+                    uri = uri,
+                    coordinates = coordinates
+                )
+            }
         }
     )
     Scaffold(

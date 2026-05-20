@@ -5,11 +5,44 @@ import androidx.lifecycle.ViewModel
 import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-class CameraViewModel : ViewModel() {
+import androidx.lifecycle.viewModelScope
+import com.example.progettomobile.data.Coordinates
+import io.github.jan.supabase.postgrest.from
+import it.supabase.remembermy.data.supabase.Events
+import it.supabase.remembermy.data.supabase.supabase
+import kotlinx.coroutines.launch
+import java.util.UUID
+import io.github.jan.supabase.auth.auth
+import it.supabase.remembermy.data.supabase.SupabaseData
+
+class CameraViewModel (
+    private val data: SupabaseData
+) : ViewModel(){
     var pictureUri by mutableStateOf<Uri?>(null)
         private set
+    var pictureCoordinates by mutableStateOf<Coordinates?>(null)
+        private set
 
-    fun onPictureTaken(uri: Uri){
-        pictureUri = uri
+    fun onPictureTaken(uri: Uri,coordinates: Coordinates?){
+        if (coordinates == null) return
+
+        viewModelScope.launch {
+            try {
+                val event = Events(
+                    status_event = null,
+                    name_event = "Nuovo evento",
+                    is_private = false,
+                    date_event = "",
+                    id_user = data.getCurrentUserId(),
+                    event_photo = uri.toString(),
+                    latitude = coordinates.latitude,
+                    longitude = coordinates.longitude
+                )
+
+                data.saveEvent(event)
+            }catch (e: Exception){
+                e.printStackTrace()
+            }
+        }
     }
 }
