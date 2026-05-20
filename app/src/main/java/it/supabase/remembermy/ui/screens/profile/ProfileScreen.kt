@@ -1,21 +1,28 @@
 package it.supabase.remembermy.ui.screens.profile
 
 import android.net.Uri
+import android.widget.Space
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.PagerDefaults.flingBehavior
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,10 +34,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.progettomobile.composable.BottomAppBar
+import it.supabase.remembermy.R
+import it.supabase.remembermy.composable.LoadingImage
+import it.supabase.remembermy.composable.Post
+import it.supabase.remembermy.composable.PostCard
 import it.supabase.remembermy.composable.TopAppBar
 import it.supabase.remembermy.data.supabase.Profiles
 
@@ -65,45 +77,43 @@ fun ToProfile(navController : NavHostController, profileModel : ProfileViewModel
         ) {
             /*Private Info columns and edit*/
             Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth()
             ) {
-                OutlinedTextField(
-                    value = nickname.orEmpty(),
-                    onValueChange = {nickname = it},
-                    label = {Text("nickname")}
-                )
-                OutlinedTextField(
-                    value = email.orEmpty(),
-                    onValueChange = {email = it},
-                    label = {Text("email")}
-                )
-                OutlinedTextField(
-                    value = birthDate.orEmpty(),
-                    onValueChange = {birthDate = it},
-                    label = {Text("birthdate")}
-                )
-                OutlinedTextField(
-                    value = level,
-                    onValueChange = {level = it},
-                    label = {Text("level")}
-                )
-                val imageToDisplay = selectedImageUri ?: user?.avatar_url?.toUri()
-
-                imageToDisplay?.let {
-                    Image(
-                        painter = rememberAsyncImagePainter(it),
-                        contentDescription = "Avatar",
-                        modifier = Modifier
-                            .size(120.dp)
-                            .padding(top = 8.dp)
-                            .clickable { launcher.launch("image/*") } // Click image to change
-                    )
-                } ?: Button(onClick = { launcher.launch("image/*") }) {
-                    Text("Choose Avatar")
-                }
 
             }
+            Spacer(Modifier.height(16.dp))
+
+            if(!profileModel.state.collectAsState().value.events.isEmpty()){
+                val posts = profileModel.state.collectAsState().value.events
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth(),
+                    state = rememberLazyListState()
+                ) {
+                    items(posts){post->
+                        val shownPost = Post(
+                            username = user?.nickname.orEmpty(),
+                            userImage = user?.avatar_url.orEmpty(),
+                            postImage = "",
+                            likes = 0,
+                            description = post?.name_event.orEmpty()
+                        )
+                        PostCard(shownPost)
+
+                    }
+                }
+            }else{
+                Image(
+                    painter = painterResource(R.drawable.camera_svgrepo_com),
+                    contentDescription = "Camera Icon"
+                )
+            }
+
             /*Personal Events List*/
             Column(
                 modifier = Modifier

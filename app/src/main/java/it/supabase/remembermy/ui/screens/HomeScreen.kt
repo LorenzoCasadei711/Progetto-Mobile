@@ -38,6 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.progettomobile.composable.BottomAppBar
+import it.supabase.remembermy.composable.Post
+import it.supabase.remembermy.composable.PostCard
 import it.supabase.remembermy.composable.TopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,11 +47,11 @@ import it.supabase.remembermy.composable.TopAppBar
 fun HomeScreen(navController: NavHostController) {
     val fakePost = listOf(
         Post(
-        username = "lorenzo",
-        userImage = "https://picsum.photos/100",
-        postImage = "https://picsum.photos/800/800",
-        likes = 128,
-        description = "Questo è un post di prova"
+            username = "lorenzo",
+            userImage = "https://picsum.photos/100",
+            postImage = "https://picsum.photos/800/800",
+            likes = 128,
+            description = "Questo è un post di prova"
         ),
         Post(
             username = "mario",
@@ -76,96 +78,5 @@ fun HomeScreen(navController: NavHostController) {
             }
         }
 
-    }
-}
-
-data class Post(
-    val username: String,
-    val userImage : String,
-    val postImage : String,
-    val likes: Int,
-    val description : String
-)
-@Composable
-fun PostCard(post : Post){
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.White)
-            .padding(bottom = 12.dp)
-
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            AsyncImage(
-                model = post.userImage,
-                contentDescription = "Foto profilo",
-                modifier = Modifier
-                    .size(42.dp)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-
-            Text(
-                text = post.username,
-                fontWeight = FontWeight.Bold
-            )
-        }
-        AsyncImage(
-            model = post.postImage,
-            contentDescription = "Foto del post",
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(400.dp),
-            contentScale = ContentScale.Crop,
-            onError = {
-                println("Errore caricamento immagine : ${it.result.throwable}")
-            }
-        )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            var isPressed by remember  { mutableStateOf(false) }
-            IconButton(onClick = {isPressed = !isPressed}){
-                Icon(
-                    imageVector = if(isPressed)
-                        Icons.Default.Favorite
-                    else
-                        Icons.Outlined.FavoriteBorder,
-                    contentDescription = "Like icon"
-                )
-            }
-            IconButton(onClick = {}){
-                Icon(
-                    imageVector = Icons.Default.ChatBubbleOutline,
-                    contentDescription = "Comment icon"
-                )
-            }
-            IconButton(onClick = {}){
-                Icon(
-                    imageVector = Icons.Default.CreditCard,
-                    contentDescription = "Comment icon"
-                )
-            }
-
-        }
-
-        Text(
-            text = "${post.likes} likes",
-            modifier = Modifier.padding(12.dp),
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = "${post.username} ${post.description}",
-            modifier = Modifier.padding(horizontal = 12.dp)
-        )
     }
 }
