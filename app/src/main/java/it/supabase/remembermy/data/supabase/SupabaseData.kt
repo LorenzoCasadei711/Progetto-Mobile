@@ -29,4 +29,13 @@ class SupabaseData(val supabase: SupabaseClient) {
 
     suspend fun logout() = supabase.auth.signOut()
 
+    suspend fun saveEvent(event: Events){
+        supabase.from("events").insert(event)
+    }
+
+    suspend fun getCurrentUserId(): String{
+        return supabase.auth
+            .retrieveUserForCurrentSession()
+            .id
+    }
 }

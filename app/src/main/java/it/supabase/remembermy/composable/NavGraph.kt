@@ -1,6 +1,5 @@
 package com.example.progettomobile.composable
 
-import android.content.Intent
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -9,7 +8,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -26,6 +24,7 @@ import it.supabase.remembermy.ui.theme.ProgettoMobileTheme
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.status.SessionStatus
+import it.supabase.remembermy.ui.screens.Map.MapScreen
 import it.supabase.remembermy.ui.screens.auth.login.LoginScreen
 import it.supabase.remembermy.ui.screens.auth.magiclogin.MagicLinkScreen
 import it.supabase.remembermy.ui.screens.auth.recovery.RecoveryScreen
@@ -68,6 +67,9 @@ sealed interface NavigationRoute {
     data object ResetPassword : NavigationRoute
     @Serializable
     data object MagicLink : NavigationRoute
+    @Serializable
+    data object Map : NavigationRoute{
+    }
 }
 
 @Composable
@@ -156,6 +158,9 @@ fun NavGraph(navController: NavHostController, supabase: SupabaseClient, start: 
 
         composable<NavigationRoute.MagicLink> {
             MagicLinkScreen(accessModel, navController)
+        }
+        composable<NavigationRoute.Map> {
+            MapScreen(navController)
         }
     }
 }

@@ -14,13 +14,15 @@ data class Profiles(
 )
 @Serializable
 data class Events(
-    val event_id: String,
     val status_event: String? = null,
      val name_event: String,
     val is_private: Boolean,
-    val location_event: String,
     val date_event: String,
-     val organizer: String
+     val id_user: String,
+    val event_photo: String,
+    val latitude: Double,
+    val longitude: Double
+
 )
 @Serializable
 data class Badges(
