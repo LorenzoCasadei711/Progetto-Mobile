@@ -83,7 +83,7 @@ fun CreateEventScreen(
                     }
                 }
             ) {
-                Text("Submit")
+                Text("Crea il tuo evento")
             }
         }
     }
