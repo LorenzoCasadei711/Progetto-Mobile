@@ -11,14 +11,17 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import org.osmdroid.views.overlay.Marker
 import com.example.progettomobile.utils.PlaceInfoWindow
 import it.supabase.remembermy.R
+import com.example.progettomobile.data.LocationService
 @Composable
 fun MapScreen(
     navController: NavController,
-    viewModel: MapViewModel = koinViewModel()
+    viewModel: MapViewModel
 ) {
     val state by viewModel.state.collectAsState()
     AndroidView(
@@ -58,12 +61,22 @@ fun MapScreen(
                         imageResId = R.drawable.cesena_centro,
                         description = event.date_event
                     )
+                    setOnMarkerClickListener { marker, mapView ->
+                        if (marker.isInfoWindowShown) {
+                            marker.closeInfoWindow()
+                        } else {
+                            marker.showInfoWindow()
+                        }
+
+                        true
+                    }
                 }
 
                 mapView.overlays.add(marker)
             }
 
             mapView.invalidate()
+
 
         }
     )

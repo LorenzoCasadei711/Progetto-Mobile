@@ -7,6 +7,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -18,52 +19,57 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.remember
 import com.example.progettomobile.data.LocationService
 import androidx.compose.runtime.rememberCoroutineScope
+import com.example.progettomobile.composable.NavigationRoute
+import com.example.progettomobile.data.Coordinates
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
+import it.supabase.remembermy.utils.rememberMultiplePermissions
 
 @Composable
 fun CameraScreen(
     navController: NavHostController,
-    vm : CameraViewModel = viewModel()
+    vm : CameraViewModel = koinViewModel()
 ){
     val context = LocalContext.current
     val locationService = remember { LocationService(context) }
     val scope = rememberCoroutineScope()
-    val (pictureUri,takePicture) = rememberCameraLauncher(
+    val locationPermissions = rememberMultiplePermissions(
+        permissions = listOf(
+            android.Manifest.permission.ACCESS_FINE_LOCATION,
+            android.Manifest.permission.ACCESS_COARSE_LOCATION
+        ),
+        onResult = {}
+    )
+    val (_,takePicture) = rememberCameraLauncher(
         onPictureTaken = { uri ->
             scope.launch {
+
                 val coordinates = try {
                     locationService.getCurrentLocation()
                 } catch (e: Exception) {
                     null
                 }
-                vm.onPictureTaken(
+                /*val coordinates = Coordinates(
+                    latitude = 44.1391,
+                    longitude = 12.2431
+                )*/
+                println("GPS -> ${coordinates?.latitude}, ${coordinates?.longitude}")
+                vm.setPictureData(
                     uri = uri,
                     coordinates = coordinates
                 )
+                navController.navigate(NavigationRoute.CreateEvent)
             }
         }
     )
-    Scaffold(
-        bottomBar = { BottomAppBar(navController) },
-        topBar = { TopAppBar("App",navController) }
-    ) {paddingValues ->
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(paddingValues)
-        ) {
-            Button(onClick = takePicture) {
-                Text("Scatta foto")
-            }
+    LaunchedEffect(locationPermissions.statuses) {
+        val granted = locationPermissions.statuses.values.any { it.isGranted }
 
-            vm.pictureUri?.let { uri ->
-                AsyncImage(
-                    model = uri,
-                    contentDescription = "foto scattata"
-                )
-            }
+        if (granted) {
+            takePicture()
+        } else {
+            locationPermissions.launcherPermissionRequest()
         }
     }
-
-
-
 
 }

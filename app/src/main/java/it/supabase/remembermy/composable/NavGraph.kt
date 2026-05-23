@@ -24,6 +24,7 @@ import it.supabase.remembermy.ui.theme.ProgettoMobileTheme
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.status.SessionStatus
+import it.supabase.remembermy.ui.screens.Event.CreateEventScreen
 import it.supabase.remembermy.ui.screens.Map.MapScreen
 import it.supabase.remembermy.ui.screens.auth.login.LoginScreen
 import it.supabase.remembermy.ui.screens.auth.magiclogin.MagicLinkScreen
@@ -32,6 +33,8 @@ import it.supabase.remembermy.ui.screens.auth.reset.ResetPasswordScreen
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 import it.supabase.remembermy.ui.screens.camera.CameraScreen
+import it.supabase.remembermy.ui.screens.Map.MapViewModel
+import it.supabase.remembermy.ui.screens.camera.CameraViewModel
 
 sealed interface NavigationRoute {
 
@@ -70,6 +73,8 @@ sealed interface NavigationRoute {
     @Serializable
     data object Map : NavigationRoute{
     }
+    @Serializable
+    data object CreateEvent : NavigationRoute
 }
 
 @Composable
@@ -160,7 +165,19 @@ fun NavGraph(navController: NavHostController, supabase: SupabaseClient, start: 
             MagicLinkScreen(accessModel, navController)
         }
         composable<NavigationRoute.Map> {
-            MapScreen(navController)
+            val mapModel = koinViewModel<MapViewModel>()
+            MapScreen(
+                navController = navController,
+                viewModel = mapModel
+            )
+        }
+        composable<NavigationRoute.CreateEvent> {
+            val cameraModel = koinViewModel<CameraViewModel>()
+
+            CreateEventScreen(
+                navController = navController,
+                vm = cameraModel
+            )
         }
     }
 }

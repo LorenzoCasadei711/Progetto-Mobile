@@ -30,7 +30,19 @@ class SupabaseData(val supabase: SupabaseClient) {
     suspend fun logout() = supabase.auth.signOut()
 
     suspend fun saveEvent(event: Events){
-        supabase.from("events").insert(event)
+        try {
+            println("PROVO A SALVARE EVENTO -> $event")
+
+            supabase
+                .from("events")
+                .insert(event)
+
+            println("EVENTO INSERITO OK")
+
+        } catch (e: Exception) {
+            println("ERRORE INSERIMENTO EVENTO -> ${e.message}")
+            e.printStackTrace()
+        }
     }
 
     suspend fun getCurrentUserId(): String{

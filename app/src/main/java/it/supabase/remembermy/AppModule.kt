@@ -7,6 +7,7 @@ import it.supabase.remembermy.ui.screens.auth.AccessViewModel
 import it.supabase.remembermy.ui.screens.profile.ProfileViewModel
 import io.github.jan.supabase.SupabaseClient
 import it.supabase.remembermy.ui.screens.Map.MapViewModel
+import it.supabase.remembermy.ui.screens.camera.CameraViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
@@ -20,4 +21,5 @@ val viewModule = module {
     viewModel { AccessViewModel(get()) }
     viewModel { ProfileViewModel(get()) }
     viewModel { MapViewModel(get()) }
+    viewModel { CameraViewModel(get()) }
 }
