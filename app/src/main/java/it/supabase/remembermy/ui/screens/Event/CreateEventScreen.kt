@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun CreateEventScreen(
     navController: NavHostController,
-    vm: CameraViewModel = koinViewModel()
+    vm: CameraViewModel
 ){
     var name by remember { mutableStateOf("") }
     var date by remember { mutableStateOf("") }

@@ -28,7 +28,7 @@ import it.supabase.remembermy.utils.rememberMultiplePermissions
 @Composable
 fun CameraScreen(
     navController: NavHostController,
-    vm : CameraViewModel = koinViewModel()
+    vm : CameraViewModel
 ){
     val context = LocalContext.current
     val locationService = remember { LocationService(context) }

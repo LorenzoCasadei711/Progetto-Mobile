@@ -31,6 +31,9 @@ class CameraViewModel (
         isPrivate: Boolean,
         date: String
     ){
+        println("NOME EVENTO -> $name")
+        println("URI -> $pictureUri")
+        println("COORDINATE -> $pictureCoordinates")
         val uri = pictureUri ?: return
         val coordinates = pictureCoordinates ?: return
 

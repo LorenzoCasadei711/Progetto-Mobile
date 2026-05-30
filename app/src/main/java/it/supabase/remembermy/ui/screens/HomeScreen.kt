@@ -91,7 +91,6 @@ fun PostCard(post : Post){
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White)
             .padding(bottom = 12.dp)
 
     ) {
