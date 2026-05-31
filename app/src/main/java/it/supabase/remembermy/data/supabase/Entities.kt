@@ -27,8 +27,13 @@ data class Events(
 @Serializable
 data class Badges(
     val badge_id : String,
-    val name_badge:String,
-    val exp_give: String
+    val name_badge:String
+)
+@Serializable
+data class UserBadge(
+     val badge_id: String,
+     val id_user: String,
+     val badgeDetails: Badges
 )
 
 @Serializable

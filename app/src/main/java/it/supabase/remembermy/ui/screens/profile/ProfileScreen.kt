@@ -1,14 +1,17 @@
 package it.supabase.remembermy.ui.screens.profile
 
 import android.net.Uri
+import android.util.Log
 import android.widget.Space
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,13 +19,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.PagerDefaults.flingBehavior
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,11 +44,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.progettomobile.composable.BottomAppBar
+import com.example.progettomobile.composable.NavigationRoute
 import it.supabase.remembermy.R
 import it.supabase.remembermy.composable.LoadingImage
 import it.supabase.remembermy.composable.Post
@@ -47,55 +65,131 @@ import it.supabase.remembermy.composable.TopAppBar
 import it.supabase.remembermy.data.supabase.Profiles
 
 @Composable
-fun ToProfile(navController : NavHostController, profileModel : ProfileViewModel){
+fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) {
     val state by profileModel.state.collectAsState()
     val user = state.info
+    val posts = state.events
+    val badges = state.badges
 
-    // Initialize state variables that Compose can track
     var nickname by remember(user) { mutableStateOf(user?.nickname ?: "") }
     var email by remember(user) { mutableStateOf(user?.email ?: "") }
     var birthDate by remember(user) { mutableStateOf(user?.birth_date ?: "") }
     var level by remember(user) { mutableStateOf(user?.level?.toString() ?: "1.0") }
-
-    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
-        selectedImageUri = it
+    var image by remember(user) {
+        mutableStateOf(
+            user?.avatar_url?.toUri() ?: R.drawable.profile_simple_svgrepo_com
+        )
     }
+    Log.d("CoilDebug", "Loading image path: $image")
+
     Scaffold(
         topBar = { TopAppBar("Profile", navController) },
         bottomBar = { BottomAppBar(navController) },
         modifier = Modifier.fillMaxSize()
-    ) { innerPadding->
+    ) { innerPadding ->
 
         Column(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+            modifier = Modifier.padding(innerPadding)
         ) {
-            /*Private Info columns and edit*/
-            Column(
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally,
+            LazyColumn(
                 modifier = Modifier
-                    .padding(8.dp)
+                    .padding(16.dp)
                     .fillMaxWidth()
+                    .weight(1f),
+                state = rememberLazyListState()
             ) {
+                // 1. Header Section
+                item {
+                    Row(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth()
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.Start,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Image(
+                                painter = rememberAsyncImagePainter(image),
+                                contentDescription = "Account Profile Image",
+                                modifier = Modifier
+                                    .size(80.dp)
+                                    .clip(CircleShape),
+                            )
+                        }
+                        Spacer(Modifier.width(16.dp))
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            horizontalAlignment = Alignment.Start,
+                            verticalArrangement = Arrangement.Top
+                        ) {
+                            Text(
+                                nickname,
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text("Email: $email")
+                            Text("Birth Date: $birthDate")
+                            Text("Level: $level")
+                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        for (badge in badges){
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(2.dp)
+                                    .background(
+                                        color = Color.Yellow,
+                                        RoundedCornerShape(25.dp)
+                                    )
+                                    .clip(RoundedCornerShape(25.dp))
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                            ){
+                                Text(
+                                    text = ("Level" + badge?.name_badge) ?: "Unknown",
+                                    modifier = Modifier
+                                        .align(Alignment.Center)
+                                        .padding(8.dp),
+                                    color = Color.Black,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    lineHeight = 16.sp
+                                )
+                            }
+                        }
+                    }
+                    Spacer(Modifier.height(16.dp))
+                    HorizontalDivider(thickness = 16.dp)
+                }
 
-            }
-            Spacer(Modifier.height(16.dp))
-
-            if(!profileModel.state.collectAsState().value.events.isEmpty()){
-                val posts = profileModel.state.collectAsState().value.events
-                LazyColumn(
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .fillMaxWidth(),
-                    state = rememberLazyListState()
-                ) {
-                    items(posts){post->
+                if (posts.isEmpty()) {
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.camera_svgrepo_com),
+                                contentDescription = "Camera Icon",
+                                modifier = Modifier.size(128.dp)
+                            )
+                            Spacer(Modifier.height(16.dp))
+                            Text("No Events Yet")
+                        }
+                    }
+                } else {
+                    items(posts) { post ->
                         val shownPost = Post(
                             username = user?.nickname.orEmpty(),
                             userImage = user?.avatar_url.orEmpty(),
@@ -104,53 +198,30 @@ fun ToProfile(navController : NavHostController, profileModel : ProfileViewModel
                             description = post?.name_event.orEmpty()
                         )
                         PostCard(shownPost)
-
                     }
                 }
-            }else{
-                Image(
-                    painter = painterResource(R.drawable.camera_svgrepo_com),
-                    contentDescription = "Camera Icon"
-                )
             }
 
-            /*Personal Events List*/
-            Column(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalArrangement = Arrangement.Center
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                Button(
+                    onClick = {
+                        profileModel.actions.logout()
+                    }
                 ) {
-                    Button(
-                        onClick = {
-                            if (user != null) {
-                                profileModel.actions.editProfile(
-                                    Profiles(
-                                        id_user = user.id_user,
-                                        level = level.toFloatOrNull() ?: 1f,
-                                        email = email,
-                                        nickname = nickname,
-                                        birth_date = birthDate,
-                                        avatar_url = user.avatar_url,
-                                        created_at = user.created_at
-                                    )
-                                )
-                            }
-                        }
-                    ){
-                        Text("Edit Profile")
+                    Text("Logout")
+                }
+                Spacer(Modifier.width(32.dp))
+                Button(
+                    onClick = {
+                        navController.navigate(NavigationRoute.ChangeInfo)
                     }
-                    Button(
-                        onClick = {
-                            profileModel.actions.logout()
-                        }
-                    ) {
-                        Text("Logout")
-                    }
+                ) {
+                    Text("Cambia Info")
                 }
             }
         }

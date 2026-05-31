@@ -11,7 +11,6 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import org.osmdroid.views.overlay.Marker
 import com.example.progettomobile.utils.PlaceInfoWindow
 import it.supabase.remembermy.R

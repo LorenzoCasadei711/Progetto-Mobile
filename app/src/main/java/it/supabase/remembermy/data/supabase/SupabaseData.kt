@@ -4,6 +4,7 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.jwt.SharedJwkCache.set
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Columns
 
 class SupabaseData(val supabase: SupabaseClient) {
 
@@ -19,6 +20,19 @@ class SupabaseData(val supabase: SupabaseClient) {
             eq("id_user", supabase.auth.retrieveUserForCurrentSession().id)
         }
     }.decodeList<Events>()
+
+    suspend fun getListBadges(): List<UserBadge> {
+        // 1. Grab the current user ID safely
+        val userId = supabase.auth.retrieveUserForCurrentSession().id
+
+        // 2. Query the junction table, embedding the related badge details
+        return supabase.from("user_badges")
+            .select(columns = Columns.raw("*, badges(*)")) {
+                filter {
+                    eq("id_user", userId)
+                }
+            }.decodeList<UserBadge>()
+    }
 
     suspend fun editProfile(profile : Profiles) = supabase.from("profiles").update (profile
     ){
