@@ -9,6 +9,7 @@ import it.supabase.remembermy.ui.screens.profile.ProfileViewModel
 import io.github.jan.supabase.SupabaseClient
 import it.supabase.remembermy.ui.screens.Map.MapViewModel
 import org.koin.android.ext.koin.androidContext
+import it.supabase.remembermy.ui.screens.camera.CameraViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
@@ -22,4 +23,5 @@ val viewModule = module {
     viewModel { AccessViewModel(get()) }
     viewModel { ProfileViewModel(get(),androidContext().contentResolver ) }
     viewModel { MapViewModel(get()) }
+    viewModel { CameraViewModel(get()) }
 }

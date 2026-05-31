@@ -61,7 +61,7 @@ fun BottomAppBar(navController: NavHostController){
                 }
             }
         },
-        containerColor = MaterialTheme.colorScheme.secondary,
-        contentColor = MaterialTheme.colorScheme.onSecondary
+        containerColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary
     )
 }

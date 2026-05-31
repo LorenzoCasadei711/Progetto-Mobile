@@ -22,27 +22,34 @@ class CameraViewModel (
         private set
     var pictureCoordinates by mutableStateOf<Coordinates?>(null)
         private set
+    fun setPictureData(uri: Uri,coordinates: Coordinates?){
+        pictureUri = uri
+        pictureCoordinates = coordinates
+    }
+    suspend fun createEvent(
+        name: String,
+        isPrivate: Boolean,
+        date: String
+    ){
+        println("NOME EVENTO -> $name")
+        println("URI -> $pictureUri")
+        println("COORDINATE -> $pictureCoordinates")
+        val uri = pictureUri ?: return
+        val coordinates = pictureCoordinates ?: return
 
-    fun onPictureTaken(uri: Uri,coordinates: Coordinates?){
-        if (coordinates == null) return
+        val event = Events(
+            status_event = null,
+            name_event = name,
+            is_private = isPrivate,
+            date_event = date,
+            id_user = data.getCurrentUserId(),
+            event_photo = uri.toString(),
+            latitude = coordinates.latitude,
+            longitude = coordinates.longitude
+        )
 
-        viewModelScope.launch {
-            try {
-                val event = Events(
-                    status_event = null,
-                    name_event = "Nuovo evento",
-                    is_private = false,
-                    date_event = "",
-                    id_user = data.getCurrentUserId(),
-                    event_photo = uri.toString(),
-                    latitude = coordinates.latitude,
-                    longitude = coordinates.longitude
-                )
+        data.saveEvent(event)
 
-                data.saveEvent(event)
-            }catch (e: Exception){
-                e.printStackTrace()
-            }
-        }
+
     }
 }
