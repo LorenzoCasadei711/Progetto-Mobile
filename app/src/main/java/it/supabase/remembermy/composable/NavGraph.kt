@@ -53,10 +53,6 @@ sealed interface NavigationRoute {
 
     @Serializable
     data object Settings : NavigationRoute
-
-    @Serializable
-    data object Add : NavigationRoute
-
     @Serializable
     data object Search : NavigationRoute
 
@@ -149,7 +145,6 @@ fun NavGraph(navController: NavHostController, supabase: SupabaseClient, start: 
                 )
             }
             composable<NavigationRoute.Camera> { CameraScreen(navController, cameraModel) }
-            //composable<NavigationRoute.Add> {  }
             //composable<NavigationRoute.Search> {  }
             composable<NavigationRoute.Profile> {
                 val profileModel = koinViewModel<ProfileViewModel>()

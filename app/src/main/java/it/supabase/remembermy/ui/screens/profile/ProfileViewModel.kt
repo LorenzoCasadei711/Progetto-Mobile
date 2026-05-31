@@ -5,6 +5,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.storage.storage
 import it.supabase.remembermy.data.database.Badges
 import it.supabase.remembermy.data.supabase.Events
@@ -33,8 +34,7 @@ data class ProfileActions(
 )
 
 class ProfileViewModel(
-    private val data : SupabaseData,
-    private val contentResolver: ContentResolver
+    private val data : SupabaseData
 ) : ViewModel(){
     private val _info = MutableStateFlow<Profiles?>(null)
 
@@ -64,40 +64,13 @@ class ProfileViewModel(
 
     init {
         fetchInitialData()
-
     }
 
     val actions = ProfileActions(
         update = { fetchInitialData() },
         editProfile = { profile, localImageUri ->
             viewModelScope.launch {
-                var finalAvatarUrl = profile.avatar_url
-
-                if (localImageUri != null && localImageUri.toString().startsWith("content://")) {
-                    try {
-                        val imageBytes = withContext(Dispatchers.IO) {
-                            contentResolver.openInputStream(localImageUri)?.use { inputStream ->
-                                inputStream.readBytes()
-                            }
-                        }
-
-                        if (imageBytes != null) {
-                            val fileName = "${UUID.randomUUID()}.jpg"
-
-                            val storagePath = "avatars/${profile.id_user}/$fileName"
-
-                            val bucket = supabase.storage.from("user-photos")
-
-                            bucket.upload(storagePath, imageBytes) {
-                                upsert = false
-                            }
-
-                            finalAvatarUrl = bucket.publicUrl(storagePath)
-                        }
-                    } catch (e: Exception) {
-                        Log.e("SupabaseStorage", "Error uploading image", e)
-                    }
-                }
+                var finalAvatarUrl = data.fileToBucket(profile.id_user, "avatars", state.value.info?.avatar_url?:"", localImageUri)?: profile.avatar_url
 
                 val updatedProfile = profile.copy(avatar_url = finalAvatarUrl)
                 try {

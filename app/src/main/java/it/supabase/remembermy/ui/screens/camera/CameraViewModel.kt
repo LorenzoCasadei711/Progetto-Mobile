@@ -29,23 +29,28 @@ class CameraViewModel (
     suspend fun createEvent(
         name: String,
         isPrivate: Boolean,
-        date: String
+        date: String,
+        details : String
     ){
         println("NOME EVENTO -> $name")
         println("URI -> $pictureUri")
         println("COORDINATE -> $pictureCoordinates")
         val uri = pictureUri ?: return
         val coordinates = pictureCoordinates ?: return
+        val idUser = data.getCurrentUserId()
+
+        val finalUri = data.fileToBucket(idUser, "events",null, uri)?: uri
 
         val event = Events(
             status_event = null,
             name_event = name,
             is_private = isPrivate,
             date_event = date,
-            id_user = data.getCurrentUserId(),
-            event_photo = uri.toString(),
+            id_user = idUser,
+            event_photo = finalUri.toString(),
             latitude = coordinates.latitude,
-            longitude = coordinates.longitude
+            longitude = coordinates.longitude,
+            event_details = details,
         )
 
         data.saveEvent(event)

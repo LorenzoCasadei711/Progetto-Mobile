@@ -1,12 +1,20 @@
 package it.supabase.remembermy.data.supabase
 
+import android.content.ContentResolver
+import android.net.Uri
+import android.util.Log
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.jwt.SharedJwkCache.set
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
+import io.github.jan.supabase.storage.storage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.util.UUID
 
-class SupabaseData(val supabase: SupabaseClient) {
+class SupabaseData(val supabase: SupabaseClient,
+                   private val contentResolver: ContentResolver) {
 
     suspend fun getUser() = supabase.from("profiles").select{
         single()
@@ -15,11 +23,17 @@ class SupabaseData(val supabase: SupabaseClient) {
            }
     }.decodeAs<Profiles>()
 
-    suspend fun getListEvents() = supabase.from("events").select {
-        filter {
-            eq("id_user", supabase.auth.retrieveUserForCurrentSession().id)
-        }
-    }.decodeList<Events>()
+    suspend fun getListEvents(): List<Events> {
+        val currentUserId = supabase.auth.retrieveUserForCurrentSession().id
+
+        return supabase.from("events")
+            .select(Columns.raw("*, followed_events(*), opinions(*)")) {
+                filter {
+                    eq("id_user", currentUserId)
+                }
+            }
+            .decodeList<Events>()
+    }
 
     suspend fun getListBadges(): List<UserBadge> {
         // 1. Grab the current user ID safely
@@ -57,6 +71,44 @@ class SupabaseData(val supabase: SupabaseClient) {
             println("ERRORE INSERIMENTO EVENTO -> ${e.message}")
             e.printStackTrace()
         }
+    }
+
+    suspend fun fileToBucket(idUser : String, folder : String,oldImage : String?, localImageUri : Uri?) : String? {
+        if (idUser.isNotEmpty() && localImageUri != null && localImageUri.toString().startsWith("content://")) {
+            try {
+                val imageBytes = withContext(Dispatchers.IO) {
+                    contentResolver.openInputStream(localImageUri)?.use { inputStream ->
+                        inputStream.readBytes()
+                    }
+                }
+
+                if (imageBytes != null) {
+                    val fileName = "${UUID.randomUUID()}.jpg"
+
+                    val storagePath = "$folder/$idUser/$fileName"
+
+                    val bucket = supabase.storage.from("user-photos")
+
+                    bucket.upload(storagePath, imageBytes) {
+                        upsert = false
+                    }
+                    if (!oldImage.isNullOrBlank() && oldImage.contains("user-photos/")) {
+                        val oldStoragePath = oldImage.substringAfter("user-photos/")
+
+                        try {
+                            bucket.delete(oldStoragePath)
+                            Log.d("StorageClean", "Successfully deleted old avatar: $oldStoragePath")
+                        } catch (e: Exception) {
+                            Log.e("StorageClean", "Failed to delete old avatar", e)
+                        }
+                    }
+                    return bucket.publicUrl(storagePath)
+                }
+            } catch (e: Exception) {
+                Log.e("SupabaseStorage", "Error uploading image", e)
+            }
+        }
+        return null
     }
 
     suspend fun getCurrentUserId(): String{

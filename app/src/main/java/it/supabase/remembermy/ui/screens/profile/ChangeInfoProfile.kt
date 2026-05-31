@@ -71,10 +71,12 @@ fun ChangeInfoProfileScreen(navController : NavHostController, profileModel : Pr
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         Column(
-            modifier = Modifier.padding(innerPadding),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceEvenly
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Spacer(Modifier.height(16.dp))
             Image(
                 painter = rememberAsyncImagePainter(imageDisplay),
                 contentDescription = "Profile Image",

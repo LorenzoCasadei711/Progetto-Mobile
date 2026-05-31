@@ -30,8 +30,18 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChatBubbleOutline
+import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -47,6 +57,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -62,6 +73,7 @@ import it.supabase.remembermy.composable.LoadingImage
 import it.supabase.remembermy.composable.Post
 import it.supabase.remembermy.composable.PostCard
 import it.supabase.remembermy.composable.TopAppBar
+import it.supabase.remembermy.data.supabase.Events
 import it.supabase.remembermy.data.supabase.Profiles
 
 @Composable
@@ -80,7 +92,6 @@ fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) 
             user?.avatar_url?.toUri() ?: R.drawable.profile_simple_svgrepo_com
         )
     }
-    Log.d("CoilDebug", "Loading image path: $image")
 
     Scaffold(
         topBar = { TopAppBar("Profile", navController) },
@@ -100,7 +111,6 @@ fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) 
                     .weight(1f),
                 state = rememberLazyListState()
             ) {
-                // 1. Header Section
                 item {
                     Row(
                         modifier = Modifier
@@ -155,7 +165,7 @@ fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) 
                                     .padding(horizontal = 8.dp, vertical = 4.dp)
                             ){
                                 Text(
-                                    text = ("Level" + badge?.name_badge) ?: "Unknown",
+                                    text = ("Level" + badge?.name_badge),
                                     modifier = Modifier
                                         .align(Alignment.Center)
                                         .padding(8.dp),
@@ -190,14 +200,11 @@ fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) 
                     }
                 } else {
                     items(posts) { post ->
-                        val shownPost = Post(
-                            username = user?.nickname.orEmpty(),
-                            userImage = user?.avatar_url.orEmpty(),
-                            postImage = "",
-                            likes = 0,
-                            description = post?.name_event.orEmpty()
+                        ProfileCard(checkNotNull(post), profileModel)
+                        HorizontalDivider(
+                            modifier = Modifier.height(2.dp),
+                            color = MaterialTheme.colorScheme.onBackground
                         )
-                        PostCard(shownPost)
                     }
                 }
             }
@@ -225,6 +232,100 @@ fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) 
                 }
             }
         }
+
+    }
+}
+
+@Composable
+fun ProfileCard(event : Events, profileViewModel: ProfileViewModel){
+
+    val followNumber = event.followedEvents.size
+    val opinionsList = event.opinions
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 12.dp)
+
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = event.name_event,
+                modifier = Modifier.padding(horizontal = 12.dp),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = event.date_event,
+                modifier = Modifier.padding(horizontal = 12.dp),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Normal
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+        }
+        AsyncImage(
+            model = event.event_photo,
+            contentDescription = "Foto del post",
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(400.dp),
+            contentScale = ContentScale.Crop,
+            onError = {
+                println("Errore caricamento immagine : ${it.result.throwable}")
+            }
+        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            var isPressed by remember { mutableStateOf(false) }
+            Button(
+                onClick = {/*TODO*/}
+            ) {
+                Text("Edit Event")
+            }
+            IconButton(onClick = {}) {
+                Row {
+                    Icon(
+                        imageVector = Icons.Default.ChatBubbleOutline,
+                        contentDescription = "Comment icon"
+                    )
+                }
+            }
+            IconButton(
+                onClick = {},
+                colors = IconButtonDefaults.iconButtonColors(
+                    contentColor = Color.White,
+                    containerColor = Color.Red
+                )) {
+                Row {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Comment icon"
+                    )
+                }
+            }
+
+
+        }
+
+        Text(
+            text = "${event.followedEvents.size} following this event",
+            modifier = Modifier.padding(12.dp),
+            fontWeight = FontWeight.Bold
+        )
+
+        Text(
+            text = event.event_details?:"",
+            modifier = Modifier.padding(12.dp),
+            fontWeight = FontWeight.Medium
+        )
 
     }
 }

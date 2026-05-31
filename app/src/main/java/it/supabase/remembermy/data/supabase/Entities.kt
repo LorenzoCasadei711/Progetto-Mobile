@@ -1,5 +1,6 @@
 package it.supabase.remembermy.data.supabase
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -14,15 +15,26 @@ data class Profiles(
 )
 @Serializable
 data class Events(
+    val id_event: String? = null,
+    val id_user: String,
+    val name_event: String,
     val status_event: String? = null,
-     val name_event: String,
     val is_private: Boolean,
     val date_event: String,
-     val id_user: String,
     val event_photo: String,
     val latitude: Double,
-    val longitude: Double
+    val longitude: Double,
+    val event_details : String?,
+    @SerialName("followed_events")
+    val followedEvents: List<FollowedEvents> = emptyList(),
 
+    val opinions: List<Opinions> = emptyList()
+)
+
+@Serializable
+data class FollowedEvents(
+    val id_user: String,
+    val id_event: String
 )
 @Serializable
 data class Badges(
@@ -45,13 +57,6 @@ data class Tags(
 data class Opinions(
     val user_id : Int,
     val event_id:Int,
-    val opinion:String?,
-    val liked: Boolean?
-)
-
-@Serializable
-data class Details(
-    val details_id: String,
-    val event_details : String,
-    val event_id : Int
+    val id_opinion:String?,
+    val review_opinion: String?
 )
