@@ -6,7 +6,7 @@ import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.example.progettomobile.data.Coordinates
+import it.supabase.remembermy.data.Coordinates
 import io.github.jan.supabase.postgrest.from
 import it.supabase.remembermy.data.supabase.Events
 import it.supabase.remembermy.data.supabase.supabase
@@ -30,13 +30,14 @@ class CameraViewModel (
         name: String,
         isPrivate: Boolean,
         date: String,
-        details : String
+        details : String,
+        coordinates : Coordinates? = pictureCoordinates
     ){
         println("NOME EVENTO -> $name")
         println("URI -> $pictureUri")
-        println("COORDINATE -> $pictureCoordinates")
+        println("COORDINATE -> $coordinates")
         val uri = pictureUri ?: return
-        val coordinates = pictureCoordinates ?: return
+        if(coordinates == null) return
         val idUser = data.getCurrentUserId()
 
         val finalUri = data.fileToBucket(idUser, "events",null, uri)?: uri

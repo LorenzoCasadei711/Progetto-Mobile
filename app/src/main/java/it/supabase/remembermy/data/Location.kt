@@ -1,4 +1,5 @@
-package com.example.progettomobile.data
+package it.supabase.remembermy.data
+
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.LocationManager
@@ -9,7 +10,6 @@ import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.tasks.await
-import java.util.jar.Manifest
 import android.location.Location
 
 data class Coordinates(val latitude: Double, val longitude: Double)

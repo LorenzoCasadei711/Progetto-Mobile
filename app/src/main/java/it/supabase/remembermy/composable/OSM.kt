@@ -7,6 +7,7 @@ import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.provider.Settings
+import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
@@ -14,13 +15,14 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import it.supabase.remembermy.data.repository.Coordinates
-import it.supabase.remembermy.data.repository.LocationService
+import it.supabase.remembermy.data.Coordinates
+import it.supabase.remembermy.data.LocationService
 import it.supabase.remembermy.data.repository.OSMDataSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -37,6 +39,10 @@ class OSMState(
 ){
     var query : MutableState<String> = mutableStateOf("")
     var result : MutableState<String> = mutableStateOf("")
+    var emptyResult : MutableState<Boolean> = mutableStateOf(false)
+
+    var latitudeResult : MutableState<Double> = mutableDoubleStateOf(0.0)
+    var longitudeResult : MutableState<Double> = mutableDoubleStateOf(0.0)
 
     var coordinates : MutableState<Coordinates> = mutableStateOf(Coordinates(0.0, 0.0))
     fun isOnline() : Boolean{
@@ -60,9 +66,14 @@ class OSMState(
 
     fun searchPlaces() = scope.launch {
         if(isOnline()){
+            emptyResult.value = false
             result.value = "Loading..."
+            Log.d("DEBUG", query.value)
             val res = osmDataSource.searchPlaces(query.value)
+           if(res.isEmpty()) emptyResult.value = true
             result.value = res.getOrNull(0)?.displayName ?: "Place not found"
+            latitudeResult.value = res.getOrNull(0)?.latitude ?: -1.0
+            longitudeResult.value = res.getOrNull(0)?.longitude ?: -1.0
         } else {
             val res = snackbarHostState.showSnackbar(
                 message = "No Internet connectivity",
@@ -79,7 +90,7 @@ class OSMState(
         if(isOnline()){
             result.value = "Loading..."
             val res = osmDataSource.searchWithCoordinates(coordinates.value.latitude, coordinates.value.longitude)
-            result.value = res.displayName ?: "Place not found"
+            result.value = res.displayName
         } else {
             val res = snackbarHostState.showSnackbar(
                 message = "No Internet connectivity",

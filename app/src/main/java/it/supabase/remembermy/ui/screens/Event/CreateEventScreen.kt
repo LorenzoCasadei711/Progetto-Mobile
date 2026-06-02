@@ -28,11 +28,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.GpsFixed
 import androidx.compose.material.icons.filled.Replay
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.draw.rotate
 import it.supabase.remembermy.composable.TopAppBar
@@ -40,6 +46,7 @@ import com.example.progettomobile.composable.BottomAppBar
 import com.example.progettomobile.composable.NavigationRoute
 import it.supabase.remembermy.composable.rememberGPSState
 import it.supabase.remembermy.composable.rememberOSM
+import it.supabase.remembermy.data.Coordinates
 import it.supabase.remembermy.ui.LocationDisabledAlert
 import it.supabase.remembermy.utils.PermissionStatus
 import kotlinx.coroutines.launch
@@ -54,17 +61,20 @@ fun CreateEventScreen(
     var place by remember { mutableStateOf("") }
     var date by remember { mutableStateOf("") }
     var isPrivate by remember { mutableStateOf(false) }
+    var locationFound by remember { mutableStateOf(false) }
 
     val gpsState = rememberGPSState()
     val osmState = rememberOSM()
     var waitingForLocation by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+
 
     val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = { TopAppBar("Creazione Evento", navController) },
-        bottomBar = {BottomAppBar(navController)}
-
+        bottomBar = {BottomAppBar(navController)},
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) {paddingValues ->
         Column(
             modifier = Modifier
@@ -74,6 +84,21 @@ fun CreateEventScreen(
         ) {
             Text("Crea evento")
 
+            LaunchedEffect(gpsState.coordinates.value, waitingForLocation) {
+                val currentCoords = gpsState.coordinates.value
+                if (waitingForLocation && currentCoords != null) {
+                    osmState.coordinates.value = currentCoords
+                    osmState.searchWithCoords()
+                    waitingForLocation = false
+                }
+            }
+
+            LaunchedEffect(key1 = osmState.result.value) {
+                val res = osmState.result.value
+                if (res.isNotEmpty() && res != "Loading..." && res != "Place not found") {
+                    place = res
+                }
+            }
 
             OutlinedTextField(
                 value = place,
@@ -107,7 +132,7 @@ fun CreateEventScreen(
                             ),
                             label = "rotation"
                         )
-                        if (gpsState.isLoading.value) {
+                        if (waitingForLocation) {
                             Icon(
                                 imageVector = Icons.Filled.Replay,
                                 contentDescription = "Loading",
@@ -122,7 +147,29 @@ fun CreateEventScreen(
             LocationDisabledAlert(
                 show = gpsState.showLocationDisabledAlert,
                 onAction = { gpsState.openLocationSettings() },
-                onHide = {gpsState.showLocationDisabledAlert = false}
+                onHide = {gpsState.showLocationDisabledAlert = false
+                        waitingForLocation = false}
+            )
+            PlaceConfirmationAlert(
+                show = locationFound,
+                place = osmState.result.value,
+                onAction = {
+                    scope.launch {
+                        vm.createEvent(
+                            name = name,
+                            isPrivate = isPrivate,
+                            date = date,
+                            details = details,
+                            coordinates = Coordinates(osmState.latitudeResult.value,
+                                osmState.longitudeResult.value)
+                        )
+                        navController.navigate(NavigationRoute.Map){
+                            popUpTo(NavigationRoute.HomeScreen)
+                        }
+                    }
+                           },
+                onDismiss = {place = osmState.query.value},
+                onHide = {locationFound = false}
             )
 
             OutlinedTextField(
@@ -154,15 +201,20 @@ fun CreateEventScreen(
             Button(
                 onClick = {
                     scope.launch {
-                        vm.createEvent(
-                            name = name,
-                            isPrivate = isPrivate,
-                            date = date,
-                            details = details
-                        )
-
-                        navController.navigate(NavigationRoute.Map){
-                            popUpTo(NavigationRoute.HomeScreen)
+                        if (gpsState.coordinates.value == null){
+                            println("DEBUG: Executing searchPlaces for: ${osmState.query.value}")
+                            osmState.searchPlaces().join()
+                        }
+                        println("DEBUG: Found these coordinates - Latitude : ${osmState.latitudeResult.value}")
+                        println("DEBUG: Found these coordinates - Longitude : ${osmState.longitudeResult.value}")
+                        println("DEBUG: Found results? : ${osmState.emptyResult.value}")
+                        if(!osmState.emptyResult.value){
+                            locationFound = true
+                        }else{
+                            snackbarHostState.showSnackbar(
+                                message = "Place Not Found",
+                                duration = SnackbarDuration.Long
+                            )
                         }
                     }
                 }
@@ -170,5 +222,38 @@ fun CreateEventScreen(
                 Text("Crea il tuo evento")
             }
         }
+    }
+}
+
+@Composable
+fun PlaceConfirmationAlert(
+    show: Boolean,
+    place : String,
+    onAction: () -> Unit,
+    onDismiss: ()  -> Unit,
+    onHide: () -> Unit
+) {
+    if (show) {
+        AlertDialog(
+            title = { Text("Confirm Location") },
+            text = { Text("Is this your location? $place") },
+            confirmButton = {
+                TextButton(onClick = {
+                    onAction()
+                    onHide()
+                }) {
+                    Text("Yes")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    onHide()
+                    onDismiss()
+                }) {
+                    Text("No")
+                }
+            },
+            onDismissRequest = onHide
+        )
     }
 }

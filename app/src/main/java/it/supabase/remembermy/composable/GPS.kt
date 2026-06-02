@@ -14,8 +14,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import it.supabase.remembermy.data.repository.Coordinates
-import it.supabase.remembermy.data.repository.LocationService
+import it.supabase.remembermy.data.Coordinates
+import it.supabase.remembermy.data.LocationService
 import it.supabase.remembermy.utils.MultiplePermissionHandler
 import it.supabase.remembermy.utils.PermissionStatus
 import it.supabase.remembermy.utils.rememberMultiplePermissions

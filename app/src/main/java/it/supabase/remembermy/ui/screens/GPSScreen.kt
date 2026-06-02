@@ -6,16 +6,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import com.example.progettomobile.data.LocationService
+import it.supabase.remembermy.data.LocationService
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
-import com.example.progettomobile.data.Coordinates
 import it.supabase.remembermy.utils.rememberMultiplePermissions
 import it.supabase.remembermy.utils.PermissionStatus
-import android.Manifest.permission
 import android.content.Intent
-import androidx.compose.ui.text.font.FontVariation
 import android.provider.Settings
 
 @Composable
