@@ -73,6 +73,18 @@ class SupabaseData(val supabase: SupabaseClient,
         }
     }
 
+    suspend fun deleteEvent(event : Events){
+        try {
+            supabase.from("events").delete{
+                filter {
+                    Events::id_event eq event.id_event
+                }
+            }
+        }catch (e : Exception){
+            Log.e("ERROR", e.message?:"No Error Message Found")
+        }
+    }
+
     suspend fun fileToBucket(idUser : String, folder : String,oldImage : String?, localImageUri : Uri?) : String? {
         if (idUser.isNotEmpty() && localImageUri != null && localImageUri.toString().startsWith("content://")) {
             try {
@@ -109,6 +121,18 @@ class SupabaseData(val supabase: SupabaseClient,
             }
         }
         return null
+    }
+
+    suspend fun deleteBucketFile(path : String){
+        if(path.isNotEmpty()){
+            try {
+                val bucket = supabase.storage.from("user-photos")
+                val actualPath = path.substringAfter("user-photos")
+                bucket.delete(actualPath)
+            }catch (e : Exception){
+                Log.d("Error", e.message?:"No Error Message Present")
+            }
+        }
     }
 
     suspend fun getCurrentUserId(): String{

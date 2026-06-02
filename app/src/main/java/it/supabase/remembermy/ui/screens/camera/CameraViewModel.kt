@@ -33,9 +33,6 @@ class CameraViewModel (
         details : String,
         coordinates : Coordinates? = pictureCoordinates
     ){
-        println("NOME EVENTO -> $name")
-        println("URI -> $pictureUri")
-        println("COORDINATE -> $coordinates")
         val uri = pictureUri ?: return
         if(coordinates == null) return
         val idUser = data.getCurrentUserId()

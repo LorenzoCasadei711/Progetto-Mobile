@@ -3,6 +3,10 @@ package it.supabase.remembermy.ui.screens.profile
 import android.content.ContentResolver
 import android.net.Uri
 import android.util.Log
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.jan.supabase.auth.auth
@@ -30,6 +34,7 @@ data class ProfileState(
 data class ProfileActions(
     val update : ()->Unit,
     val editProfile: (profile: Profiles, localImageUri : Uri?)->Unit,
+    val deleteEvent : (event : Events) -> Unit,
     val logout : ()->Unit
 )
 
@@ -78,6 +83,12 @@ class ProfileViewModel(
                 } catch (e: Exception) {
                     Log.e("Error During Edit Profile", e.message.toString())
                 }
+            }
+        },
+        deleteEvent = {event ->
+            viewModelScope.launch {
+                data.deleteBucketFile(event.event_photo)
+                data.deleteEvent(event)
             }
         },
         logout = {

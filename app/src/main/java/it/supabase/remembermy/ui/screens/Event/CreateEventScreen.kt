@@ -202,12 +202,8 @@ fun CreateEventScreen(
                 onClick = {
                     scope.launch {
                         if (gpsState.coordinates.value == null){
-                            println("DEBUG: Executing searchPlaces for: ${osmState.query.value}")
                             osmState.searchPlaces().join()
                         }
-                        println("DEBUG: Found these coordinates - Latitude : ${osmState.latitudeResult.value}")
-                        println("DEBUG: Found these coordinates - Longitude : ${osmState.longitudeResult.value}")
-                        println("DEBUG: Found results? : ${osmState.emptyResult.value}")
                         if(!osmState.emptyResult.value){
                             locationFound = true
                         }else{

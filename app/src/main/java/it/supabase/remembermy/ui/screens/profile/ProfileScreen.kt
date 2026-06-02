@@ -36,6 +36,7 @@ import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -45,6 +46,7 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -63,6 +65,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
@@ -241,6 +244,7 @@ fun ProfileCard(event : Events, profileViewModel: ProfileViewModel){
 
     val followNumber = event.followedEvents.size
     val opinionsList = event.opinions
+    var deletionAlertShown by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -253,6 +257,15 @@ fun ProfileCard(event : Events, profileViewModel: ProfileViewModel){
                 .padding(12.dp),
             verticalArrangement = Arrangement.Center
         ) {
+            EventDeletionAlert(
+                show = deletionAlertShown,
+                name = event.name_event,
+                onAction = {
+                    profileViewModel.actions.deleteEvent(event)
+                    profileViewModel.actions.update()
+                           },
+                onHide = { deletionAlertShown = false }
+            )
             Text(
                 text = event.name_event,
                 modifier = Modifier.padding(horizontal = 12.dp),
@@ -299,7 +312,9 @@ fun ProfileCard(event : Events, profileViewModel: ProfileViewModel){
                 }
             }
             IconButton(
-                onClick = {},
+                onClick = {
+                    deletionAlertShown = true
+                },
                 colors = IconButtonDefaults.iconButtonColors(
                     contentColor = Color.White,
                     containerColor = Color.Red
@@ -327,5 +342,37 @@ fun ProfileCard(event : Events, profileViewModel: ProfileViewModel){
             fontWeight = FontWeight.Medium
         )
 
+    }
+}
+
+
+@Composable
+fun EventDeletionAlert(
+    show: Boolean,
+    name : String,
+    onAction: () -> Unit,
+    onHide: () -> Unit
+) {
+    if (show) {
+        AlertDialog(
+            title = { Text("Sei Sicuro di voler eliminare questo evento?") },
+            text = { Text(" $name") },
+            confirmButton = {
+                TextButton(onClick = {
+                    onAction()
+                    onHide()
+                }) {
+                    Text("Yes")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    onHide()
+                }) {
+                    Text("No")
+                }
+            },
+            onDismissRequest = onHide
+        )
     }
 }
