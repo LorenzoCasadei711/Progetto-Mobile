@@ -1,5 +1,11 @@
 package it.supabase.remembermy.ui.screens.Event
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,12 +24,24 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.GpsFixed
+import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.draw.rotate
 import it.supabase.remembermy.composable.TopAppBar
 import com.example.progettomobile.composable.BottomAppBar
 import com.example.progettomobile.composable.NavigationRoute
+import it.supabase.remembermy.composable.rememberGPSState
+import it.supabase.remembermy.composable.rememberOSM
+import it.supabase.remembermy.ui.LocationDisabledAlert
+import it.supabase.remembermy.utils.PermissionStatus
 import kotlinx.coroutines.launch
 
 @Composable
@@ -32,9 +50,15 @@ fun CreateEventScreen(
     vm: CameraViewModel
 ){
     var name by remember { mutableStateOf("") }
+    var details by remember { mutableStateOf("") }
+    var place by remember { mutableStateOf("") }
     var date by remember { mutableStateOf("") }
     var isPrivate by remember { mutableStateOf(false) }
     var details by remember {mutableStateOf("")}
+
+    val gpsState = rememberGPSState()
+    val osmState = rememberOSM()
+    var waitingForLocation by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
 
@@ -51,10 +75,67 @@ fun CreateEventScreen(
         ) {
             Text("Crea evento")
 
+
+            OutlinedTextField(
+                value = place,
+                onValueChange = {
+                    place = it
+                    osmState.query.value = place
+                },
+                label = { Text("place") },
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth(),
+                trailingIcon = {
+                    IconButton(
+                        onClick = {
+                            waitingForLocation = true
+                            gpsState.getLocationOrRequestPermission()
+                            if(!gpsState.locationPermissions.statuses.entries.all { it.value == PermissionStatus.Granted }) {
+                                gpsState.showLocationDisabledAlert = true
+                                waitingForLocation = false
+                            }
+                        }
+                    ) {
+                        val infiniteTransition =
+                            rememberInfiniteTransition(label = "loading")
+                        val rotation by infiniteTransition.animateFloat(
+                            initialValue = 0f,
+                            targetValue = -360f,
+                            animationSpec = infiniteRepeatable(
+                                animation = tween(1000, easing = LinearEasing),
+                                repeatMode = RepeatMode.Restart
+                            ),
+                            label = "rotation"
+                        )
+                        if (gpsState.isLoading.value) {
+                            Icon(
+                                imageVector = Icons.Filled.Replay,
+                                contentDescription = "Loading",
+                                modifier = Modifier.rotate(rotation) // Apply the animated rotation here
+                            )
+                        } else {
+                            Icon(Icons.Filled.GpsFixed, "GPS Icon")
+                        }
+                    }
+                }
+            )
+            LocationDisabledAlert(
+                show = gpsState.showLocationDisabledAlert,
+                onAction = { gpsState.openLocationSettings() },
+                onHide = {gpsState.showLocationDisabledAlert = false}
+            )
+
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
                 label = { Text("Nome evento") }
+            )
+
+            OutlinedTextField(
+                value = details,
+                onValueChange = { details = it },
+                label = { Text("Dettagli evento") }
             )
 
             OutlinedTextField(
@@ -87,7 +168,9 @@ fun CreateEventScreen(
                             details = details
                         )
 
-                        navController.navigate(NavigationRoute.Map)
+                        navController.navigate(NavigationRoute.Map){
+                            popUpTo(NavigationRoute.HomeScreen)
+                        }
                     }
                 }
             ) {

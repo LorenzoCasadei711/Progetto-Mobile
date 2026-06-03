@@ -34,6 +34,7 @@ import it.supabase.remembermy.ui.screens.auth.reset.ResetPasswordScreen
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 import it.supabase.remembermy.ui.screens.camera.CameraScreen
+import it.supabase.remembermy.ui.screens.profile.ChangeInfoProfileScreen
 import it.supabase.remembermy.ui.screens.Map.MapViewModel
 import it.supabase.remembermy.ui.screens.Search.SearchScreen
 import it.supabase.remembermy.ui.screens.Search.SearchViewModel
@@ -56,8 +57,6 @@ sealed interface NavigationRoute {
     @Serializable
     data object Settings : NavigationRoute
 
-    @Serializable
-    data object Add : NavigationRoute
 
     @Serializable
     data object Search : NavigationRoute
@@ -71,17 +70,15 @@ sealed interface NavigationRoute {
 
     @Serializable
     data object ResetPassword : NavigationRoute
-
     @Serializable
     data object MagicLink : NavigationRoute
-
     @Serializable
-    data object Map : NavigationRoute {
+    data object Map : NavigationRoute{
     }
-
+    @Serializable
+    data object ChangeInfo : NavigationRoute
     @Serializable
     data object CreateEvent : NavigationRoute
-
 }
 
 @Composable
@@ -192,6 +189,12 @@ fun NavGraph(navController: NavHostController, supabase: SupabaseClient, start: 
                     navController = navController,
                     vm = cameraModel
                 )
+            }
+
+
+            composable<NavigationRoute.ChangeInfo> {
+                val profileModel = koinViewModel<ProfileViewModel>()
+                ChangeInfoProfileScreen(navController, profileModel)
             }
         }
     }
