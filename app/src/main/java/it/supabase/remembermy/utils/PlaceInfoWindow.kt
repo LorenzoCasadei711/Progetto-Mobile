@@ -17,11 +17,11 @@ class PlaceInfoWindow(
 
         val imageView = mView.findViewById<ImageView>(R.id.placeImage)
         val titleView = mView.findViewById<TextView>(R.id.placeTitle)
-        //val descriptionView = mView.findViewById<TextView>(R.id.placeDescription)
+        val descriptionView = mView.findViewById<TextView>(R.id.placeDescription)
 
         imageView.setImageResource(imageResId)
         titleView.text = marker.title
-        //descriptionView.text = description
+        descriptionView.text = description
 
         mView.setOnClickListener {
             close()

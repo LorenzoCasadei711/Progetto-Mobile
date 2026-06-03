@@ -13,7 +13,6 @@ import it.supabase.remembermy.data.supabase.supabase
 import kotlinx.coroutines.launch
 import java.util.UUID
 import io.github.jan.supabase.auth.auth
-import it.supabase.remembermy.data.supabase.Details
 import it.supabase.remembermy.data.supabase.SupabaseData
 
 class CameraViewModel (

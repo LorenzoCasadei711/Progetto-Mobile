@@ -21,7 +21,7 @@ data class Events(
     val is_private: Boolean,
     val date_event: String,
      val id_user: String,
-    val event_photo: String,
+    val event_photo: String? = null,
     val latitude: Double,
     val longitude: Double,
     val event_details : String?,

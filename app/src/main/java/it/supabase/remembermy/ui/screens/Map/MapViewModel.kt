@@ -23,7 +23,7 @@ class MapViewModel (
     fun fetchEvents(){
         viewModelScope.launch {
             try {
-                val events = data.getListEvents()
+                val events = data.getMyCreatedAndFollowedEvents()
                 println("EVENTI LETTI DA SUPABASE -> $events")
                 println("NUMERO EVENTI LETTI -> ${events.size}")
                 _state.value = MapState(

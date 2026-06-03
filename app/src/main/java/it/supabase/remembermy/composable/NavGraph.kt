@@ -13,6 +13,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
+import androidx.navigation.toRoute
 import it.supabase.remembermy.ui.screens.Home.HomeScreen
 import it.supabase.remembermy.ui.screens.SettingsScreen
 import it.supabase.remembermy.ui.screens.Theme
@@ -25,6 +26,7 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.status.SessionStatus
 import it.supabase.remembermy.ui.screens.Event.CreateEventScreen
+import it.supabase.remembermy.ui.screens.Event.EventPostScreen
 import it.supabase.remembermy.ui.screens.Home.HomeViewModel
 import it.supabase.remembermy.ui.screens.Map.MapScreen
 import it.supabase.remembermy.ui.screens.auth.login.LoginScreen
@@ -79,7 +81,12 @@ sealed interface NavigationRoute {
     data object ChangeInfo : NavigationRoute
     @Serializable
     data object CreateEvent : NavigationRoute
+    @Serializable
+    data class EventPost(
+        val idEvent : String
+    ) : NavigationRoute
 }
+
 
 @Composable
 fun NavGraph(navController: NavHostController, supabase: SupabaseClient, start: NavigationRoute) {
@@ -190,7 +197,10 @@ fun NavGraph(navController: NavHostController, supabase: SupabaseClient, start: 
                     vm = cameraModel
                 )
             }
-
+            composable<NavigationRoute.EventPost> {backStackEntry ->
+                val route = backStackEntry.toRoute<NavigationRoute.EventPost>()
+                EventPostScreen(navController,SearchModel,route.idEvent)
+            }
 
             composable<NavigationRoute.ChangeInfo> {
                 val profileModel = koinViewModel<ProfileViewModel>()

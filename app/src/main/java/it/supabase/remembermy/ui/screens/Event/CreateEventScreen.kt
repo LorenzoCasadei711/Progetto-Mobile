@@ -54,7 +54,7 @@ fun CreateEventScreen(
     var place by remember { mutableStateOf("") }
     var date by remember { mutableStateOf("") }
     var isPrivate by remember { mutableStateOf(false) }
-    var details by remember {mutableStateOf("")}
+
 
     val gpsState = rememberGPSState()
     val osmState = rememberOSM()

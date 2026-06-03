@@ -13,15 +13,24 @@ import androidx.navigation.NavHostController
 import com.example.progettomobile.composable.BottomAppBar
 import it.supabase.remembermy.composable.PostCard
 import it.supabase.remembermy.composable.TopAppBar
-import it.supabase.remembermy.ui.screens.Home.HomeViewModel
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.Text
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.lazy.grid.items
+import coil.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.dp
+import com.example.progettomobile.composable.NavigationRoute
+
 @Composable
 fun SearchScreen(navController : NavHostController, viewModel: SearchViewModel){
     val state by viewModel.state.collectAsState()
@@ -40,7 +49,30 @@ fun SearchScreen(navController : NavHostController, viewModel: SearchViewModel){
                 label = { Text("Cerca eventi") },
                 modifier = Modifier.fillMaxWidth()
             )
-            LazyColumn(
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(state.posts) {post ->
+                    AsyncImage(
+                        model = post.postImage,
+                        contentDescription = "Foto evento",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .aspectRatio(1f)
+                            .padding(1.dp)
+                            .clickable{
+                                navController.navigate(
+                                    NavigationRoute.EventPost(post.idEvent)
+                                )
+                            }
+
+                    )
+                }
+            }
+
+
+            /*LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
             ) {
@@ -53,7 +85,7 @@ fun SearchScreen(navController : NavHostController, viewModel: SearchViewModel){
                         }
                     )
                 }
-            }
+            }*/
         }
     }
 }

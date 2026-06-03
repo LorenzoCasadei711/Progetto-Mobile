@@ -7,7 +7,6 @@ import it.supabase.remembermy.composable.PostCard
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import androidx.lifecycle.viewModelScope
-import it.supabase.remembermy.data.supabase.FollowedEvent
 import kotlinx.coroutines.launch
 data class SearchState(
     val posts: List<Post> = emptyList(),

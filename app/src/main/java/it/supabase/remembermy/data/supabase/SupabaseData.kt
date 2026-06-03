@@ -24,7 +24,7 @@ class SupabaseData(val supabase: SupabaseClient,
     }.decodeAs<Profiles>()
 
     suspend fun getListEvents(): List<Events> {
-        val currentUserId = supabase.auth.retrieveUserForCurrentSession().id
+        val currentUserId = getCurrentUserId()
 
         return supabase.from("events")
             .select(Columns.raw("*, followed_events(*), opinions(*)")) {
@@ -129,7 +129,7 @@ class SupabaseData(val supabase: SupabaseClient,
     suspend fun followEvent(idEvent: String){
         val idUser = getCurrentUserId()
         supabase.from("followed_events").insert(
-            FollowedEvent(
+            FollowedEvents(
                 idUser,
                 idEvent
             )
@@ -151,7 +151,7 @@ class SupabaseData(val supabase: SupabaseClient,
                 eq("id_user",idUser)
                 eq("id_event",idEvent)
             }
-        }.decodeList<FollowedEvent>()
+        }.decodeList<FollowedEvents>()
         return result.isNotEmpty()
     }
     suspend fun getMyFollowedEvents():List<Events>{
@@ -161,7 +161,7 @@ class SupabaseData(val supabase: SupabaseClient,
             filter {
                 eq("id_user",idUser)
             }
-        }.decodeList<FollowedEvent>()
+        }.decodeList<FollowedEvents>()
 
         return followed.mapNotNull { follow ->
             supabase.from("events").select {
@@ -186,7 +186,7 @@ class SupabaseData(val supabase: SupabaseClient,
             filter {
                 eq("id_user", idUser)
             }
-        }.decodeList<FollowedEvent>()
+        }.decodeList<FollowedEvents>()
             .map { it.id_event }
             .toSet()
     }

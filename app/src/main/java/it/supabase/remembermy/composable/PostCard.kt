@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 
 data class Post(
+    val idEvent : String,
     val username: String,
     val userImage : String,
     val postImage : String,
