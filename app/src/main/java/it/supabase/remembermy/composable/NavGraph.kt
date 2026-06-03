@@ -13,7 +13,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
-import it.supabase.remembermy.ui.screens.HomeScreen
+import it.supabase.remembermy.ui.screens.Home.HomeScreen
 import it.supabase.remembermy.ui.screens.SettingsScreen
 import it.supabase.remembermy.ui.screens.Theme
 import it.supabase.remembermy.ui.screens.auth.AccessViewModel
@@ -25,6 +25,7 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.status.SessionStatus
 import it.supabase.remembermy.ui.screens.Event.CreateEventScreen
+import it.supabase.remembermy.ui.screens.Home.HomeViewModel
 import it.supabase.remembermy.ui.screens.Map.MapScreen
 import it.supabase.remembermy.ui.screens.auth.login.LoginScreen
 import it.supabase.remembermy.ui.screens.auth.magiclogin.MagicLinkScreen
@@ -34,6 +35,8 @@ import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 import it.supabase.remembermy.ui.screens.camera.CameraScreen
 import it.supabase.remembermy.ui.screens.Map.MapViewModel
+import it.supabase.remembermy.ui.screens.Search.SearchScreen
+import it.supabase.remembermy.ui.screens.Search.SearchViewModel
 import it.supabase.remembermy.ui.screens.camera.CameraViewModel
 
 sealed interface NavigationRoute {
@@ -68,13 +71,17 @@ sealed interface NavigationRoute {
 
     @Serializable
     data object ResetPassword : NavigationRoute
+
     @Serializable
     data object MagicLink : NavigationRoute
+
     @Serializable
-    data object Map : NavigationRoute{
+    data object Map : NavigationRoute {
     }
+
     @Serializable
     data object CreateEvent : NavigationRoute
+
 }
 
 @Composable
@@ -83,6 +90,7 @@ fun NavGraph(navController: NavHostController, supabase: SupabaseClient, start: 
     val accessModel = koinViewModel<AccessViewModel>()
     val sessionStatus by supabase.auth.sessionStatus.collectAsState()
     val cameraModel = koinViewModel<CameraViewModel>()
+    val SearchModel = koinViewModel<SearchViewModel>()
 
     var selectedTheme by rememberSaveable { mutableStateOf(Theme.System) }
     var dynamicColor by rememberSaveable { mutableStateOf(true) }
@@ -136,7 +144,10 @@ fun NavGraph(navController: NavHostController, supabase: SupabaseClient, start: 
                 RecoveryScreen(accessModel, navController)
             }
 
-            composable<NavigationRoute.HomeScreen> { HomeScreen(navController) }
+            composable<NavigationRoute.HomeScreen> {
+                val homeModel = koinViewModel<HomeViewModel>()
+                HomeScreen(navController,homeModel)
+            }
             composable<NavigationRoute.Settings> {
                 SettingsScreen(
                     navController,
@@ -148,7 +159,9 @@ fun NavGraph(navController: NavHostController, supabase: SupabaseClient, start: 
             }
             composable<NavigationRoute.Camera> { CameraScreen(navController,cameraModel) }
             //composable<NavigationRoute.Add> {  }
-            //composable<NavigationRoute.Search> {  }
+            composable<NavigationRoute.Search> {
+                SearchScreen(navController,SearchModel)
+            }
             composable<NavigationRoute.Profile> {
                 val profileModel = koinViewModel<ProfileViewModel>()
                 ToProfile(navController, profileModel)

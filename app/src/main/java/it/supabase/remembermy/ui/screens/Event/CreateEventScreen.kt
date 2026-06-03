@@ -34,6 +34,7 @@ fun CreateEventScreen(
     var name by remember { mutableStateOf("") }
     var date by remember { mutableStateOf("") }
     var isPrivate by remember { mutableStateOf(false) }
+    var details by remember {mutableStateOf("")}
 
     val scope = rememberCoroutineScope()
 
@@ -62,6 +63,12 @@ fun CreateEventScreen(
                 label = { Text("Data evento") }
             )
 
+            OutlinedTextField(
+                value = details,
+                onValueChange = { details = it },
+                label = { Text("Dettagli evento") }
+            )
+
             Row {
                 Checkbox(
                     checked = isPrivate,
@@ -76,7 +83,8 @@ fun CreateEventScreen(
                         vm.createEvent(
                             name = name,
                             isPrivate = isPrivate,
-                            date = date
+                            date = date,
+                            details = details
                         )
 
                         navController.navigate(NavigationRoute.Map)

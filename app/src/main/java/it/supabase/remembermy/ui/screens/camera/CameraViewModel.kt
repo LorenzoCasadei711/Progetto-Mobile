@@ -13,6 +13,7 @@ import it.supabase.remembermy.data.supabase.supabase
 import kotlinx.coroutines.launch
 import java.util.UUID
 import io.github.jan.supabase.auth.auth
+import it.supabase.remembermy.data.supabase.Details
 import it.supabase.remembermy.data.supabase.SupabaseData
 
 class CameraViewModel (
@@ -29,7 +30,8 @@ class CameraViewModel (
     suspend fun createEvent(
         name: String,
         isPrivate: Boolean,
-        date: String
+        date: String,
+        details: String
     ){
         println("NOME EVENTO -> $name")
         println("URI -> $pictureUri")
@@ -45,7 +47,8 @@ class CameraViewModel (
             id_user = data.getCurrentUserId(),
             event_photo = uri.toString(),
             latitude = coordinates.latitude,
-            longitude = coordinates.longitude
+            longitude = coordinates.longitude,
+            event_details = details
         )
 
         data.saveEvent(event)

@@ -14,6 +14,7 @@ data class Profiles(
 )
 @Serializable
 data class Events(
+    val id_event: String ? = null,
     val status_event: String? = null,
      val name_event: String,
     val is_private: Boolean,
@@ -21,7 +22,8 @@ data class Events(
      val id_user: String,
     val event_photo: String,
     val latitude: Double,
-    val longitude: Double
+    val longitude: Double,
+    val event_details: String? = null
 
 )
 @Serializable
@@ -49,4 +51,10 @@ data class Details(
     val details_id: String,
     val event_details : String,
     val event_id : Int
+)
+
+@Serializable
+data class FollowedEvent(
+    val id_user: String,
+    val id_event: String
 )
