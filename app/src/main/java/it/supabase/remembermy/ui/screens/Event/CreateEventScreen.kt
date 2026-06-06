@@ -243,12 +243,6 @@ fun CreateEventScreen(
                             ) {
                                 TextButton(onClick = {
                                     locationFound.value = false
-                                    place = osmState.query.value
-                                }) {
-                                    Text("No")
-                                }
-                                TextButton(onClick = {
-                                    locationFound.value = false
                                     scope.launch {
                                         vm.createEvent(
                                             name = name,
@@ -266,6 +260,12 @@ fun CreateEventScreen(
                                     }
                                 }) {
                                     Text("Yes")
+                                }
+                                TextButton(onClick = {
+                                    locationFound.value = false
+                                    place = osmState.query.value
+                                }) {
+                                    Text("No")
                                 }
                             }
                         }
