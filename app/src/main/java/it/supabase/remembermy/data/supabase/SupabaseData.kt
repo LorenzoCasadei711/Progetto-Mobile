@@ -27,7 +27,7 @@ class SupabaseData(val supabase: SupabaseClient,
         val currentUserId = supabase.auth.retrieveUserForCurrentSession().id
 
         return supabase.from("events")
-            .select(Columns.raw("*, followed_events(*), opinions(*)")) {
+            .select(Columns.raw("*, followed_events(*), opinions(*, profiles(*))")) {
                 filter {
                     eq("id_user", currentUserId)
                 }
@@ -54,6 +54,10 @@ class SupabaseData(val supabase: SupabaseClient,
             Profiles::id_user eq supabase.auth.retrieveUserForCurrentSession().id
         }
     }
+
+    suspend fun postOpinion(opinion : Opinions) = supabase
+        .from("opinions")
+        .insert(opinion)
 
     suspend fun logout() = supabase.auth.signOut()
 

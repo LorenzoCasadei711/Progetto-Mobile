@@ -1,10 +1,12 @@
 package it.supabase.remembermy.ui.screens.profile
 
 import android.net.Uri
+import android.text.Layout
 import android.util.Log
 import android.widget.Space
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
@@ -31,10 +33,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -44,6 +48,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -243,8 +248,10 @@ fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) 
 fun ProfileCard(event : Events, profileViewModel: ProfileViewModel){
 
     val followNumber = event.followedEvents.size
-    val opinionsList = event.opinions
+    val opinions = event.opinions
+    var myOpinion by remember {mutableStateOf("")}
     var deletionAlertShown by remember { mutableStateOf(false) }
+    var isOpinionsVisible by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -303,7 +310,7 @@ fun ProfileCard(event : Events, profileViewModel: ProfileViewModel){
             ) {
                 Text("Edit Event")
             }
-            IconButton(onClick = {}) {
+            IconButton(onClick = {isOpinionsVisible = !isOpinionsVisible}) {
                 Row {
                     Icon(
                         imageVector = Icons.Default.ChatBubbleOutline,
@@ -331,7 +338,7 @@ fun ProfileCard(event : Events, profileViewModel: ProfileViewModel){
         }
 
         Text(
-            text = "${event.followedEvents.size} following this event",
+            text = "$followNumber following this event",
             modifier = Modifier.padding(12.dp),
             fontWeight = FontWeight.Bold
         )
@@ -341,6 +348,62 @@ fun ProfileCard(event : Events, profileViewModel: ProfileViewModel){
             modifier = Modifier.padding(12.dp),
             fontWeight = FontWeight.Medium
         )
+
+        AnimatedVisibility(visible = isOpinionsVisible) {
+            Column() {
+                OutlinedTextField(
+                    value = myOpinion,
+                    onValueChange = {myOpinion = it},
+                    label = {Text("My Opinion")},
+                    trailingIcon = {
+                        IconButton(
+                            onClick = {if(myOpinion.isEmpty()){
+                                //profileViewModel.postOpinion()
+                            } }
+                        ) {
+                            Icon(Icons.AutoMirrored.Filled.Send, "Send Icon")
+                        }
+                    }
+
+                )
+                if (opinions.isEmpty()) {
+                    Text(
+                        text = "Non ci sono ancora recensioni per questo evento.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    )
+                } else {
+                    opinions.forEach { opinion ->
+                        Column(
+                            horizontalAlignment = Alignment.Start
+                        ) {
+                            Row {
+                                AsyncImage(
+                                    model = rememberAsyncImagePainter(opinion.profile?.avatar_url),
+                                    contentDescription = "Avatar URL",
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .padding(4.dp)
+                                        .clip(CircleShape)
+                                )
+                                Spacer(Modifier.width(16.dp))
+                                Text(
+                                    opinion.profile?.nickname ?: "",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                            Spacer(Modifier.height(16.dp))
+                            Text(opinion.review_opinion ?: "Errore Commento")
+                            HorizontalDivider(
+                                modifier = Modifier.padding(vertical = 8.dp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f)
+                            )
+                        }
+                    }
+                }
+            }
+        }
 
     }
 }

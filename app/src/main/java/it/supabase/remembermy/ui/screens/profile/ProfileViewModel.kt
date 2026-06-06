@@ -13,6 +13,7 @@ import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.storage.storage
 import it.supabase.remembermy.data.database.Badges
 import it.supabase.remembermy.data.supabase.Events
+import it.supabase.remembermy.data.supabase.Opinions
 import it.supabase.remembermy.data.supabase.Profiles
 import it.supabase.remembermy.data.supabase.SupabaseData
 import it.supabase.remembermy.data.supabase.supabase
@@ -35,6 +36,7 @@ data class ProfileActions(
     val update : ()->Unit,
     val editProfile: (profile: Profiles, localImageUri : Uri?)->Unit,
     val deleteEvent : (event : Events) -> Unit,
+    val postOpinion : (eventId : String, reviewOpinion : String) -> Unit,
     val logout : ()->Unit
 )
 
@@ -91,6 +93,17 @@ class ProfileViewModel(
                 data.deleteEvent(event)
             }
         },
+        postOpinion = {eventId, reviewOpinion->
+            viewModelScope.launch {
+                val opinion = Opinions(
+                    user_id = data.getCurrentUserId(),
+                    event_id = TODO(),
+                    id_opinion = TODO(),
+                    review_opinion = TODO(),
+                    profile = TODO()
+                )
+            }
+        } ,
         logout = {
             viewModelScope.launch {
                 try {

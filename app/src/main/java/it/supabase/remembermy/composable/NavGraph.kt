@@ -1,6 +1,8 @@
 package com.example.progettomobile.composable
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -8,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -53,6 +56,7 @@ sealed interface NavigationRoute {
 
     @Serializable
     data object Settings : NavigationRoute
+
     @Serializable
     data object Search : NavigationRoute
 
@@ -65,13 +69,17 @@ sealed interface NavigationRoute {
 
     @Serializable
     data object ResetPassword : NavigationRoute
+
     @Serializable
     data object MagicLink : NavigationRoute
+
     @Serializable
-    data object Map : NavigationRoute{
+    data object Map : NavigationRoute {
     }
+
     @Serializable
     data object ChangeInfo : NavigationRoute
+
     @Serializable
     data object CreateEvent : NavigationRoute
 }
@@ -87,7 +95,8 @@ fun NavGraph(navController: NavHostController, supabase: SupabaseClient, start: 
 
     LaunchedEffect(sessionStatus) {
         val currentDestination = navController.currentDestination
-        val isHandlingDeepLink = currentDestination?.hasRoute<NavigationRoute.ResetPassword>() == true
+        val isHandlingDeepLink =
+            currentDestination?.hasRoute<NavigationRoute.ResetPassword>() == true
         if (!isHandlingDeepLink) {
             when (sessionStatus) {
                 is SessionStatus.NotAuthenticated -> {
@@ -105,6 +114,7 @@ fun NavGraph(navController: NavHostController, supabase: SupabaseClient, start: 
                         }
                     }
                 }
+
                 else -> {}
             }
         }
@@ -117,71 +127,73 @@ fun NavGraph(navController: NavHostController, supabase: SupabaseClient, start: 
         },
         dynamicColor = dynamicColor
     ) {
-        NavHost(
-            navController = navController,
-            startDestination = start
-        ) {
-
-
-            composable<NavigationRoute.Register> {
-                RegisterScreen(accessModel, navController)
-            }
-            composable<NavigationRoute.Login> {
-                LoginScreen(accessModel, navController)
-            }
-
-            composable<NavigationRoute.Recovery> {
-                RecoveryScreen(accessModel, navController)
-            }
-
-            composable<NavigationRoute.HomeScreen> { HomeScreen(navController) }
-            composable<NavigationRoute.Settings> {
-                SettingsScreen(
-                    navController,
-                    selectedTheme = selectedTheme,
-                    onThemeChange = { selectedTheme = it },
-                    dynamicColor = dynamicColor,
-                    onDynamicColorChange = { dynamicColor = it }
-                )
-            }
-            composable<NavigationRoute.Camera> { CameraScreen(navController, cameraModel) }
-            //composable<NavigationRoute.Search> {  }
-            composable<NavigationRoute.Profile> {
-                val profileModel = koinViewModel<ProfileViewModel>()
-                ToProfile(navController, profileModel)
-            }
-
-            composable<NavigationRoute.ResetPassword>(
-                deepLinks = listOf(
-                    navDeepLink {
-                        uriPattern = "it.supabase.remembermy://login-callback*type=recovery*"
-                    }
-                )
+        Surface(modifier = Modifier.fillMaxSize()) {
+            NavHost(
+                navController = navController,
+                startDestination = start
             ) {
-                ResetPasswordScreen(accessModel, navController)
-            }
-
-            composable<NavigationRoute.MagicLink> {
-                MagicLinkScreen(accessModel, navController)
-            }
-            composable<NavigationRoute.Map> {
-                val mapModel = koinViewModel<MapViewModel>()
-                MapScreen(
-                    navController = navController,
-                    viewModel = mapModel
-                )
-            }
-            composable<NavigationRoute.CreateEvent> {
-                CreateEventScreen(
-                    navController = navController,
-                    vm = cameraModel
-                )
-            }
 
 
-            composable<NavigationRoute.ChangeInfo> {
-                val profileModel = koinViewModel<ProfileViewModel>()
-                ChangeInfoProfileScreen(navController, profileModel)
+                composable<NavigationRoute.Register> {
+                    RegisterScreen(accessModel, navController)
+                }
+                composable<NavigationRoute.Login> {
+                    LoginScreen(accessModel, navController)
+                }
+
+                composable<NavigationRoute.Recovery> {
+                    RecoveryScreen(accessModel, navController)
+                }
+
+                composable<NavigationRoute.HomeScreen> { HomeScreen(navController) }
+                composable<NavigationRoute.Settings> {
+                    SettingsScreen(
+                        navController,
+                        selectedTheme = selectedTheme,
+                        onThemeChange = { selectedTheme = it },
+                        dynamicColor = dynamicColor,
+                        onDynamicColorChange = { dynamicColor = it }
+                    )
+                }
+                composable<NavigationRoute.Camera> { CameraScreen(navController, cameraModel) }
+                //composable<NavigationRoute.Search> {  }
+                composable<NavigationRoute.Profile> {
+                    val profileModel = koinViewModel<ProfileViewModel>()
+                    ToProfile(navController, profileModel)
+                }
+
+                composable<NavigationRoute.ResetPassword>(
+                    deepLinks = listOf(
+                        navDeepLink {
+                            uriPattern = "it.supabase.remembermy://login-callback*type=recovery*"
+                        }
+                    )
+                ) {
+                    ResetPasswordScreen(accessModel, navController)
+                }
+
+                composable<NavigationRoute.MagicLink> {
+                    MagicLinkScreen(accessModel, navController)
+                }
+                composable<NavigationRoute.Map> {
+                    val mapModel = koinViewModel<MapViewModel>()
+                    MapScreen(
+                        navController = navController,
+                        viewModel = mapModel
+                    )
+                }
+                composable<NavigationRoute.CreateEvent> {
+                    CreateEventScreen(
+                        navController = navController,
+                        vm = cameraModel
+                    )
+                }
+
+
+                composable<NavigationRoute.ChangeInfo> {
+                    val profileModel = koinViewModel<ProfileViewModel>()
+                    ChangeInfoProfileScreen(navController, profileModel)
+                }
             }
         }
     }

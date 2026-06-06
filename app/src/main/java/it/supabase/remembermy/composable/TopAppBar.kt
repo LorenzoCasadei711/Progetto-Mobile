@@ -41,8 +41,8 @@ fun TopAppBar(title: String,navController: NavHostController){
             }
 
             if(title != "Login"){
-                IconButton(onClick = { navController.navigate(NavigationRoute.Camera) },
-                    enabled = navController.currentDestination?.hasRoute<NavigationRoute.Camera>() == false) {
+                IconButton(onClick = { navController.navigate(NavigationRoute.CreateEvent) },
+                    enabled = navController.currentDestination?.hasRoute<NavigationRoute.CreateEvent>() == false) {
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = "Add"
