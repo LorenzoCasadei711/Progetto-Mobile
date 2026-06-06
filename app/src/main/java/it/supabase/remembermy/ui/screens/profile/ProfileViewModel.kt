@@ -89,19 +89,20 @@ class ProfileViewModel(
         },
         deleteEvent = {event ->
             viewModelScope.launch {
-                data.deleteBucketFile(event.event_photo)
+                data.deleteBucketFile(event.event_photo?:"")
                 data.deleteEvent(event)
             }
         },
         postOpinion = {eventId, reviewOpinion->
             viewModelScope.launch {
                 val opinion = Opinions(
-                    user_id = data.getCurrentUserId(),
-                    event_id = TODO(),
-                    id_opinion = TODO(),
-                    review_opinion = TODO(),
-                    profile = TODO()
+                    id_user = data.getCurrentUserId(),
+                    id_event = eventId,
+                    id_opinion = null,
+                    review_opinion = reviewOpinion,
+                    profile = null
                 )
+                data.postOpinion(opinion)
             }
         } ,
         logout = {

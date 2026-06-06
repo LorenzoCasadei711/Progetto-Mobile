@@ -7,13 +7,15 @@ import it.supabase.remembermy.composable.PostCard
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import androidx.lifecycle.viewModelScope
+import it.supabase.remembermy.data.repository.OSMDataSource
 import kotlinx.coroutines.launch
 data class SearchState(
     val posts: List<Post> = emptyList(),
     val followedEvents: Set<String> = emptySet()
 )
 class SearchViewModel (
-    private val data: SupabaseData
+    private val data: SupabaseData,
+    private val osmDataSource: OSMDataSource
 ): ViewModel(){
     private val _state = MutableStateFlow(SearchState())
     val state: StateFlow<SearchState> = _state
@@ -30,13 +32,19 @@ class SearchViewModel (
                     followedEvents = followedIds,
                     posts = events.map { event ->
                         val profile = data.getProfileById(event.id_user)
+                        val position = if (event.latitude != null && event.longitude != null) {
+                            osmDataSource.searchWithCoordinates(event.latitude, event.longitude).displayName
+                        } else ""
                         Post(
                             idEvent = event.id_event ?: "",
                             username = profile.nickname ?: profile.email,
                             userImage = profile.avatar_url ?: "https://picsum.photos/100",
                             postImage = "https://picsum.photos/100",
                             likes = 0,
-                            description = event.name_event
+                            description = event.name_event,
+                            latitude = event.latitude,
+                            longitude = event.longitude,
+                            position = position
                         )
                     }
                 )

@@ -7,7 +7,10 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.GpsFixed
@@ -71,7 +75,7 @@ fun CreateEventScreen(
     var place by remember { mutableStateOf("") }
     var date by remember { mutableStateOf("") }
     var isPrivate by remember { mutableStateOf(false) }
-    var locationFound = remember { mutableStateOf(false) }
+    val locationFound = remember { mutableStateOf(false) }
     var confirmedPlace by remember { mutableStateOf("") }
 
     val gpsState = rememberGPSState()
@@ -91,7 +95,9 @@ fun CreateEventScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues),
+                    .padding(paddingValues)
+                    .scrollable(state = rememberScrollState(),
+                        orientation = Orientation.Vertical),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text("Crea evento")
@@ -144,7 +150,7 @@ fun CreateEventScreen(
                                 ),
                                 label = "rotation"
                             )
-                            if (waitingForLocation) {
+                            if (gpsState.isLoading.value) {
                                 Icon(
                                     imageVector = Icons.Filled.Replay,
                                     contentDescription = "Loading",
@@ -159,13 +165,8 @@ fun CreateEventScreen(
                 LocationDisabledAlert(
                     show = gpsState.showLocationDisabledAlert,
                     onAction = { gpsState.openLocationSettings() },
-                    onHide = {
-                        gpsState.showLocationDisabledAlert = false
-                        waitingForLocation = false
-                    }
+                    onHide = { gpsState.showLocationDisabledAlert = false }
                 )
-
-
 
                 OutlinedTextField(
                     value = name,
@@ -198,7 +199,6 @@ fun CreateEventScreen(
                         scope.launch {
                             osmState.searchPlaces().join()
                             val result = osmState.result.value
-                            Log.d("DEBUG", "Result after join: '$result'")  // add this
                             if (result != "Place not found" && result != "Loading..." && result.isNotEmpty()) {
                                 confirmedPlace = result
                                 locationFound.value = true
@@ -216,61 +216,65 @@ fun CreateEventScreen(
 
             }
             if (locationFound.value) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.5f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(0.85f)
-                            .background(Color.White, shape = RoundedCornerShape(16.dp))
-                            .padding(24.dp)
-                    ) {
-                        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                            Text(
-                                text = "Confirm Location",
-                                style = MaterialTheme.typography.titleLarge
+                PlaceConfirmationAlert(
+                    show = locationFound.value,
+                    place = osmState.result.value,
+                    onAction = {
+                        Log.d("DEBUG", "The location is $name")
+                        scope.launch {
+                            vm.createEvent(
+                                name = name,
+                                isPrivate = isPrivate,
+                                date = date,
+                                details = details,
+                                coordinates = Coordinates(
+                                    osmState.latitudeResult.value,
+                                    osmState.longitudeResult.value
+                                )
                             )
-                            Text(
-                                text = "Is this your location?\n$confirmedPlace",
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.End
-                            ) {
-                                TextButton(onClick = {
-                                    locationFound.value = false
-                                    scope.launch {
-                                        vm.createEvent(
-                                            name = name,
-                                            isPrivate = isPrivate,
-                                            date = date,
-                                            details = details,
-                                            coordinates = Coordinates(
-                                                osmState.latitudeResult.value,
-                                                osmState.longitudeResult.value
-                                            )
-                                        )
-                                        navController.navigate(NavigationRoute.Map) {
-                                            popUpTo(NavigationRoute.HomeScreen)
-                                        }
-                                    }
-                                }) {
-                                    Text("Yes")
-                                }
-                                TextButton(onClick = {
-                                    locationFound.value = false
-                                    place = osmState.query.value
-                                }) {
-                                    Text("No")
-                                }
+                            navController.navigate(NavigationRoute.Map) {
+                                popUpTo(NavigationRoute.HomeScreen)
                             }
                         }
-                    }
-                }
+
+                    },
+                    onDismiss = {place = osmState.query.value},
+                    onHide = {locationFound.value = false})
             }
         }
-    }}
+    }
+}
+
+@Composable
+fun PlaceConfirmationAlert(
+    show: Boolean,
+    place: String,
+    onAction: () -> Unit,
+    onDismiss: () -> Unit,
+    onHide: () -> Unit
+) {
+    if (show) {
+        AlertDialog(
+            title = { Text("Confirm Location") },
+            text = { Text("Is this your location? $place") },
+            confirmButton = {
+                TextButton(onClick = {
+                    onAction()
+                    onHide()
+                }) {
+                    Text("Yes")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    onHide()
+                    onDismiss()
+                }) {
+                    Text("No")
+                }
+            },
+            onDismissRequest = onHide
+        )
+    }
+}
+

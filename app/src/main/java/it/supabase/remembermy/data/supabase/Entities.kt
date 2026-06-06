@@ -56,8 +56,8 @@ data class Tags(
 )
 @Serializable
 data class Opinions(
-    val user_id : String,
-    val event_id:String,
+    val id_user : String,
+    val id_event: String,
     val id_opinion:String? = null,
     val review_opinion: String?,
     val profile : Profiles? = null
