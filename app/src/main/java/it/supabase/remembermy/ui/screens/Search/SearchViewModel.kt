@@ -26,14 +26,21 @@ class SearchViewModel (
             try {
                 val events = data.getAllEvents()
                 val followedIds = data.getFollowedEventIds()
+                val profileByUserId = events
+                    .map{it.id_user}
+                    .distinct()
+                    .associateWith{ idUser ->
+                        data.getProfileById(idUser)
+                    }
+
                 _state.value = SearchState(
                     followedEvents = followedIds,
                     posts = events.map { event ->
-                        val profile = data.getProfileById(event.id_user)
+                        val profile = profileByUserId[event.id_user]
                         Post(
                             idEvent = event.id_event ?: "",
-                            username = profile.nickname ?: profile.email,
-                            userImage = profile.avatar_url ?: "https://picsum.photos/100",
+                            username = profile?.nickname ?: profile?.email ?: "Utente",
+                            userImage = profile?.avatar_url ?: "https://picsum.photos/100",
                             postImage = "https://picsum.photos/100",
                             likes = 0,
                             description = event.name_event

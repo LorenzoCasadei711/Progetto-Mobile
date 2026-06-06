@@ -28,15 +28,20 @@ class HomeViewModel (
             try {
                 val events = data.getMyCreatedAndFollowedEvents()
                 val followedIds = data.getFollowedEventIds()
-
+                val profilesByUserId = events
+                    .map { it.id_user }
+                    .distinct()
+                    .associateWith { idUser ->
+                        data.getProfileById(idUser)
+                    }
                 _state.value = HomeState(
                     followedEvents = followedIds,
                     posts = events.map { event ->
-                        val profile = data.getProfileById(event.id_user)
+                        val profile = profilesByUserId[event.id_user]
                         Post(
                             idEvent = event.id_event!!,
-                            username = profile.nickname ?: profile.email,
-                            userImage = profile.avatar_url ?: "https://picsum.photos/100",
+                            username = profile?.nickname ?: profile?.email ?: "Utente",
+                            userImage = profile?.avatar_url ?: "https://picsum.photos/100",
                             postImage = event.event_photo ?: "https://picsum.photos/100",
                             likes = 0,
                             description = event.name_event

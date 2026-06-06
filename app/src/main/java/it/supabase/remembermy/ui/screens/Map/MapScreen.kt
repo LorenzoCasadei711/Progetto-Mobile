@@ -68,7 +68,7 @@ fun MapScreen(
 
                         infoWindow = PlaceInfoWindow(
                             mapView = mapView,
-                            imageResId = R.drawable.cesena_centro,
+                            imageUrl = event.event_photo,
                             description = event.date_event
                         )
                         setOnMarkerClickListener { marker, mapView ->
