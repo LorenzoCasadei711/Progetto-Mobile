@@ -16,12 +16,12 @@ data class Profiles(
 @Serializable
 data class Events(
     val id_event: String? = null,
-    val id_user: String,
-    val name_event: String,
     val status_event: String? = null,
+     val name_event: String,
     val is_private: Boolean,
     val date_event: String,
-    val event_photo: String,
+     val id_user: String,
+    val event_photo: String? = null,
     val latitude: Double,
     val longitude: Double,
     val event_details : String?,
@@ -39,7 +39,8 @@ data class FollowedEvents(
 @Serializable
 data class Badges(
     val badge_id : String,
-    val name_badge:String
+    val name_badge:String,
+
 )
 @Serializable
 data class UserBadge(
@@ -61,3 +62,4 @@ data class Opinions(
     val review_opinion: String?,
     val profile : Profiles? = null
 )
+

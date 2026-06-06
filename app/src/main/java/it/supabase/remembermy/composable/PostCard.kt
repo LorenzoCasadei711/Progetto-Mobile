@@ -1,6 +1,5 @@
 package it.supabase.remembermy.composable
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -26,13 +25,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 
 data class Post(
+    val idEvent : String,
     val username: String,
     val userImage : String,
     val postImage : String,
@@ -40,11 +39,14 @@ data class Post(
     val description : String
 )
 @Composable
-fun PostCard(post : Post) {
+fun PostCard(
+    post : Post,
+    isFollowed: Boolean,
+    onFollowClick:()->Unit
+){
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White)
             .padding(bottom = 12.dp)
 
     ) {
@@ -53,7 +55,7 @@ fun PostCard(post : Post) {
                 .fillMaxWidth()
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
-        ) {
+        ){
             AsyncImage(
                 model = post.userImage,
                 contentDescription = "Foto profilo",
@@ -85,24 +87,24 @@ fun PostCard(post : Post) {
                 .fillMaxWidth()
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
-        ) {
-            var isPressed by remember { mutableStateOf(false) }
-            IconButton(onClick = { isPressed = !isPressed }) {
+        ){
+
+            IconButton(onClick = onFollowClick){
                 Icon(
-                    imageVector = if (isPressed)
+                    imageVector = if(isFollowed)
                         Icons.Default.Favorite
                     else
                         Icons.Outlined.FavoriteBorder,
                     contentDescription = "Like icon"
                 )
             }
-            IconButton(onClick = {}) {
+            IconButton(onClick = {}){
                 Icon(
                     imageVector = Icons.Default.ChatBubbleOutline,
                     contentDescription = "Comment icon"
                 )
             }
-            IconButton(onClick = {}) {
+            IconButton(onClick = {}){
                 Icon(
                     imageVector = Icons.Default.CreditCard,
                     contentDescription = "Comment icon"
@@ -116,9 +118,16 @@ fun PostCard(post : Post) {
             modifier = Modifier.padding(12.dp),
             fontWeight = FontWeight.Bold
         )
-        Text(
-            text = "${post.username} ${post.description}",
-            modifier = Modifier.padding(horizontal = 12.dp)
-        )
+        Row() {
+            Text(
+                text = "${post.username}",
+                modifier = Modifier.padding(horizontal = 6.dp),
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "${post.description}",
+                modifier = Modifier.padding(horizontal = 6.dp)
+            )
+        }
     }
 }

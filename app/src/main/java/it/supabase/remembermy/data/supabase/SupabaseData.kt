@@ -24,7 +24,7 @@ class SupabaseData(val supabase: SupabaseClient,
     }.decodeAs<Profiles>()
 
     suspend fun getListEvents(): List<Events> {
-        val currentUserId = supabase.auth.retrieveUserForCurrentSession().id
+        val currentUserId = getCurrentUserId()
 
         return supabase.from("events")
             .select(Columns.raw("*, followed_events(*), opinions(*, profiles(*))")) {
@@ -47,6 +47,16 @@ class SupabaseData(val supabase: SupabaseClient,
                 }
             }.decodeList<UserBadge>()
     }
+
+    suspend fun getAllEvents() = supabase.from("events").select()
+        .decodeList<Events>()
+
+    suspend fun getProfileById(idUser: String) = supabase.from("profiles").select {
+        single()
+        filter {
+            eq("id_user", idUser)
+        }
+    }.decodeAs<Profiles>()
 
     suspend fun editProfile(profile : Profiles) = supabase.from("profiles").update (profile
     ){
@@ -143,5 +153,69 @@ class SupabaseData(val supabase: SupabaseClient,
         return supabase.auth
             .retrieveUserForCurrentSession()
             .id
+    }
+    suspend fun followEvent(idEvent: String){
+        val idUser = getCurrentUserId()
+        supabase.from("followed_events").insert(
+            FollowedEvents(
+                idUser,
+                idEvent
+            )
+        )
+    }
+    suspend fun unfollowEvent(idEvent:String){
+        val idUser = getCurrentUserId()
+        supabase.from("followed_events").delete {
+            filter {
+                eq("id_user",idUser)
+                eq("id_event",idEvent)
+            }
+        }
+    }
+    suspend fun isFollowingEvent(idEvent : String): Boolean{
+        val idUser = getCurrentUserId()
+        val result = supabase.from("followed_events").select {
+            filter {
+                eq("id_user",idUser)
+                eq("id_event",idEvent)
+            }
+        }.decodeList<FollowedEvents>()
+        return result.isNotEmpty()
+    }
+    suspend fun getMyFollowedEvents():List<Events>{
+        val idUser = getCurrentUserId()
+
+        val followed = supabase.from("followed_events").select {
+            filter {
+                eq("id_user",idUser)
+            }
+        }.decodeList<FollowedEvents>()
+
+        return followed.mapNotNull { follow ->
+            supabase.from("events").select {
+                single()
+                filter {
+                    eq("id_event",follow.id_event)
+                }
+            }.decodeAs<Events>()
+        }
+    }
+    suspend fun getMyCreatedAndFollowedEvents(): List<Events>{
+        val created = getListEvents()
+        val followed = getMyFollowedEvents()
+
+        return (created + followed).distinctBy { it.id_event }
+    }
+
+    suspend fun getFollowedEventIds(): Set<String> {
+        val idUser = getCurrentUserId()
+
+        return supabase.from("followed_events").select {
+            filter {
+                eq("id_user", idUser)
+            }
+        }.decodeList<FollowedEvents>()
+            .map { it.id_event }
+            .toSet()
     }
 }

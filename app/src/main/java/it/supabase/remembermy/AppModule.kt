@@ -7,6 +7,7 @@ import it.supabase.remembermy.data.supabase.supabase
 import it.supabase.remembermy.ui.screens.auth.AccessViewModel
 import it.supabase.remembermy.ui.screens.profile.ProfileViewModel
 import io.github.jan.supabase.SupabaseClient
+import it.supabase.remembermy.ui.screens.Home.HomeViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
@@ -14,6 +15,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
 import it.supabase.remembermy.data.repository.OSMDataSource
 import it.supabase.remembermy.ui.screens.Map.MapViewModel
+import it.supabase.remembermy.ui.screens.Search.SearchViewModel
 import org.koin.android.ext.koin.androidContext
 import it.supabase.remembermy.ui.screens.camera.CameraViewModel
 import kotlinx.serialization.json.Json
@@ -31,6 +33,8 @@ val viewModule = module {
     viewModel { ProfileViewModel(get() ) }
     viewModel { MapViewModel(get()) }
     viewModel { CameraViewModel(get()) }
+    viewModel { HomeViewModel(get()) }
+    viewModel { SearchViewModel(get()) }
 }
 
 val httpModule = module {

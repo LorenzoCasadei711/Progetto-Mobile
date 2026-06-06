@@ -17,16 +17,20 @@ class MapViewModel (
     private val _state = MutableStateFlow(MapState())
     val state: StateFlow<MapState> = _state
     init {
+        println("MAP VM CREATA -> ${hashCode()}")
         fetchEvents()
     }
     fun fetchEvents(){
         viewModelScope.launch {
             try {
-                val events = data.getListEvents()
+                val events = data.getMyCreatedAndFollowedEvents()
+                println("EVENTI LETTI DA SUPABASE -> $events")
+                println("NUMERO EVENTI LETTI -> ${events.size}")
                 _state.value = MapState(
                     events.filterNotNull()
                 )
             } catch (e: Exception){
+                println("ERRORE FETCH EVENTI -> ${e.message}")
                 e.printStackTrace()
             }
         }

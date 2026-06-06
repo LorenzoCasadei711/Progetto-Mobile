@@ -1,6 +1,5 @@
-package it.supabase.remembermy.ui.screens
+package it.supabase.remembermy.ui.screens.Home
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -24,6 +23,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,38 +31,28 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.progettomobile.composable.BottomAppBar
+import it.supabase.remembermy.composable.TopAppBar
 import it.supabase.remembermy.composable.Post
 import it.supabase.remembermy.composable.PostCard
-import it.supabase.remembermy.composable.TopAppBar
+import androidx.compose.runtime.LaunchedEffect
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavHostController) {
-    val fakePost = listOf(
-        Post(
-            username = "lorenzo",
-            userImage = "https://picsum.photos/100",
-            postImage = "https://picsum.photos/800/800",
-            likes = 128,
-            description = "Questo è un post di prova"
-        ),
-        Post(
-            username = "mario",
-            userImage = "https://picsum.photos/100?2",
-            postImage = "https://picsum.photos/800/800?2",
-            likes = 87,
-            description = "Secondo post di prova"
-        )
-    )
+fun HomeScreen(
+    navController: NavHostController,
+    viewModel: HomeViewModel
+) {
+    val state by viewModel.state.collectAsState()
 
-
+    LaunchedEffect(Unit) {
+        viewModel.fetchPosts()
+    }
     Scaffold(
         topBar = { TopAppBar("Feed", navController) },
         bottomBar = { BottomAppBar(navController) }
@@ -72,11 +62,15 @@ fun HomeScreen(navController: NavHostController) {
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            items(fakePost){ post ->
-                PostCard(post)
-
+            items(state.posts){ post ->
+                PostCard(
+                    post,
+                    isFollowed = post.idEvent in state.followedEvents,
+                    onFollowClick = { viewModel.togleFollow(post.idEvent) }
+                )
             }
         }
 
     }
 }
+

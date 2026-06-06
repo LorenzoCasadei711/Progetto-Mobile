@@ -16,7 +16,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
-import it.supabase.remembermy.ui.screens.HomeScreen
+import androidx.navigation.toRoute
+import it.supabase.remembermy.ui.screens.Home.HomeScreen
 import it.supabase.remembermy.ui.screens.SettingsScreen
 import it.supabase.remembermy.ui.screens.Theme
 import it.supabase.remembermy.ui.screens.auth.AccessViewModel
@@ -28,6 +29,8 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.status.SessionStatus
 import it.supabase.remembermy.ui.screens.Event.CreateEventScreen
+import it.supabase.remembermy.ui.screens.Event.EventPostScreen
+import it.supabase.remembermy.ui.screens.Home.HomeViewModel
 import it.supabase.remembermy.ui.screens.Map.MapScreen
 import it.supabase.remembermy.ui.screens.auth.login.LoginScreen
 import it.supabase.remembermy.ui.screens.auth.magiclogin.MagicLinkScreen
@@ -38,6 +41,8 @@ import org.koin.androidx.compose.koinViewModel
 import it.supabase.remembermy.ui.screens.camera.CameraScreen
 import it.supabase.remembermy.ui.screens.profile.ChangeInfoProfileScreen
 import it.supabase.remembermy.ui.screens.Map.MapViewModel
+import it.supabase.remembermy.ui.screens.Search.SearchScreen
+import it.supabase.remembermy.ui.screens.Search.SearchViewModel
 import it.supabase.remembermy.ui.screens.camera.CameraViewModel
 
 sealed interface NavigationRoute {
@@ -74,21 +79,25 @@ sealed interface NavigationRoute {
     data object MagicLink : NavigationRoute
 
     @Serializable
-    data object Map : NavigationRoute {
+    data object Map : NavigationRoute{
     }
-
     @Serializable
     data object ChangeInfo : NavigationRoute
-
     @Serializable
     data object CreateEvent : NavigationRoute
+    @Serializable
+    data class EventPost(
+        val idEvent : String
+    ) : NavigationRoute
 }
+
 
 @Composable
 fun NavGraph(navController: NavHostController, supabase: SupabaseClient, start: NavigationRoute) {
     val accessModel = koinViewModel<AccessViewModel>()
     val sessionStatus by supabase.auth.sessionStatus.collectAsState()
     val cameraModel = koinViewModel<CameraViewModel>()
+    val SearchModel = koinViewModel<SearchViewModel>()
 
     var selectedTheme by rememberSaveable { mutableStateOf(Theme.System) }
     var dynamicColor by rememberSaveable { mutableStateOf(true) }
@@ -114,7 +123,6 @@ fun NavGraph(navController: NavHostController, supabase: SupabaseClient, start: 
                         }
                     }
                 }
-
                 else -> {}
             }
         }
@@ -126,7 +134,7 @@ fun NavGraph(navController: NavHostController, supabase: SupabaseClient, start: 
             Theme.System -> isSystemInDarkTheme()
         },
         dynamicColor = dynamicColor
-    ) {
+    ){
         Surface(modifier = Modifier.fillMaxSize()) {
             NavHost(
                 navController = navController,
@@ -145,22 +153,28 @@ fun NavGraph(navController: NavHostController, supabase: SupabaseClient, start: 
                     RecoveryScreen(accessModel, navController)
                 }
 
-                composable<NavigationRoute.HomeScreen> { HomeScreen(navController) }
-                composable<NavigationRoute.Settings> {
-                    SettingsScreen(
-                        navController,
-                        selectedTheme = selectedTheme,
-                        onThemeChange = { selectedTheme = it },
-                        dynamicColor = dynamicColor,
-                        onDynamicColorChange = { dynamicColor = it }
-                    )
-                }
-                composable<NavigationRoute.Camera> { CameraScreen(navController, cameraModel) }
-                //composable<NavigationRoute.Search> {  }
-                composable<NavigationRoute.Profile> {
-                    val profileModel = koinViewModel<ProfileViewModel>()
-                    ToProfile(navController, profileModel)
-                }
+            composable<NavigationRoute.HomeScreen> {
+                val homeModel = koinViewModel<HomeViewModel>()
+                HomeScreen(navController,homeModel)
+            }
+            composable<NavigationRoute.Settings> {
+                SettingsScreen(
+                    navController,
+                    selectedTheme = selectedTheme,
+                    onThemeChange = { selectedTheme = it },
+                    dynamicColor = dynamicColor,
+                    onDynamicColorChange = { dynamicColor = it }
+                )
+            }
+            composable<NavigationRoute.Camera> { CameraScreen(navController,cameraModel) }
+            //composable<NavigationRoute.Add> {  }
+            composable<NavigationRoute.Search> {
+                SearchScreen(navController,SearchModel)
+            }
+            composable<NavigationRoute.Profile> {
+                val profileModel = koinViewModel<ProfileViewModel>()
+                ToProfile(navController, profileModel)
+            }
 
                 composable<NavigationRoute.ResetPassword>(
                     deepLinks = listOf(
@@ -172,23 +186,26 @@ fun NavGraph(navController: NavHostController, supabase: SupabaseClient, start: 
                     ResetPasswordScreen(accessModel, navController)
                 }
 
-                composable<NavigationRoute.MagicLink> {
-                    MagicLinkScreen(accessModel, navController)
-                }
-                composable<NavigationRoute.Map> {
-                    val mapModel = koinViewModel<MapViewModel>()
-                    MapScreen(
-                        navController = navController,
-                        viewModel = mapModel
-                    )
-                }
-                composable<NavigationRoute.CreateEvent> {
-                    CreateEventScreen(
-                        navController = navController,
-                        vm = cameraModel
-                    )
-                }
-
+            composable<NavigationRoute.MagicLink> {
+                MagicLinkScreen(accessModel, navController)
+            }
+            composable<NavigationRoute.Map> {
+                val mapModel = koinViewModel<MapViewModel>()
+                MapScreen(
+                    navController = navController,
+                    viewModel = mapModel
+                )
+            }
+            composable<NavigationRoute.CreateEvent> {
+                CreateEventScreen(
+                    navController = navController,
+                    vm = cameraModel
+                )
+            }
+            composable<NavigationRoute.EventPost> {backStackEntry ->
+                val route = backStackEntry.toRoute<NavigationRoute.EventPost>()
+                EventPostScreen(navController,SearchModel,route.idEvent)
+            }
 
                 composable<NavigationRoute.ChangeInfo> {
                     val profileModel = koinViewModel<ProfileViewModel>()
