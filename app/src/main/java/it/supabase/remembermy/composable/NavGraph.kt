@@ -44,6 +44,7 @@ import it.supabase.remembermy.ui.screens.Map.MapViewModel
 import it.supabase.remembermy.ui.screens.Search.SearchScreen
 import it.supabase.remembermy.ui.screens.Search.SearchViewModel
 import it.supabase.remembermy.ui.screens.camera.CameraViewModel
+import kotlin.reflect.typeOf
 
 sealed interface NavigationRoute {
 
@@ -79,7 +80,11 @@ sealed interface NavigationRoute {
     data object MagicLink : NavigationRoute
 
     @Serializable
-    data object Map : NavigationRoute{
+    data class Map(
+        val latitude : Double,
+        val longitude : Double,
+        val imagePic : String
+    ) : NavigationRoute{
     }
     @Serializable
     data object ChangeInfo : NavigationRoute
@@ -189,11 +194,14 @@ fun NavGraph(navController: NavHostController, supabase: SupabaseClient, start: 
             composable<NavigationRoute.MagicLink> {
                 MagicLinkScreen(accessModel, navController)
             }
-            composable<NavigationRoute.Map> {
+            composable<NavigationRoute.Map> {backStackEntry ->
                 val mapModel = koinViewModel<MapViewModel>()
+                val coordinates = backStackEntry.toRoute<NavigationRoute.Map>()
                 MapScreen(
                     navController = navController,
-                    viewModel = mapModel
+                    viewModel = mapModel,
+                    latitude = coordinates.latitude,
+                    longitude = coordinates.longitude
                 )
             }
             composable<NavigationRoute.CreateEvent> {

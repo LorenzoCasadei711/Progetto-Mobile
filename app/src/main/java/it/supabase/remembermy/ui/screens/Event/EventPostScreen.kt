@@ -39,7 +39,8 @@ fun EventPostScreen(
                     isFollowed = post.idEvent in state.followedEvents,
                     onFollowClick = {
                         viewModel.toggleFollow((post.idEvent))
-                    }
+                    },
+                    navController = navController
                 )
             }
         }

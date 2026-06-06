@@ -64,9 +64,10 @@ fun HomeScreen(
         ) {
             items(state.posts){ post ->
                 PostCard(
-                    post,
+                    post = post,
                     isFollowed = post.idEvent in state.followedEvents,
-                    onFollowClick = { viewModel.togleFollow(post.idEvent) }
+                    onFollowClick = { viewModel.togleFollow(post.idEvent) },
+                    navController = navController
                 )
             }
         }

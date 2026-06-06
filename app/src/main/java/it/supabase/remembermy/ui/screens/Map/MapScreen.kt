@@ -23,7 +23,10 @@ import com.example.progettomobile.composable.BottomAppBar
 @Composable
 fun MapScreen(
     navController: NavHostController,
-    viewModel: MapViewModel
+    viewModel: MapViewModel,
+    latitude : Double = 44.1391,
+    longitude : Double = 12.2431,
+    imagePic : String = ""
 ) {
     val state by viewModel.state.collectAsState()
     Scaffold(
@@ -47,10 +50,10 @@ fun MapScreen(
                     setTileSource(TileSourceFactory.MAPNIK)
                     setMultiTouchControls(true)
 
-                    val cesena = GeoPoint(44.1391, 12.2431)
+                    val center = GeoPoint(latitude, longitude)
 
                     controller.setZoom(15.0)
-                    controller.setCenter(cesena)
+                    controller.setCenter(center)
                 }
             },
             update = { mapView ->

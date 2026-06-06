@@ -17,6 +17,7 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,7 +31,9 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.example.progettomobile.composable.NavigationRoute
 
 data class Post(
     val idEvent : String,
@@ -45,6 +48,7 @@ data class Post(
 )
 @Composable
 fun PostCard(
+    navController : NavHostController,
     post : Post,
     isFollowed: Boolean,
     onFollowClick:()->Unit
@@ -129,10 +133,17 @@ fun PostCard(
                 modifier = Modifier.padding(horizontal = 6.dp),
                 fontWeight = FontWeight.Bold
             )
-            Text(post.position,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Thin,
-                fontStyle = FontStyle.Italic)
+            TextButton(
+                onClick = {
+                    navController.navigate(
+                        NavigationRoute.Map(post.latitude, post.longitude, post.postImage))
+                }
+            ) {
+                Text(post.position,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Thin,
+                    fontStyle = FontStyle.Italic)
+            }
             Text(
                 text = post.description,
                 modifier = Modifier.padding(horizontal = 6.dp)
