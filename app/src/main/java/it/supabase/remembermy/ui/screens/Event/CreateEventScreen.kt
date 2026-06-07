@@ -1,6 +1,7 @@
 package it.supabase.remembermy.ui.screens.Event
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -30,8 +31,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.GpsFixed
 import androidx.compose.material.icons.filled.Replay
@@ -55,9 +58,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
 import it.supabase.remembermy.composable.TopAppBar
 import com.example.progettomobile.composable.BottomAppBar
 import com.example.progettomobile.composable.NavigationRoute
+import it.supabase.remembermy.composable.ImagePickerButton
 import it.supabase.remembermy.composable.rememberGPSState
 import it.supabase.remembermy.composable.rememberOSM
 import it.supabase.remembermy.data.Coordinates
@@ -76,7 +82,8 @@ fun CreateEventScreen(
     var date by remember { mutableStateOf("") }
     var isPrivate by remember { mutableStateOf(false) }
     val locationFound = remember { mutableStateOf(false) }
-    var confirmedPlace by remember { mutableStateOf("") }
+    var pictureUri = vm.pictureUri
+    var pictureSelected by remember {mutableStateOf(pictureUri != null)}
 
     val gpsState = rememberGPSState()
     val osmState = rememberOSM()
@@ -96,12 +103,26 @@ fun CreateEventScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .scrollable(state = rememberScrollState(),
-                        orientation = Orientation.Vertical),
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text("Crea evento")
+                AnimatedVisibility(visible = pictureSelected) {
+                    Image(
+                        painter = rememberAsyncImagePainter(pictureUri),
+                        contentDescription = "Event Image",
+                        modifier = Modifier.size(400.dp)
+                    )
+                }
 
+
+
+
+
+                ImagePickerButton({
+                    pictureUri = it
+                pictureSelected = true})
                 LaunchedEffect(gpsState.coordinates.value, waitingForLocation) {
                     val currentCoords = gpsState.coordinates.value
                     if (waitingForLocation && currentCoords != null) {
@@ -200,7 +221,6 @@ fun CreateEventScreen(
                             osmState.searchPlaces().join()
                             val result = osmState.result.value
                             if (result != "Place not found" && result != "Loading..." && result.isNotEmpty()) {
-                                confirmedPlace = result
                                 locationFound.value = true
                             } else {
                                 snackbarHostState.showSnackbar(
@@ -230,7 +250,8 @@ fun CreateEventScreen(
                                 coordinates = Coordinates(
                                     osmState.latitudeResult.value,
                                     osmState.longitudeResult.value
-                                )
+                                ),
+                                placeName = place
                             )
                             navController.navigate(NavigationRoute.Map) {
                                 popUpTo(NavigationRoute.HomeScreen)
@@ -238,8 +259,8 @@ fun CreateEventScreen(
                         }
 
                     },
-                    onDismiss = {place = osmState.query.value},
-                    onHide = {locationFound.value = false})
+                    onDismiss = { place = osmState.query.value },
+                    onHide = { locationFound.value = false })
             }
         }
     }

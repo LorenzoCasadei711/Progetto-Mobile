@@ -24,6 +24,7 @@ data class Events(
     val event_photo: String? = null,
     val latitude: Double,
     val longitude: Double,
+    val place_name : String?,
     val event_details : String?,
     @SerialName("followed_events")
     val followedEvents: List<FollowedEvents> = emptyList(),

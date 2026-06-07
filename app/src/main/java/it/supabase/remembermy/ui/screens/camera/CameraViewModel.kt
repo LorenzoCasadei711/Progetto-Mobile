@@ -31,7 +31,8 @@ class CameraViewModel (
         isPrivate: Boolean,
         date: String,
         details : String,
-        coordinates : Coordinates? = pictureCoordinates
+        coordinates : Coordinates? = pictureCoordinates,
+        placeName : String
     ){
         val uri = pictureUri ?: return
         if(coordinates == null) return
@@ -48,6 +49,7 @@ class CameraViewModel (
             event_photo = finalUri.toString(),
             latitude = coordinates.latitude,
             longitude = coordinates.longitude,
+            place_name = placeName,
             event_details = details,
         )
 

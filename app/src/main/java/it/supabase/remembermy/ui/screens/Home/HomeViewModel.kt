@@ -36,9 +36,6 @@ class HomeViewModel (
                     followedEvents = followedIds,
                     posts = events.map { event ->
                         val profile = data.getProfileById(event.id_user)
-                        val position = if (event.latitude != null && event.longitude != null) {
-                            osmDataSource.searchWithCoordinates(event.latitude, event.longitude).displayName
-                        } else ""
                         Post(
                             idEvent = event.id_event!!,
                             username = profile.nickname ?: profile.email,
@@ -48,7 +45,7 @@ class HomeViewModel (
                             description = event.name_event,
                             latitude = event.latitude,
                             longitude = event.longitude,
-                            position = position
+                            position = event.place_name?:""
                         )
                     }
                 )
