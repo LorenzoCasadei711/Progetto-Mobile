@@ -49,7 +49,7 @@ class MainActivity : ComponentActivity() {
     }
     private fun startingPage(sessionStatus: SessionStatus, intent: Intent) : NavigationRoute{
             if(intent.data?.getQueryParameter("type")=="recovery" && sessionStatus is SessionStatus.Authenticated) return NavigationRoute.ResetPassword
-            return if(sessionStatus is SessionStatus.Authenticated) NavigationRoute.CreateEvent
+            return if(sessionStatus is SessionStatus.Authenticated) NavigationRoute.HomeScreen
             else NavigationRoute.Login
     }
 

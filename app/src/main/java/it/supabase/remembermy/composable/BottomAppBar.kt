@@ -16,6 +16,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 
 
@@ -29,31 +30,41 @@ fun BottomAppBar(navController: NavHostController){
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                IconButton(onClick = { navController.navigate(NavigationRoute.HomeScreen) }) {
+                IconButton(onClick = { navController.navigate(NavigationRoute.HomeScreen) },
+                    enabled = navController.currentDestination?.hasRoute<NavigationRoute.HomeScreen>() == false
+                    ) {
                     Icon(
                         imageVector = Icons.Default.Home,
                         contentDescription = "Home"
                     )
                 }
-                IconButton(onClick = { navController.navigate(NavigationRoute.Search) }) {
+                IconButton(onClick = { navController.navigate(NavigationRoute.Search) },
+                    enabled = navController.currentDestination?.hasRoute<NavigationRoute.Search>() == false
+                    ) {
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = "Search"
                     )
                 }
-                IconButton(onClick = { navController.navigate(NavigationRoute.Profile) }){
+                IconButton(onClick = { navController.navigate(NavigationRoute.Profile) },
+                    enabled = navController.currentDestination?.hasRoute<NavigationRoute.Profile>() == false
+                    ){
                     Icon(
                         imageVector = Icons.Default.AccountCircle,
                         contentDescription = "Account"
                     )
                 }
-                IconButton(onClick = {navController.navigate(NavigationRoute.Camera)}) {
+                IconButton(onClick = {navController.navigate(NavigationRoute.Camera)},
+                    enabled = navController.currentDestination?.hasRoute<NavigationRoute.Camera>() == false
+                    ) {
                     Icon(
                         imageVector = Icons.Default.CameraEnhance,
                         contentDescription = "Camera"
                     )
                 }
-                IconButton(onClick = {navController.navigate(NavigationRoute.Map)}) {
+                IconButton(onClick = {navController.navigate(NavigationRoute.Map)},
+                    enabled = navController.currentDestination?.hasRoute<NavigationRoute.Map>() == false
+                    ) {
                     Icon(
                         imageVector = Icons.Default.Map,
                         contentDescription = "Map"
