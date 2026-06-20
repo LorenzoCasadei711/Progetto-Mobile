@@ -1,5 +1,6 @@
 package it.supabase.remembermy.composable
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,20 +31,17 @@ fun OpinionRow(opinion : Opinions){
         horizontalAlignment = Alignment.Start
     ) {
         Row {
+            Spacer(Modifier.width(4.dp))
             Image(
-                painter = rememberAsyncImagePainter(
-                    model = opinion.profile?.avatar_url,
-                    error = painterResource(R.drawable.profile_simple_svgrepo_com),
-                    placeholder = painterResource(R.drawable.profile_simple_svgrepo_com)
-                ),
+                painter = rememberAsyncImagePainter(opinion.profiles?.avatar_url),
                 contentDescription = "Avatar URL",
                 modifier = Modifier
                     .size(32.dp)
                     .padding(4.dp)
                     .clip(CircleShape)
             )
-            Spacer(Modifier.width(16.dp))
-            (opinion.profile?.nickname ?: opinion.profile?.email)?.let {
+            Spacer(Modifier.width(8.dp))
+            (opinion.profiles?.nickname ?: opinion.profiles?.email)?.let {
                 Text(
                     it,
                     style = MaterialTheme.typography.titleSmall,
@@ -51,7 +49,7 @@ fun OpinionRow(opinion : Opinions){
                 )
             }
         }
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(8.dp))
         Text(opinion.review_opinion ?: "Errore Commento")
         HorizontalDivider(
             modifier = Modifier.padding(vertical = 8.dp),

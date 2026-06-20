@@ -90,6 +90,7 @@ import it.supabase.remembermy.ui.screens.Event.OpinionSection
 fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) {
     val state by profileModel.state.collectAsState()
     val user = state.info
+    Log.d("PROFILE_DEBUG", user.toString())
     val posts = state.events
     val badges = state.badges
 
@@ -211,7 +212,7 @@ fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) 
                     }
                 } else {
                     items(posts) { post ->
-                        ProfileCard(checkNotNull(post), profileModel)
+                        ProfileCard(checkNotNull(post), navController, profileModel)
                         HorizontalDivider(
                             modifier = Modifier.height(2.dp),
                             color = MaterialTheme.colorScheme.onBackground
@@ -248,7 +249,7 @@ fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) 
 }
 
 @Composable
-fun ProfileCard(event : Events, profileViewModel: ProfileViewModel){
+fun ProfileCard(event : Events, navController : NavHostController, profileViewModel: ProfileViewModel){
 
     val followNumber = event.followedEvents.size
     val opinions = event.opinions
@@ -308,7 +309,7 @@ fun ProfileCard(event : Events, profileViewModel: ProfileViewModel){
             verticalAlignment = Alignment.CenterVertically
         ) {
             Button(
-                onClick = {/*TODO*/}
+                onClick = {navController.navigate(NavigationRoute.ChangeEvent(event))}
             ) {
                 Text("Edit Event")
             }

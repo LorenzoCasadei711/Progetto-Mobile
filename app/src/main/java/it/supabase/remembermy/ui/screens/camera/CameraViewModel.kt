@@ -22,6 +22,8 @@ class CameraViewModel (
         private set
     var pictureCoordinates by mutableStateOf<Coordinates?>(null)
         private set
+
+    var finalUri by mutableStateOf<String?>(null)
     fun setPictureData(uri: Uri,coordinates: Coordinates?){
         pictureUri = uri
         pictureCoordinates = coordinates
@@ -38,7 +40,7 @@ class CameraViewModel (
         if(coordinates == null) return
         val idUser = data.getCurrentUserId()
 
-        val finalUri = data.fileToBucket(idUser, "events",null, uri)?: uri
+        this.finalUri = (data.fileToBucket(idUser, "events",null, uri)?: uri) as String?
 
         val event = Events(
             status_event = null,
@@ -46,7 +48,7 @@ class CameraViewModel (
             is_private = isPrivate,
             date_event = date,
             id_user = idUser,
-            event_photo = finalUri.toString(),
+            event_photo = finalUri,
             latitude = coordinates.latitude,
             longitude = coordinates.longitude,
             place_name = placeName,

@@ -31,7 +31,9 @@ fun BottomAppBar(navController: NavHostController) {
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 IconButton(
-                    onClick = { navController.navigate(NavigationRoute.HomeScreen) },
+                    onClick = { navController.navigate(NavigationRoute.HomeScreen){
+                        popUpTo(0)
+                    } },
                     enabled = navController.currentDestination?.hasRoute<NavigationRoute.HomeScreen>() == false
                 ) {
                     Icon(

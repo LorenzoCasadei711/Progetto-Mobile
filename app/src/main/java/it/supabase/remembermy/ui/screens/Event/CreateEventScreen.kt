@@ -84,6 +84,7 @@ fun CreateEventScreen(
     val locationFound = remember { mutableStateOf(false) }
     var pictureUri = vm.pictureUri
     var pictureSelected by remember {mutableStateOf(pictureUri != null)}
+    var osmPlace by remember { mutableStateOf(false) }
 
     val gpsState = rememberGPSState()
     val osmState = rememberOSM()
@@ -121,7 +122,8 @@ fun CreateEventScreen(
 
 
                 ImagePickerButton({
-                    pictureUri = it
+                    vm.setPictureData(it,
+                        null)
                 pictureSelected = true})
                 LaunchedEffect(gpsState.coordinates.value, waitingForLocation) {
                     val currentCoords = gpsState.coordinates.value
@@ -144,6 +146,7 @@ fun CreateEventScreen(
                     onValueChange = {
                         place = it
                         osmState.query.value = place
+                        osmPlace = false
                     },
                     label = { Text("place") },
                     modifier = Modifier
@@ -152,6 +155,7 @@ fun CreateEventScreen(
                     trailingIcon = {
                         IconButton(
                             onClick = {
+                                osmPlace = true
                                 waitingForLocation = true
                                 gpsState.getLocationOrRequestPermission()
                                 if (!gpsState.locationPermissions.statuses.entries.all { it.value == PermissionStatus.Granted }) {
@@ -218,15 +222,23 @@ fun CreateEventScreen(
                 Button(
                     onClick = {
                         scope.launch {
-                            osmState.searchPlaces().join()
-                            val result = osmState.result.value
-                            if (result != "Place not found" && result != "Loading..." && result.isNotEmpty()) {
+                            if(osmPlace){
+                                osmState.latitudeResult.value =
+                                    gpsState.coordinates.value?.latitude!!
+                                osmState.longitudeResult.value =
+                                    gpsState.coordinates.value?.longitude!!
                                 locationFound.value = true
                             } else {
-                                snackbarHostState.showSnackbar(
-                                    message = "Place not found",
-                                    duration = SnackbarDuration.Long
-                                )
+                                osmState.searchPlaces().join()
+                                val result = osmState.result.value
+                                if (result != "Place not found" && result != "Loading..." && result.isNotEmpty()) {
+                                    locationFound.value = true
+                                } else {
+                                    snackbarHostState.showSnackbar(
+                                        message = "Place not found",
+                                        duration = SnackbarDuration.Long
+                                    )
+                                }
                             }
                         }
                     }
@@ -253,7 +265,11 @@ fun CreateEventScreen(
                                 ),
                                 placeName = place
                             )
-                            navController.navigate(NavigationRoute.Map) {
+                            navController.navigate(NavigationRoute.Map(
+                                osmState.latitudeResult.value,
+                                osmState.longitudeResult.value,
+                                    vm.finalUri?:""
+                            )) {
                                 popUpTo(NavigationRoute.HomeScreen)
                             }
                         }

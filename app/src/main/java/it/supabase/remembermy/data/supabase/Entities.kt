@@ -1,9 +1,12 @@
 package it.supabase.remembermy.data.supabase
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
+@Parcelize
 data class Profiles(
     val id_user: String,
     val level : Float,
@@ -12,8 +15,9 @@ data class Profiles(
     val birth_date: String?,
     val avatar_url: String?,
     val created_at: String
-)
+) : Parcelable
 @Serializable
+@Parcelize
 data class Events(
     val id_event: String? = null,
     val status_event: String? = null,
@@ -30,13 +34,14 @@ data class Events(
     val followedEvents: List<FollowedEvents> = emptyList(),
 
     val opinions: List<Opinions> = emptyList()
-)
+) : Parcelable
 
 @Serializable
+@Parcelize
 data class FollowedEvents(
     val id_user: String,
     val id_event: String
-)
+) : Parcelable
 @Serializable
 data class Badges(
     val badge_id : String,
@@ -56,11 +61,12 @@ data class Tags(
     val name_tag:String
 )
 @Serializable
+@Parcelize
 data class Opinions(
     val id_user : String,
     val id_event: String,
     val id_opinion:String? = null,
     val review_opinion: String?,
-    val profile : Profiles? = null
-)
+    val profiles : Profiles? = null
+) : Parcelable
 
