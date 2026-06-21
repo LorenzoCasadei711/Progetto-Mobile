@@ -78,7 +78,9 @@ class SearchViewModel (
             }
         }
     }
-
+    fun update(){
+        search("")
+    }
     private fun search(query: String) {
         viewModelScope.launch {
             try {
