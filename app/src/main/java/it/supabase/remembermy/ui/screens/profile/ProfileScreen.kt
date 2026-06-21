@@ -109,7 +109,7 @@ fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) 
         bottomBar = { BottomAppBar(navController) },
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
-
+        profileModel.actions.update()
         Column(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,

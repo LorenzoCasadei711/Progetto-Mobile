@@ -236,4 +236,65 @@ class SupabaseData(val supabase: SupabaseClient,
             .map { it.id_event }
             .toSet()
     }
+    suspend fun getOpinionsByEvent(idEvent: String): List<Opinions>{
+        return supabase.from("opinions").select {
+            filter {
+                eq("event_id",idEvent)
+            }
+        }.decodeList<Opinions>()
+    }
+
+    suspend fun addOpinion(idEvent: String, review: String){
+        val idUser = getCurrentUserId()
+
+        val opinion = Opinions(
+            idUser,
+            idEvent,
+            null,
+            review,
+            null
+        )
+
+        supabase.from("opinions").insert(opinion)
+    }
+    suspend fun searchUsers(query: String): List<Profiles> {
+        if(query.isBlank()) return emptyList()
+
+        val byNickname = supabase.from("profiles").select {
+            filter {
+                ilike("nickname","%$query")
+            }
+        }.decodeList<Profiles>()
+
+        val byEmail = supabase.from("profiles").select {
+            filter {
+                ilike("email","%$query%")
+            }
+        }.decodeList<Profiles>()
+
+        return (byNickname + byEmail).distinctBy { it.id_user }
+    }
+
+    suspend fun searchEvents(query: String):List<Events>{
+        if(query.isBlank()) {
+            return getAllEvents()
+        }
+
+        val eventsByName = supabase.from("events").select {
+            filter {
+                ilike("name_event","%$query%")
+            }
+        }.decodeList<Events>()
+
+        val usersFound = searchUsers(query)
+
+        val eventsByUser =usersFound.flatMap { profile ->
+            supabase.from("events").select {
+                filter {
+                    eq("id_user",profile.id_user)
+                }
+            }.decodeList<Events>()
+        }
+        return (eventsByName + eventsByUser).distinctBy { it.id_event }
+    }
 }

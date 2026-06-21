@@ -18,6 +18,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
+import androidx.navigation.Navigation
+import com.example.progettomobile.composable.NavigationRoute
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,9 +33,7 @@ fun BottomAppBar(navController: NavHostController) {
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 IconButton(
-                    onClick = { navController.navigate(NavigationRoute.HomeScreen){
-                        popUpTo(0)
-                    } },
+                    onClick = { navController.navigateSingleTop(NavigationRoute.HomeScreen) },
                     enabled = navController.currentDestination?.hasRoute<NavigationRoute.HomeScreen>() == false
                 ) {
                     Icon(
@@ -42,7 +42,7 @@ fun BottomAppBar(navController: NavHostController) {
                     )
                 }
                 IconButton(
-                    onClick = { navController.navigate(NavigationRoute.Search) },
+                    onClick = { navController.navigateSingleTop(NavigationRoute.Search) },
                     enabled = navController.currentDestination?.hasRoute<NavigationRoute.Search>() == false
                 ) {
                     Icon(
@@ -51,7 +51,7 @@ fun BottomAppBar(navController: NavHostController) {
                     )
                 }
                 IconButton(
-                    onClick = { navController.navigate(NavigationRoute.Profile) },
+                    onClick = { navController.navigateSingleTop(NavigationRoute.Profile) },
                     enabled = navController.currentDestination?.hasRoute<NavigationRoute.Profile>() == false
                 ) {
                     Icon(
@@ -60,7 +60,7 @@ fun BottomAppBar(navController: NavHostController) {
                     )
                 }
                 IconButton(
-                    onClick = { navController.navigate(NavigationRoute.Camera) },
+                    onClick = { navController.navigateSingleTop(NavigationRoute.Camera) },
                     enabled = navController.currentDestination?.hasRoute<NavigationRoute.Camera>() == false
                 ) {
                     Icon(
@@ -70,7 +70,7 @@ fun BottomAppBar(navController: NavHostController) {
                 }
                 IconButton(
                     onClick = {
-                        navController.navigate(
+                        navController.navigateSingleTop(
                             NavigationRoute.Map(
                                 latitude = 44.1391,
                                 longitude = 12.2431,
@@ -78,7 +78,6 @@ fun BottomAppBar(navController: NavHostController) {
                             )
                         )
                     },
-
                     enabled = navController.currentDestination?.hasRoute<NavigationRoute.Map>() == false
                 ) {
                     Icon(
@@ -91,4 +90,14 @@ fun BottomAppBar(navController: NavHostController) {
         containerColor = MaterialTheme.colorScheme.primary,
         contentColor = MaterialTheme.colorScheme.onPrimary
     )
+}
+
+private fun NavHostController.navigateSingleTop(route: NavigationRoute) {
+    navigate(route) {
+        launchSingleTop = true
+        restoreState = true
+        if(route == NavigationRoute.HomeScreen){
+            popUpTo(0)
+        }
+    }
 }

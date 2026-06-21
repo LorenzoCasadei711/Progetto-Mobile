@@ -24,34 +24,62 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.grid.items
 import coil.compose.AsyncImage
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.example.progettomobile.composable.NavigationRoute
+import androidx.compose.foundation.layout.size
 
 @Composable
 fun SearchScreen(navController : NavHostController, viewModel: SearchViewModel){
     val state by viewModel.state.collectAsState()
-    var searchText by remember { mutableStateOf("") }
     Scaffold(
         topBar = { TopAppBar("Cerca", navController) },
         bottomBar = { BottomAppBar(navController) }
     ) { paddingValues ->
+        viewModel.update()
         Column(
             modifier = Modifier
                 .padding(paddingValues)
         ) {
             OutlinedTextField(
-                value = searchText,
-                onValueChange = { searchText = it },
+                value = state.searchText,
+                onValueChange = { viewModel.onSearchTextChange(it)},
                 label = { Text("Cerca eventi") },
                 modifier = Modifier.fillMaxWidth()
             )
+            if(state.searchText.isNotBlank() && state.users.isNotEmpty()){
+
+                LazyColumn(
+                    modifier = Modifier.height(200.dp)
+                ) {
+                    items(state.users) {user ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp)
+                        ) {
+                            AsyncImage(
+                                model = user.avatarUrl,
+                                contentDescription = null,
+                                modifier = Modifier.size(40.dp)
+                            )
+                            Text(
+                                text = user.username,
+                                modifier = Modifier.padding(start = 12.dp)
+                            )
+                        }
+                    }
+                }
+
+            }
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.weight(1f)
             ) {
                 items(state.posts) {post ->
                     AsyncImage(
@@ -66,26 +94,9 @@ fun SearchScreen(navController : NavHostController, viewModel: SearchViewModel){
                                     NavigationRoute.EventPost(post.idEvent)
                                 )
                             }
-
                     )
                 }
             }
-
-
-            /*LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                items(state.posts) { post ->
-                    PostCard(
-                        post = post,
-                        isFollowed = post.idEvent in state.followedEvents,
-                        onFollowClick = {
-                            viewModel.toggleFollow(post.idEvent)
-                        }
-                    )
-                }
-            }*/
         }
     }
 }
