@@ -89,7 +89,9 @@ class ProfileViewModel(
         },
         deleteEvent = {event ->
             viewModelScope.launch {
-                data.deleteBucketFile(event.event_photo)
+                event.event_photo?.let { photo ->
+                    data.deleteBucketFile(photo)
+                }
                 data.deleteEvent(event)
             }
         },
@@ -114,6 +116,4 @@ class ProfileViewModel(
             }
         }
     )
-
-
 }

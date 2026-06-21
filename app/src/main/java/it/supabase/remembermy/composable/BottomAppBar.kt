@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.Navigation
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -29,31 +30,31 @@ fun BottomAppBar(navController: NavHostController){
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                IconButton(onClick = { navController.navigate(NavigationRoute.HomeScreen) }) {
+                IconButton(onClick = { navController.navigateSingleTop(NavigationRoute.HomeScreen) }) {
                     Icon(
                         imageVector = Icons.Default.Home,
                         contentDescription = "Home"
                     )
                 }
-                IconButton(onClick = { navController.navigate(NavigationRoute.Search) }) {
+                IconButton(onClick = { navController.navigateSingleTop(NavigationRoute.Search) }) {
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = "Search"
                     )
                 }
-                IconButton(onClick = { navController.navigate(NavigationRoute.Profile) }){
+                IconButton(onClick = { navController.navigateSingleTop(NavigationRoute.Profile) }){
                     Icon(
                         imageVector = Icons.Default.AccountCircle,
                         contentDescription = "Account"
                     )
                 }
-                IconButton(onClick = {navController.navigate(NavigationRoute.Camera)}) {
+                IconButton(onClick = {navController.navigateSingleTop(NavigationRoute.Camera)}) {
                     Icon(
                         imageVector = Icons.Default.CameraEnhance,
                         contentDescription = "Camera"
                     )
                 }
-                IconButton(onClick = {navController.navigate(NavigationRoute.Map)}) {
+                IconButton(onClick = {navController.navigateSingleTop(NavigationRoute.Map)}) {
                     Icon(
                         imageVector = Icons.Default.Map,
                         contentDescription = "Map"
@@ -64,4 +65,11 @@ fun BottomAppBar(navController: NavHostController){
         containerColor = MaterialTheme.colorScheme.primary,
         contentColor = MaterialTheme.colorScheme.onPrimary
     )
+}
+
+private fun NavHostController.navigateSingleTop(route: NavigationRoute){
+    navigate(route) {
+        launchSingleTop = true
+        restoreState = true
+    }
 }
