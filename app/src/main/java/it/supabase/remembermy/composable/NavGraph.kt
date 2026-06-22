@@ -52,6 +52,7 @@ import it.supabase.remembermy.ui.screens.Map.MapViewModel
 import it.supabase.remembermy.ui.screens.Search.SearchScreen
 import it.supabase.remembermy.ui.screens.Search.SearchViewModel
 import it.supabase.remembermy.ui.screens.camera.CameraViewModel
+import it.supabase.remembermy.ui.theme.AppPalette
 import kotlinx.serialization.json.Json
 import kotlin.reflect.typeOf
 
@@ -123,6 +124,7 @@ fun NavGraph(navController: NavHostController, supabase: SupabaseClient, start: 
 
     var selectedTheme by rememberSaveable { mutableStateOf(Theme.System) }
     var dynamicColor by rememberSaveable { mutableStateOf(true) }
+    var selectedPalette by rememberSaveable { mutableStateOf(AppPalette.Blue) }
 
     LaunchedEffect(sessionStatus) {
         val currentDestination = navController.currentDestination
@@ -156,7 +158,8 @@ fun NavGraph(navController: NavHostController, supabase: SupabaseClient, start: 
             Theme.Dark -> true
             Theme.System -> isSystemInDarkTheme()
         },
-        dynamicColor = dynamicColor
+        dynamicColor = dynamicColor,
+        palette = selectedPalette
     ) {
         Surface(modifier = Modifier.fillMaxSize()) {
             val profileModel = koinViewModel<ProfileViewModel>()
@@ -185,7 +188,9 @@ fun NavGraph(navController: NavHostController, supabase: SupabaseClient, start: 
                         selectedTheme = selectedTheme,
                         onThemeChange = { selectedTheme = it },
                         dynamicColor = dynamicColor,
-                        onDynamicColorChange = { dynamicColor = it }
+                        onDynamicColorChange = { dynamicColor = it },
+                        selectedPalette = selectedPalette,
+                        onPaletteChange = {selectedPalette = it}
                     )
                 }
                 composable<NavigationRoute.Camera> {

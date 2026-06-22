@@ -235,13 +235,7 @@ fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) 
                     Text("Logout")
                 }
                 Spacer(Modifier.width(32.dp))
-                Button(
-                    onClick = {
-                        navController.navigate(NavigationRoute.ChangeInfo)
-                    }
-                ) {
-                    Text("Cambia Info")
-                }
+
             }
         }
 

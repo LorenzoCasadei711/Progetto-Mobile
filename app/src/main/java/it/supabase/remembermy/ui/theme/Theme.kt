@@ -10,6 +10,7 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
@@ -24,33 +25,43 @@ private val LightColorScheme = lightColorScheme(
     primary = Purple40,
     secondary = PurpleGrey40,
     tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
 )
+enum class AppPalette{
+    Blue,
+    Green,
+    Purple,
+    Orange,
+    Red
+}
 
 @Composable
 fun ProgettoMobileTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
+    palette: AppPalette = AppPalette.Blue,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            if (darkTheme) dynamicDarkColorScheme(context)
+            else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        darkTheme -> when(palette){
+            AppPalette.Blue -> darkColorScheme(primary = Color(0xFF82A3FD))
+            AppPalette.Green -> darkColorScheme(primary = Color(0xFF8FD694))
+            AppPalette.Purple -> darkColorScheme(primary = Color(0xFFCC3CFF))
+            AppPalette.Orange -> darkColorScheme(primary = Color(0xFFFC9E41))
+            AppPalette.Red -> darkColorScheme(primary = Color(0xFFFA3C2D))
+        }
+        else -> when(palette){
+            AppPalette.Blue -> lightColorScheme(primary = Color(0xFF4F67A5))
+            AppPalette.Green -> lightColorScheme(primary = Color(0xFF2E7D32))
+            AppPalette.Purple -> lightColorScheme(primary = Color(0xFF6750A4))
+            AppPalette.Orange -> lightColorScheme(primary = Color(0xFFE07A00))
+            AppPalette.Red -> lightColorScheme(primary = Color(0xFFC62828))
+        }
     }
 
     MaterialTheme(
