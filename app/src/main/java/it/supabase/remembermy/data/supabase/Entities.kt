@@ -51,8 +51,9 @@ data class UserBadge(
 
 @Serializable
 data class Tags(
-    val id_tag : String,
-    val name_tag:String
+    val id_tag : String ? = null,
+    val name_tag:String,
+    val id_user: String
 )
 @Serializable
 data class Opinions(
@@ -63,3 +64,8 @@ data class Opinions(
     val profile : Profiles? = null
 )
 
+@Serializable
+data class EventTag(
+    val id_event: String,
+    val id_tag: String
+)

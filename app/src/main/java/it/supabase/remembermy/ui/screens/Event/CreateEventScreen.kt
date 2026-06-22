@@ -8,9 +8,13 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.rememberScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.OutlinedTextField
@@ -27,13 +31,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.GpsFixed
 import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -47,6 +54,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.window.Dialog
@@ -73,6 +81,18 @@ fun CreateEventScreen(
     var isPrivate by remember { mutableStateOf(false) }
     var locationFound = remember { mutableStateOf(false) }
     var confirmedPlace by remember { mutableStateOf("") }
+    var tag by remember { mutableStateOf("") }
+    val suggestedTags = listOf(
+        "Sport",
+        "Cinema",
+        "Musica",
+        "Arte",
+        "Libri",
+        "Cibo",
+        "Fiera",
+        "Teatro",
+        "Viaggi"
+    )
 
     val gpsState = rememberGPSState()
     val osmState = rememberOSM()
@@ -91,7 +111,9 @@ fun CreateEventScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues),
+                    .padding(paddingValues)
+                    .verticalScroll(
+                        rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text("Crea evento")
@@ -185,6 +207,35 @@ fun CreateEventScreen(
                     label = { Text("Data evento") }
                 )
 
+                OutlinedTextField(
+                    value = tag,
+                    onValueChange = {tag = it},
+                    label = {Text("tag")}
+                )
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+
+                    Row(
+
+                    ) {
+                            Text("Tag suggeriti.")
+                    }
+
+                    suggestedTags.forEach { suggestedTag ->
+                        FilterChip(
+                            selected = tag == suggestedTag,
+                            onClick = { tag = suggestedTag },
+                            label = {Text(suggestedTag)}
+                        )
+                    }
+
+
+
+
+                }
+
                 Row {
                     Checkbox(
                         checked = isPrivate,
@@ -252,7 +303,8 @@ fun CreateEventScreen(
                                             coordinates = Coordinates(
                                                 osmState.latitudeResult.value,
                                                 osmState.longitudeResult.value
-                                            )
+                                            ),
+                                            tags = tag
                                         )
                                         navController.navigate(NavigationRoute.Map) {
                                             popUpTo(NavigationRoute.HomeScreen)

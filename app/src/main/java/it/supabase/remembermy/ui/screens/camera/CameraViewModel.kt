@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 import io.github.jan.supabase.auth.auth
 import it.supabase.remembermy.data.supabase.SupabaseData
+import it.supabase.remembermy.data.supabase.Tags
 
 class CameraViewModel (
     private val data: SupabaseData
@@ -31,7 +32,8 @@ class CameraViewModel (
         isPrivate: Boolean,
         date: String,
         details : String,
-        coordinates : Coordinates? = pictureCoordinates
+        coordinates : Coordinates? = pictureCoordinates,
+        tags: String
     ){
         val uri = pictureUri ?: return
         if(coordinates == null) return
@@ -51,7 +53,7 @@ class CameraViewModel (
             event_details = details,
         )
 
-        data.saveEvent(event)
+        data.saveEventWithTag(event,tags)
 
 
     }

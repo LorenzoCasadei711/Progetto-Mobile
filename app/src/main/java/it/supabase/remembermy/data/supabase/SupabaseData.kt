@@ -257,16 +257,47 @@ class SupabaseData(val supabase: SupabaseClient,
         return (byNickname + byEmail).distinctBy { it.id_user }
     }
 
-    suspend fun searchEvents(query: String):List<Events>{
-        if(query.isBlank()) return getAllEvents()
+    suspend fun searchEventsByTag(query: String): List<Events> {
+        if(query.isBlank()) return emptyList()
 
-        val eventsByName = supabase.from("events").select {
+        val tags = supabase.from("tags").select {
+            filter {
+                ilike("name_tag","%$query%")
+            }
+        }.decodeList<Tags>()
+
+        val eventIds = tags.flatMap { tag ->
+            supabase.from("event_tags").select {
+                filter{
+                    eq("id_tag",tag.id_tag!!)
+                }
+            }.decodeList<EventTag>()
+        }.map { it.id_event }
+
+        return eventIds.mapNotNull { idEvent ->
+            supabase.from("events").select {
+                single()
+                filter {
+                    eq("id_event",idEvent)
+                }
+            }.decodeAs<Events>()
+        }
+    }
+    suspend fun searchEventsByName(query: String): List<Events>{
+        return supabase.from("events").select {
             filter {
                 ilike("name_event","%$query%")
             }
         }.decodeList<Events>()
+    }
+    suspend fun searchEvents(query: String):List<Events>{
+        if(query.isBlank()) return getAllEvents()
+
+        val eventsByName = searchEventsByName(query)
 
         val usersFound = searchUsers(query)
+
+        val eventsByTag = searchEventsByTag(query)
 
         val eventsByUser =usersFound.flatMap { profile ->
             supabase.from("events").select {
@@ -275,6 +306,39 @@ class SupabaseData(val supabase: SupabaseClient,
                 }
             }.decodeList<Events>()
         }
-        return (eventsByName + eventsByUser).distinctBy { it.id_event }
+        return (eventsByName + eventsByUser + eventsByTag).distinctBy { it.id_event }
+    }
+
+    private suspend fun createTag(name:String): Tags{
+        val tag = Tags(
+            name_tag = name,
+            id_user = getCurrentUserId()
+        )
+
+        return supabase.from("tags").insert(tag){
+            select()
+        }.decodeSingle<Tags>()
+
+    }
+
+    suspend fun addTagToEvent(idEvent: String, idTag : String) {
+        supabase.from("event_tags").insert(
+            EventTag(
+                id_event = idEvent,
+                id_tag = idTag
+            )
+        )
+    }
+
+    suspend fun saveEventWithTag(event: Events,tagName: String){
+        val savedEvent = supabase.from("events")
+            .insert(event) {
+                select()
+            }.decodeSingle<Events>()
+
+        if (tagName.isNotBlank()){
+            val tag = createTag(tagName)
+            addTagToEvent(savedEvent.id_event!!,tag.id_tag!!)
+        }
     }
 }
