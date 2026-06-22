@@ -70,9 +70,6 @@ class SearchViewModel (
         }
     }
 
-    fun update(){
-        this.search("")
-    }
     fun toggleFollow(idEvent: String) {
         viewModelScope.launch {
             try {
