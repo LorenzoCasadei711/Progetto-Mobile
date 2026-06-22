@@ -1,30 +1,19 @@
 package it.supabase.remembermy.ui.screens.profile
 
-import android.content.ContentResolver
 import android.net.Uri
 import android.util.Log
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.jan.supabase.auth.auth
-import io.github.jan.supabase.storage.storage
 import it.supabase.remembermy.data.database.Badges
 import it.supabase.remembermy.data.supabase.Events
 import it.supabase.remembermy.data.supabase.Opinions
 import it.supabase.remembermy.data.supabase.Profiles
 import it.supabase.remembermy.data.supabase.SupabaseData
-import it.supabase.remembermy.data.supabase.supabase
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.util.UUID
 
 data class ProfileState(
     val info : Profiles?,
@@ -35,6 +24,7 @@ data class ProfileState(
 data class ProfileActions(
     val update : ()->Unit,
     val editProfile: (profile: Profiles, localImageUri : Uri?)->Unit,
+    val editEvent : (event : Events, localImageUri : Uri?) -> Unit,
     val deleteEvent : (event : Events) -> Unit,
     val postOpinion : (eventId : String, reviewOpinion : String) -> Unit,
     val logout : ()->Unit
@@ -83,29 +73,48 @@ class ProfileViewModel(
                 try {
                     data.editProfile(updatedProfile)
                 } catch (e: Exception) {
-                    Log.e("Error During Edit Profile", e.message.toString())
+                    Log.e("Edit Profile", e.message.toString())
                 }
             }
         },
         deleteEvent = {event ->
             viewModelScope.launch {
-                event.event_photo?.let { photo ->
-                    data.deleteBucketFile(photo)
-                }
+                data.deleteBucketFile(event.event_photo?:"")
                 data.deleteEvent(event)
             }
         },
         postOpinion = {eventId, reviewOpinion->
             viewModelScope.launch {
-                val opinion = Opinions(
-                    user_id = data.getCurrentUserId(),
-                    event_id = TODO(),
-                    id_opinion = TODO(),
-                    review_opinion = TODO(),
-                    profile = TODO()
-                )
+                try {
+                    val opinion = Opinions(
+                        id_user = data.getCurrentUserId(),
+                        id_event = eventId,
+                        id_opinion = null,
+                        review_opinion = reviewOpinion,
+                        profiles = null
+                    )
+                    data.postOpinion(opinion)
+                }catch (e : Exception){
+                    Log.e("ERROR-PostOpinion", e.message.toString())
+                }
+
             }
         } ,
+        editEvent = {event, localImageUri ->
+            viewModelScope.launch {
+                try {
+                    val idUser = data.getCurrentUserId()
+                    var finalUri = localImageUri.toString()
+                    if(!localImageUri.toString().contains("https")){
+                        finalUri = data.fileToBucket(idUser, "events",null, localImageUri)?: localImageUri.toString()
+                    }
+                    data.editEvent(event.copy(event_photo = finalUri))
+                } catch (e : Exception){
+                    Log.e("ERROR-EditEvent", e.message.toString())
+                }
+
+            }
+        },
         logout = {
             viewModelScope.launch {
                 try {

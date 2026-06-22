@@ -2,8 +2,11 @@ package it.supabase.remembermy.ui.screens.Home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import it.supabase.remembermy.composable.OSMState
 import it.supabase.remembermy.composable.Post
 import it.supabase.remembermy.composable.PostCard
+import it.supabase.remembermy.composable.rememberOSM
+import it.supabase.remembermy.data.repository.OSMDataSource
 import it.supabase.remembermy.data.supabase.SupabaseData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +17,8 @@ data class HomeState(
     val followedEvents: Set<String> = emptySet()
 )
 class HomeViewModel (
-    private val data: SupabaseData
+    private val data: SupabaseData,
+    private val osmDataSource: OSMDataSource
 ) : ViewModel(){
     private val _state = MutableStateFlow(HomeState())
     val state: StateFlow<HomeState> = _state
@@ -44,7 +48,10 @@ class HomeViewModel (
                             userImage = profile?.avatar_url ?: "https://picsum.photos/100",
                             postImage = event.event_photo ?: "https://picsum.photos/100",
                             likes = 0,
-                            description = event.name_event
+                            description = event.name_event,
+                            latitude = event.latitude,
+                            longitude = event.longitude,
+                            position = event.place_name?:""
                         )
                     }
                 )

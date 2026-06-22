@@ -13,6 +13,7 @@ import com.example.progettomobile.composable.BottomAppBar
 import it.supabase.remembermy.composable.PostCard
 
 import it.supabase.remembermy.composable.TopAppBar
+import it.supabase.remembermy.composable.rememberOSM
 
 @Composable
 fun EventPostScreen(
@@ -22,6 +23,8 @@ fun EventPostScreen(
 ){
     val state by viewModel.state.collectAsState()
     val post = state.posts.find { it.idEvent == idEvent }
+
+    val osm = rememberOSM()
 
     Scaffold(
         topBar = { TopAppBar("Evento",navController) },
@@ -36,7 +39,8 @@ fun EventPostScreen(
                     isFollowed = post.idEvent in state.followedEvents,
                     onFollowClick = {
                         viewModel.toggleFollow((post.idEvent))
-                    }
+                    },
+                    navController = navController
                 )
             }
         }

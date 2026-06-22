@@ -34,6 +34,7 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.progettomobile.composable.BottomAppBar
 import it.supabase.remembermy.R
+import it.supabase.remembermy.composable.ImagePickerButton
 import it.supabase.remembermy.composable.TopAppBar
 import it.supabase.remembermy.data.supabase.Profiles
 
@@ -58,7 +59,7 @@ fun ChangeInfoProfileScreen(navController : NavHostController, profileModel : Pr
     val pickMedia = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) {
             imageDisplay = uri    // Updates Coil preview instantly
-            selectedLocalUri = uri // Saves reference for the upload block
+            selectedLocalUri = uri
             Log.d("PhotoPicker", "Selected URI: $uri")
         } else {
             Log.d("PhotoPicker", "No media selected")
@@ -78,20 +79,14 @@ fun ChangeInfoProfileScreen(navController : NavHostController, profileModel : Pr
         ) {
             Spacer(Modifier.height(16.dp))
             Image(
-                painter = rememberAsyncImagePainter(imageDisplay),
+                painter = rememberAsyncImagePainter(selectedLocalUri?:imageDisplay),
                 contentDescription = "Profile Image",
                 modifier = Modifier
                     .clip(CircleShape)
                     .size(64.dp)
             )
 
-            Button(
-                onClick = {
-                    pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                }
-            ) {
-                Text("Change Profile Icon")
-            }
+            ImagePickerButton { selectedLocalUri = it }
 
             OutlinedTextField(
                 value = nickname,

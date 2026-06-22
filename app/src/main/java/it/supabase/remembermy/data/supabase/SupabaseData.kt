@@ -16,28 +16,33 @@ import java.util.UUID
 class SupabaseData(val supabase: SupabaseClient,
                    private val contentResolver: ContentResolver) {
 
-    suspend fun getUser() = supabase.from("profiles").select{
-        single()
-           filter {
-               eq("id_user", supabase.auth.retrieveUserForCurrentSession().id)
-           }
-    }.decodeAs<Profiles>()
+
+    suspend fun getUser(): Profiles? {
+        val userId = supabase.auth.currentSessionOrNull()?.user?.id ?: return null
+
+        return supabase.from("profiles").select {
+            single()
+            filter {
+                eq("id_user", userId)
+            }
+        }.decodeAs<Profiles>()
+    }
 
     suspend fun getListEvents(): List<Events> {
-        val currentUserId = getCurrentUserId()
-
+        val userId = this.getCurrentUserId()
+        if(userId.isEmpty()) throw IllegalStateException("No User logged out")
         return supabase.from("events")
             .select(Columns.raw("*, followed_events(*), opinions(*, profiles(*))")) {
                 filter {
-                    eq("id_user", currentUserId)
+                    eq("id_user", userId)
                 }
             }
             .decodeList<Events>()
     }
 
     suspend fun getListBadges(): List<UserBadge> {
-        // 1. Grab the current user ID safely
-        val userId = supabase.auth.retrieveUserForCurrentSession().id
+        val userId = this.getCurrentUserId()
+        if(userId.isEmpty()) throw IllegalStateException("No User logged out")
 
         // 2. Query the junction table, embedding the related badge details
         return supabase.from("user_badges")
@@ -58,10 +63,23 @@ class SupabaseData(val supabase: SupabaseClient,
         }
     }.decodeAs<Profiles>()
 
-    suspend fun editProfile(profile : Profiles) = supabase.from("profiles").update (profile
-    ){
+    suspend fun editProfile(profile : Profiles) {
+        val userId = getCurrentUserId()
+        if (userId.isNotEmpty()) {
+            supabase.from("profiles").update(profile) {
+                filter {
+                    Profiles::id_user eq userId
+                }
+            }
+        } else{
+            Log.e("EDIT_PROFILE", "this is the userId $userId")
+        }
+    }
+
+    suspend fun editEvent(event : Events) = supabase.from("events").update(event){
         filter {
-            Profiles::id_user eq supabase.auth.retrieveUserForCurrentSession().id
+            Events::id_user eq supabase.auth.retrieveUserForCurrentSession().id
+            Events::id_event eq event.id_event
         }
     }
 
@@ -149,45 +167,47 @@ class SupabaseData(val supabase: SupabaseClient,
         }
     }
 
-    suspend fun getCurrentUserId(): String{
-        return supabase.auth
-            .retrieveUserForCurrentSession()
-            .id
+    fun getCurrentUserId(): String{
+        return supabase.auth.currentUserOrNull()?.id?:""
     }
     suspend fun followEvent(idEvent: String){
-        val idUser = getCurrentUserId()
+        val userId = this.getCurrentUserId()
+        if(userId.isEmpty()) throw IllegalStateException("No User logged out")
         supabase.from("followed_events").insert(
             FollowedEvents(
-                idUser,
+                userId,
                 idEvent
             )
         )
     }
     suspend fun unfollowEvent(idEvent:String){
-        val idUser = getCurrentUserId()
+        val userId = this.getCurrentUserId()
+        if(userId.isEmpty()) throw IllegalStateException("No User logged out")
         supabase.from("followed_events").delete {
             filter {
-                eq("id_user",idUser)
+                eq("id_user",userId)
                 eq("id_event",idEvent)
             }
         }
     }
     suspend fun isFollowingEvent(idEvent : String): Boolean{
-        val idUser = getCurrentUserId()
+        val userId = this.getCurrentUserId()
+        if(userId.isEmpty()) throw IllegalStateException("No User logged out")
         val result = supabase.from("followed_events").select {
             filter {
-                eq("id_user",idUser)
+                eq("id_user",userId)
                 eq("id_event",idEvent)
             }
         }.decodeList<FollowedEvents>()
         return result.isNotEmpty()
     }
     suspend fun getMyFollowedEvents():List<Events>{
-        val idUser = getCurrentUserId()
+        val userId = this.getCurrentUserId()
+        if(userId.isEmpty()) throw IllegalStateException("No User logged out")
 
         val followed = supabase.from("followed_events").select {
             filter {
-                eq("id_user",idUser)
+                eq("id_user",userId)
             }
         }.decodeList<FollowedEvents>()
 
@@ -208,11 +228,11 @@ class SupabaseData(val supabase: SupabaseClient,
     }
 
     suspend fun getFollowedEventIds(): Set<String> {
-        val idUser = getCurrentUserId()
-
+        val userId = this.getCurrentUserId()
+        if(userId.isEmpty()) throw IllegalStateException("No User logged out")
         return supabase.from("followed_events").select {
             filter {
-                eq("id_user", idUser)
+                eq("id_user", userId)
             }
         }.decodeList<FollowedEvents>()
             .map { it.id_event }

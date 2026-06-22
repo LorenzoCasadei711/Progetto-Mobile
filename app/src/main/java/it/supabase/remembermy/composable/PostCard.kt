@@ -17,6 +17,7 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,9 +27,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.example.progettomobile.composable.NavigationRoute
 
 data class Post(
     val idEvent : String,
@@ -36,10 +41,14 @@ data class Post(
     val userImage : String,
     val postImage : String,
     val likes: Int,
-    val description : String
+    val description : String,
+    val position : String,
+    val latitude : Double,
+    val longitude : Double
 )
 @Composable
 fun PostCard(
+    navController : NavHostController,
     post : Post,
     isFollowed: Boolean,
     onFollowClick:()->Unit
@@ -118,14 +127,25 @@ fun PostCard(
             modifier = Modifier.padding(12.dp),
             fontWeight = FontWeight.Bold
         )
-        Row() {
+        Column(modifier = Modifier.padding(8.dp)) {
             Text(
-                text = "${post.username}",
+                text = post.username,
                 modifier = Modifier.padding(horizontal = 6.dp),
                 fontWeight = FontWeight.Bold
             )
+            TextButton(
+                onClick = {
+                    navController.navigate(
+                        NavigationRoute.Map(post.latitude, post.longitude, post.postImage))
+                }
+            ) {
+                Text(post.position,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Thin,
+                    fontStyle = FontStyle.Italic)
+            }
             Text(
-                text = "${post.description}",
+                text = post.description,
                 modifier = Modifier.padding(horizontal = 6.dp)
             )
         }

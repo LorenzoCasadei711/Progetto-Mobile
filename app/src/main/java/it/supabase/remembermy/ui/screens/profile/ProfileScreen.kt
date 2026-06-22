@@ -78,16 +78,19 @@ import com.example.progettomobile.composable.BottomAppBar
 import com.example.progettomobile.composable.NavigationRoute
 import it.supabase.remembermy.R
 import it.supabase.remembermy.composable.LoadingImage
+import it.supabase.remembermy.composable.OpinionRow
 import it.supabase.remembermy.composable.Post
 import it.supabase.remembermy.composable.PostCard
 import it.supabase.remembermy.composable.TopAppBar
 import it.supabase.remembermy.data.supabase.Events
 import it.supabase.remembermy.data.supabase.Profiles
+import it.supabase.remembermy.ui.screens.Event.OpinionSection
 
 @Composable
 fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) {
     val state by profileModel.state.collectAsState()
     val user = state.info
+    Log.d("PROFILE_DEBUG", user.toString())
     val posts = state.events
     val badges = state.badges
 
@@ -106,7 +109,7 @@ fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) 
         bottomBar = { BottomAppBar(navController) },
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
-
+        profileModel.actions.update()
         Column(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -132,6 +135,7 @@ fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) 
                             Image(
                                 painter = rememberAsyncImagePainter(image),
                                 contentDescription = "Account Profile Image",
+                                contentScale = ContentScale.FillWidth,
                                 modifier = Modifier
                                     .size(80.dp)
                                     .clip(CircleShape),
@@ -208,7 +212,7 @@ fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) 
                     }
                 } else {
                     items(posts) { post ->
-                        ProfileCard(checkNotNull(post), profileModel)
+                        ProfileCard(checkNotNull(post), navController, profileModel)
                         HorizontalDivider(
                             modifier = Modifier.height(2.dp),
                             color = MaterialTheme.colorScheme.onBackground
@@ -245,7 +249,7 @@ fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) 
 }
 
 @Composable
-fun ProfileCard(event : Events, profileViewModel: ProfileViewModel){
+fun ProfileCard(event : Events, navController : NavHostController, profileViewModel: ProfileViewModel){
 
     val followNumber = event.followedEvents.size
     val opinions = event.opinions
@@ -304,9 +308,8 @@ fun ProfileCard(event : Events, profileViewModel: ProfileViewModel){
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            var isPressed by remember { mutableStateOf(false) }
             Button(
-                onClick = {/*TODO*/}
+                onClick = {navController.navigate(NavigationRoute.ChangeEvent(event))}
             ) {
                 Text("Edit Event")
             }
@@ -350,59 +353,7 @@ fun ProfileCard(event : Events, profileViewModel: ProfileViewModel){
         )
 
         AnimatedVisibility(visible = isOpinionsVisible) {
-            Column() {
-                OutlinedTextField(
-                    value = myOpinion,
-                    onValueChange = {myOpinion = it},
-                    label = {Text("My Opinion")},
-                    trailingIcon = {
-                        IconButton(
-                            onClick = {if(myOpinion.isEmpty()){
-                                //profileViewModel.postOpinion()
-                            } }
-                        ) {
-                            Icon(Icons.AutoMirrored.Filled.Send, "Send Icon")
-                        }
-                    }
-
-                )
-                if (opinions.isEmpty()) {
-                    Text(
-                        text = "Non ci sono ancora recensioni per questo evento.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(vertical = 16.dp)
-                    )
-                } else {
-                    opinions.forEach { opinion ->
-                        Column(
-                            horizontalAlignment = Alignment.Start
-                        ) {
-                            Row {
-                                AsyncImage(
-                                    model = rememberAsyncImagePainter(opinion.profile?.avatar_url),
-                                    contentDescription = "Avatar URL",
-                                    modifier = Modifier
-                                        .size(32.dp)
-                                        .padding(4.dp)
-                                        .clip(CircleShape)
-                                )
-                                Spacer(Modifier.width(16.dp))
-                                Text(
-                                    opinion.profile?.nickname ?: "",
-                                    style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            }
-                            Spacer(Modifier.height(16.dp))
-                            Text(opinion.review_opinion ?: "Errore Commento")
-                            HorizontalDivider(
-                                modifier = Modifier.padding(vertical = 8.dp),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f)
-                            )
-                        }
-                    }
-                }
-            }
+            OpinionSection(event.id_event?:"", opinions, profileViewModel)
         }
 
     }

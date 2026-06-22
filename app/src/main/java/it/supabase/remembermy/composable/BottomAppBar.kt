@@ -16,13 +16,15 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.Navigation
+import com.example.progettomobile.composable.NavigationRoute
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomAppBar(navController: NavHostController){
+fun BottomAppBar(navController: NavHostController) {
     BottomAppBar(
         modifier = Modifier.fillMaxWidth(),
         actions = {
@@ -30,31 +32,54 @@ fun BottomAppBar(navController: NavHostController){
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                IconButton(onClick = { navController.navigateSingleTop(NavigationRoute.HomeScreen) }) {
+                IconButton(
+                    onClick = { navController.navigateSingleTop(NavigationRoute.HomeScreen) },
+                    enabled = navController.currentDestination?.hasRoute<NavigationRoute.HomeScreen>() == false
+                ) {
                     Icon(
                         imageVector = Icons.Default.Home,
                         contentDescription = "Home"
                     )
                 }
-                IconButton(onClick = { navController.navigateSingleTop(NavigationRoute.Search) }) {
+                IconButton(
+                    onClick = { navController.navigateSingleTop(NavigationRoute.Search) },
+                    enabled = navController.currentDestination?.hasRoute<NavigationRoute.Search>() == false
+                ) {
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = "Search"
                     )
                 }
-                IconButton(onClick = { navController.navigateSingleTop(NavigationRoute.Profile) }){
+                IconButton(
+                    onClick = { navController.navigateSingleTop(NavigationRoute.Profile) },
+                    enabled = navController.currentDestination?.hasRoute<NavigationRoute.Profile>() == false
+                ) {
                     Icon(
                         imageVector = Icons.Default.AccountCircle,
                         contentDescription = "Account"
                     )
                 }
-                IconButton(onClick = {navController.navigateSingleTop(NavigationRoute.Camera)}) {
+                IconButton(
+                    onClick = { navController.navigateSingleTop(NavigationRoute.Camera) },
+                    enabled = navController.currentDestination?.hasRoute<NavigationRoute.Camera>() == false
+                ) {
                     Icon(
                         imageVector = Icons.Default.CameraEnhance,
                         contentDescription = "Camera"
                     )
                 }
-                IconButton(onClick = {navController.navigateSingleTop(NavigationRoute.Map)}) {
+                IconButton(
+                    onClick = {
+                        navController.navigateSingleTop(
+                            NavigationRoute.Map(
+                                latitude = 44.1391,
+                                longitude = 12.2431,
+                                imagePic = ""
+                            )
+                        )
+                    },
+                    enabled = navController.currentDestination?.hasRoute<NavigationRoute.Map>() == false
+                ) {
                     Icon(
                         imageVector = Icons.Default.Map,
                         contentDescription = "Map"
@@ -67,9 +92,12 @@ fun BottomAppBar(navController: NavHostController){
     )
 }
 
-private fun NavHostController.navigateSingleTop(route: NavigationRoute){
+private fun NavHostController.navigateSingleTop(route: NavigationRoute) {
     navigate(route) {
         launchSingleTop = true
         restoreState = true
+        if(route == NavigationRoute.HomeScreen){
+            popUpTo(0)
+        }
     }
 }

@@ -7,6 +7,8 @@ import it.supabase.remembermy.composable.PostCard
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import androidx.lifecycle.viewModelScope
+import androidx.room.util.query
+import it.supabase.remembermy.data.repository.OSMDataSource
 import kotlinx.coroutines.launch
 
 data class UserResult(
@@ -21,7 +23,8 @@ data class SearchState(
     val users: List<UserResult> = emptyList()
 )
 class SearchViewModel (
-    private val data: SupabaseData
+    private val data: SupabaseData,
+    private val osmDataSource: OSMDataSource
 ): ViewModel(){
     private val _state = MutableStateFlow(SearchState())
     val state: StateFlow<SearchState> = _state
@@ -44,6 +47,9 @@ class SearchViewModel (
                 _state.value = _state.value.copy(
                     followedEvents = followedIds,
                     posts = events.map { event ->
+                        val position = if (event.latitude != null && event.longitude != null) {
+                            osmDataSource.searchWithCoordinates(event.latitude, event.longitude).displayName
+                        } else ""
                         val profile = profileByUserId[event.id_user]
                         Post(
                             idEvent = event.id_event ?: "",
@@ -51,7 +57,10 @@ class SearchViewModel (
                             userImage = profile?.avatar_url ?: "https://picsum.photos/100",
                             postImage = event.event_photo ?:"https://picsum.photos/100",
                             likes = 0,
-                            description = event.name_event
+                            description = event.name_event,
+                            latitude = event.latitude,
+                            longitude = event.longitude,
+                            position = position
                         )
                     }
                 )
@@ -59,6 +68,10 @@ class SearchViewModel (
                 e.printStackTrace()
             }
         }
+    }
+
+    fun update(){
+        this.search("")
     }
     fun toggleFollow(idEvent: String) {
         viewModelScope.launch {
@@ -111,7 +124,10 @@ class SearchViewModel (
                             userImage = profile?.avatar_url ?: "https://picsum.photos/100",
                             postImage = event.event_photo ?: "https://picsum.photos/100",
                             likes = 0,
-                            description = event.name_event
+                            description = event.name_event,
+                            latitude = event.latitude,
+                            longitude = event.longitude,
+                            position = event.place_name?:"Place Name"
                         )
                     }
                 )
