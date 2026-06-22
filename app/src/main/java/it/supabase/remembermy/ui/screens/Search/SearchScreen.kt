@@ -55,7 +55,6 @@ fun SearchScreen(navController : NavHostController, viewModel: SearchViewModel){
             if(state.searchText.isNotBlank() && state.users.isNotEmpty()){
 
                 LazyColumn(
-                    modifier = Modifier.height(200.dp)
                 ) {
                     items(state.users) {user ->
                         Row(
