@@ -33,7 +33,7 @@ val viewModule = module {
     viewModel { ProfileViewModel(get() ) }
     viewModel { MapViewModel(get()) }
     viewModel { CameraViewModel(get()) }
-    viewModel { HomeViewModel(get(), get()) }
+    viewModel { HomeViewModel(get()) }
     viewModel { SearchViewModel(get(), get()) }
 }
 

@@ -1,5 +1,6 @@
 package it.supabase.remembermy.ui.screens.Home
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import it.supabase.remembermy.composable.OSMState
@@ -7,6 +8,7 @@ import it.supabase.remembermy.composable.Post
 import it.supabase.remembermy.composable.PostCard
 import it.supabase.remembermy.composable.rememberOSM
 import it.supabase.remembermy.data.repository.OSMDataSource
+import it.supabase.remembermy.data.supabase.Opinions
 import it.supabase.remembermy.data.supabase.SupabaseData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,8 +19,7 @@ data class HomeState(
     val followedEvents: Set<String> = emptySet()
 )
 class HomeViewModel (
-    private val data: SupabaseData,
-    private val osmDataSource: OSMDataSource
+    private val data: SupabaseData
 ) : ViewModel(){
     private val _state = MutableStateFlow(HomeState())
     val state: StateFlow<HomeState> = _state
@@ -51,7 +52,8 @@ class HomeViewModel (
                             description = event.name_event,
                             latitude = event.latitude,
                             longitude = event.longitude,
-                            position = event.place_name?:""
+                            position = event.place_name?:"",
+                            opinion = event.opinions
                         )
                     }
                 )
@@ -60,7 +62,24 @@ class HomeViewModel (
             }
         }
     }
-    fun togleFollow(idEvent: String){
+
+    fun postOpinion(eventId : String, reviewOpinion : String){
+        viewModelScope.launch {
+            try {
+                val opinion = Opinions(
+                    id_user = data.getCurrentUserId(),
+                    id_event = eventId,
+                    id_opinion = null,
+                    review_opinion = reviewOpinion,
+                    profiles = null
+                )
+                data.postOpinion(opinion)
+            }catch (e : Exception){
+                Log.e("ERROR-PostOpinion", e.message.toString())
+            }
+    }
+    }
+    fun toggleFollow(idEvent: String){
         viewModelScope.launch {
             try {
                 val followed = data.isFollowingEvent(idEvent)

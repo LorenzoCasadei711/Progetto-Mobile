@@ -1,5 +1,6 @@
 package it.supabase.remembermy.composable
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -34,6 +35,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.progettomobile.composable.NavigationRoute
+import it.supabase.remembermy.data.supabase.Opinions
+import it.supabase.remembermy.ui.screens.Event.OpinionSection
+import it.supabase.remembermy.ui.screens.Home.HomeViewModel
 
 data class Post(
     val idEvent : String,
@@ -44,7 +48,8 @@ data class Post(
     val description : String,
     val position : String,
     val latitude : Double,
-    val longitude : Double
+    val longitude : Double,
+    val opinion : List<Opinions>
 )
 @Composable
 fun PostCard(
@@ -53,6 +58,7 @@ fun PostCard(
     isFollowed: Boolean,
     onFollowClick:()->Unit
 ){
+    var isOpinionsVisible by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -107,7 +113,9 @@ fun PostCard(
                     contentDescription = "Like icon"
                 )
             }
-            IconButton(onClick = {}){
+            IconButton(onClick = {
+                isOpinionsVisible = !isOpinionsVisible
+            }){
                 Icon(
                     imageVector = Icons.Default.ChatBubbleOutline,
                     contentDescription = "Comment icon"
@@ -128,6 +136,9 @@ fun PostCard(
             fontWeight = FontWeight.Bold
         )
         Column(modifier = Modifier.padding(8.dp)) {
+            AnimatedVisibility(visible = isOpinionsVisible) {
+                OpinionSection(post.idEvent?:"", post.opinion)
+            }
             Text(
                 text = post.username,
                 modifier = Modifier.padding(horizontal = 6.dp),

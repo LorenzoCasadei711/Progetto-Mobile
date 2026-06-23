@@ -9,6 +9,7 @@ import it.supabase.remembermy.data.supabase.Events
 import it.supabase.remembermy.data.supabase.Opinions
 import it.supabase.remembermy.data.supabase.Profiles
 import it.supabase.remembermy.data.supabase.SupabaseData
+import it.supabase.remembermy.data.supabase.UserBadge
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -17,7 +18,7 @@ import kotlinx.coroutines.launch
 
 data class ProfileState(
     val info : Profiles?,
-    val badges : List<Badges?>,
+    val badges : List<UserBadge?>,
     val events : List<Events?>
 )
 
@@ -35,7 +36,7 @@ class ProfileViewModel(
 ) : ViewModel(){
     private val _info = MutableStateFlow<Profiles?>(null)
 
-    private val _badges = MutableStateFlow<List<Badges?>>(emptyList())
+    private val _badges = MutableStateFlow<List<UserBadge?>>(emptyList())
     private val _events = MutableStateFlow<List<Events?>>(emptyList())
 
     val state = combine(
@@ -53,6 +54,7 @@ class ProfileViewModel(
             try {
                 _info.value = data.getUser()
                 _events.value = data.getListEvents()
+                _badges.value = data.getListBadges()
             } catch (e: Exception) {
                 e.printStackTrace()
             }

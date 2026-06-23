@@ -212,7 +212,7 @@ class SupabaseData(val supabase: SupabaseClient,
         }.decodeList<FollowedEvents>()
 
         return followed.mapNotNull { follow ->
-            supabase.from("events").select {
+            supabase.from("events").select(Columns.raw("*, followed_events(*), opinions(*, profiles(*))")) {
                 single()
                 filter {
                     eq("id_event",follow.id_event)

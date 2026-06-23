@@ -177,7 +177,7 @@ fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) 
                                     .padding(horizontal = 8.dp, vertical = 4.dp)
                             ){
                                 Text(
-                                    text = ("Level" + badge?.name_badge),
+                                    text = ("Level" + badge?.badges?.name_badge),
                                     modifier = Modifier
                                         .align(Alignment.Center)
                                         .padding(8.dp),
@@ -353,7 +353,7 @@ fun ProfileCard(event : Events, navController : NavHostController, profileViewMo
         )
 
         AnimatedVisibility(visible = isOpinionsVisible) {
-            OpinionSection(event.id_event?:"", opinions, profileViewModel)
+            OpinionSection(event.id_event?:"", opinions)
         }
 
     }
