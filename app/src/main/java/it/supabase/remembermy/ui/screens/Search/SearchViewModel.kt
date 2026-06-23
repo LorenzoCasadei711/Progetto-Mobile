@@ -88,8 +88,8 @@ class SearchViewModel (
             }
         }
     }
-    fun update(){
-        search("")
+    fun update(query : String){
+        search(query)
     }
     private fun search(query: String) {
         viewModelScope.launch {

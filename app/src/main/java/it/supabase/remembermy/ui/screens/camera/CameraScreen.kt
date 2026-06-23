@@ -20,8 +20,9 @@ fun CameraScreen(
     val context = LocalContext.current
     val locationService = remember { LocationService(context) }
     val scope = rememberCoroutineScope()
-    val locationPermissions = rememberMultiplePermissions(
+    val permissions = rememberMultiplePermissions(
         permissions = listOf(
+            android.Manifest.permission.CAMERA,
             android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION
         ),
@@ -30,12 +31,19 @@ fun CameraScreen(
     val (_,takePicture) = rememberCameraLauncher(
         onPictureTaken = { uri ->
             scope.launch {
-
-                val coordinates = try {
-                    locationService.getCurrentLocation()
-                } catch (e: Exception) {
-                    null
-                }
+                val locationGranted =
+                    permissions.statuses[android.Manifest.permission.ACCESS_FINE_LOCATION]?.isGranted == true ||
+                            permissions.statuses[android.Manifest.permission.ACCESS_COARSE_LOCATION]?.isGranted == true
+                val coordinates =
+                    if(locationGranted){
+                        try {
+                            locationService.getCurrentLocation()
+                        } catch (e: Exception) {
+                            null
+                        }
+                    }else{
+                        null
+                    }
                 /*val coordinates = Coordinates(
                     latitude = 44.1391,
                     longitude = 12.2431
@@ -49,13 +57,13 @@ fun CameraScreen(
             }
         }
     )
-    LaunchedEffect(locationPermissions.statuses) {
-        val granted = locationPermissions.statuses.values.any { it.isGranted }
+    LaunchedEffect(permissions.statuses) {
+        val granted = permissions.statuses[android.Manifest.permission.CAMERA]?.isGranted == true
 
         if (granted) {
             takePicture()
         } else {
-            locationPermissions.launcherPermissionRequest()
+            permissions.launcherPermissionRequest()
         }
     }
 

@@ -260,11 +260,9 @@ class SupabaseData(val supabase: SupabaseClient,
         supabase.from("opinions").insert(opinion)
     }
     suspend fun searchUsers(query: String): List<Profiles> {
-        if(query.isBlank()) return emptyList()
-
         val byNickname = supabase.from("profiles").select {
             filter {
-                ilike("nickname","%$query")
+                ilike("nickname","%$query%")
             }
         }.decodeList<Profiles>()
 
@@ -278,11 +276,11 @@ class SupabaseData(val supabase: SupabaseClient,
     }
 
     suspend fun searchEventsByTag(query: String): List<Events> {
-        if(query.isBlank()) return emptyList()
+        val cleanQuery = query.trim().lowercase()
 
         val tags = supabase.from("tags").select {
             filter {
-                ilike("name_tag","%$query%")
+                ilike("name_tag","%$cleanQuery%")
             }
         }.decodeList<Tags>()
 
@@ -294,7 +292,7 @@ class SupabaseData(val supabase: SupabaseClient,
             }.decodeList<EventTag>()
         }.map { it.id_event }
 
-        return eventIds.mapNotNull { idEvent ->
+        return eventIds.map { idEvent ->
             supabase.from("events").select {
                 single()
                 filter {
@@ -330,15 +328,23 @@ class SupabaseData(val supabase: SupabaseClient,
     }
 
     private suspend fun createTag(name:String): Tags{
+        val cleanName = name.trim().lowercase()
+        val existingTag = supabase.from("tags").select {
+            filter {
+                eq("name_tag",cleanName)
+            }
+        }.decodeList<Tags>().firstOrNull()
+
+        if (existingTag != null) return existingTag
+
         val tag = Tags(
-            name_tag = name,
+            name_tag = cleanName,
             id_user = getCurrentUserId()
         )
 
         return supabase.from("tags").insert(tag){
             select()
         }.decodeSingle<Tags>()
-
     }
 
     suspend fun addTagToEvent(idEvent: String, idTag : String) {
