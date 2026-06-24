@@ -29,7 +29,6 @@ import org.koin.compose.koinInject
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomAppBar(navController: NavHostController) {
-    val state = koinInject<ProfileViewModel>().state.collectAsState();
     BottomAppBar(
         modifier = Modifier.fillMaxWidth(),
         actions = {
@@ -37,6 +36,7 @@ fun BottomAppBar(navController: NavHostController) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
+
                 IconButton(
                     onClick = { navController.navigateSingleTop(NavigationRoute.HomeScreen) },
                     enabled = navController.currentDestination?.hasRoute<NavigationRoute.HomeScreen>() == false
@@ -55,9 +55,10 @@ fun BottomAppBar(navController: NavHostController) {
                         contentDescription = "Search"
                     )
                 }
+                val state = koinInject<ProfileViewModel>().state.collectAsState();
                 IconButton(
                     onClick = {
-                        val userId = state.value.idUser
+                        val userId = "utente"
                         navController.navigateSingleTop(NavigationRoute.Profile(userId)) },
                     enabled = navController.currentDestination?.hasRoute<NavigationRoute.Profile>() == false
                 ) {

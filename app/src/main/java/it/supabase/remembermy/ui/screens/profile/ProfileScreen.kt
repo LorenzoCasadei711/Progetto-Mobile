@@ -217,7 +217,7 @@ fun ToProfile(navController: NavHostController,
                     }
                 } else {
                     items(posts) { post ->
-                        if(userId == state.idUser) {
+                        if(userId == "utente") {
                             ProfileCard(checkNotNull(post), navController, profileModel)
                         }else{
                             PostCard(navController,
@@ -227,7 +227,9 @@ fun ToProfile(navController: NavHostController,
                                     userImage = image.toString(),
                                     postImage = post?.event_photo?:"",
                                     likes = 0,
-                                    description = post?.event_details?:"",
+                                    nameEvent = post?.name_event?:"",
+                                    descriptionEvent = post?.event_details?:"",
+                                    dateEvent = post?.date_event?:"",
                                     position = post?.place_name?:"",
                                     latitude = post?.latitude?:1.0,
                                     longitude = post?.longitude?:1.0,
@@ -246,7 +248,7 @@ fun ToProfile(navController: NavHostController,
                     }
                 }
             }
-            if(userId == state.idUser) {
+            if(userId == "utente") {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()

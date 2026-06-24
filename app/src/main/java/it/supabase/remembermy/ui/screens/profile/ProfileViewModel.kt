@@ -72,7 +72,7 @@ class ProfileViewModel(
                 _info.value = data.getUser(resolvedId)
                 _events.value = data.getListEvents(resolvedId)
                 _badges.value = data.getListBadges(resolvedId)
-                _followedEvents.value = data.getFollowedEventIds(resolvedId)
+                _followedEvents.value = data.getFollowedEventIds(_idUser.value)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -81,8 +81,12 @@ class ProfileViewModel(
 
     val actions = ProfileActions(
         update = { userId ->
-            fetchInitialData(userId)
-                 },
+            if (userId.equals("utente")){
+                fetchInitialData(null)
+            }else{
+                fetchInitialData(userId)
+            }
+        },
         editProfile = { profile, localImageUri ->
             viewModelScope.launch {
                 var finalAvatarUrl = data.fileToBucket(profile.id_user, "avatars", state.value.info?.avatar_url?:"", localImageUri)?: profile.avatar_url

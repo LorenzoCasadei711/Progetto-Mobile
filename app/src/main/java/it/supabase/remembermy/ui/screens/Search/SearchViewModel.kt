@@ -28,6 +28,7 @@ class SearchViewModel (
 ): ViewModel(){
     private val _state = MutableStateFlow(SearchState())
     val state: StateFlow<SearchState> = _state
+    private val isSearching = MutableStateFlow(false)
 
     init {
         search("")
@@ -56,7 +57,9 @@ class SearchViewModel (
                             userImage = profile?.avatar_url ?: "https://picsum.photos/100",
                             postImage = event.event_photo ?:"https://picsum.photos/100",
                             likes = 0,
-                            description = event.name_event,
+                            nameEvent = event.name_event,
+                            descriptionEvent = event.event_details?:"",
+                            dateEvent = event.date_event,
                             latitude = event.latitude,
                             longitude = event.longitude,
                             position = position,
@@ -98,7 +101,7 @@ class SearchViewModel (
                 val events = data.searchEvents(query)
                 val users = data.searchUsers(query)
                 val followedIds = data.getFollowedEventIds(data.getCurrentUserId())
-
+                isSearching.value = false
 
                 val profileByUserId = events
                     .map { it.id_user }
@@ -122,7 +125,9 @@ class SearchViewModel (
                             userImage = profile?.avatar_url ?: "https://picsum.photos/100",
                             postImage = event.event_photo ?: "https://picsum.photos/100",
                             likes = 0,
-                            description = event.name_event,
+                            nameEvent = event.name_event,
+                            descriptionEvent = event.event_details?:"",
+                            dateEvent = event.date_event,
                             latitude = event.latitude,
                             longitude = event.longitude,
                             position = event.place_name?:"Place Name",
@@ -139,6 +144,9 @@ class SearchViewModel (
 
     fun onSearchTextChange(text: String) {
         _state.value = _state.value.copy(searchText = text)
-        search(text)
+        if(!isSearching.value){
+            isSearching.value = true
+            search(text)
+        }
     }
 }

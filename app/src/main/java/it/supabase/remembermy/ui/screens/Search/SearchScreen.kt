@@ -33,10 +33,18 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.example.progettomobile.composable.NavigationRoute
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.ui.text.input.ImeAction
 
 @Composable
 fun SearchScreen(navController : NavHostController, viewModel: SearchViewModel){
     val state by viewModel.state.collectAsState()
+    var searchText by remember { mutableStateOf("") }
     Scaffold(
         topBar = { TopAppBar("Cerca", navController) },
         bottomBar = { BottomAppBar(navController) }
@@ -47,12 +55,30 @@ fun SearchScreen(navController : NavHostController, viewModel: SearchViewModel){
                 .padding(paddingValues)
         ) {
             OutlinedTextField(
-                value = state.searchText,
-                onValueChange = { viewModel.onSearchTextChange(it)},
+                value = searchText,
+                onValueChange = { searchText = it},
                 label = { Text("Cerca eventi") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Search
+                ),
+                keyboardActions = KeyboardActions(
+                    onSearch = {
+                        viewModel.onSearchTextChange(searchText)
+                    }
+                ),
+                trailingIcon ={
+                    IconButton(
+                        onClick = {viewModel.onSearchTextChange(searchText)}
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Search Button"
+                        )
+                    }
+                }
             )
-            viewModel.update(state.searchText)
+            //viewModel.update(state.searchText)
             if(state.searchText.isNotBlank() && state.users.isNotEmpty()){
 
                 LazyColumn(
@@ -63,7 +89,7 @@ fun SearchScreen(navController : NavHostController, viewModel: SearchViewModel){
                                 .fillMaxWidth()
                                 .padding(12.dp)
                                 .clickable{
-
+                                    navController.navigate(NavigationRoute.Profile(user.idUser))
                                 }
                         ) {
                             AsyncImage(

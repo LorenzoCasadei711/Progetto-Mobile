@@ -50,7 +50,9 @@ data class Post(
     val userImage : String,
     val postImage : String,
     val likes: Int,
-    val description : String,
+    val nameEvent : String,
+    val descriptionEvent: String,
+    val dateEvent : String,
     val position : String,
     val latitude : Double,
     val longitude : Double,
@@ -94,18 +96,20 @@ fun PostCard(
 
             Text(
                 text = post.username,
+                fontWeight = FontWeight.Bold,
+                fontSize = 24.sp
+            )
+            Text(
+                text = post.nameEvent,
+                modifier = Modifier.padding(6.dp),
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )
         }
-        HorizontalDivider(
-            modifier = Modifier.height(2.dp),
-            color = MaterialTheme.colorScheme.onBackground
-        )
         Text(
-            text = post.description,
+            text = post.dateEvent,
             modifier = Modifier.padding(6.dp),
-            fontSize = 24.sp,
-            fontWeight = FontWeight.SemiBold
+            fontSize = 12.sp
         )
         Spacer(Modifier.height(16.dp))
         AsyncImage(
@@ -125,7 +129,6 @@ fun PostCard(
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ){
-
             IconButton(onClick = onFollowClick){
                 Icon(
                     imageVector = if(isFollowed)
@@ -159,7 +162,7 @@ fun PostCard(
         )
         Column(modifier = Modifier.padding(8.dp)) {
             AnimatedVisibility(visible = isOpinionsVisible) {
-                OpinionSection(post.idEvent?:"", post.opinion)
+                OpinionSection(post.idEvent, post.opinion)
             }
             Text(
                 text = post.username,

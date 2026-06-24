@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
@@ -19,6 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import it.supabase.remembermy.composable.OpinionRow
 import it.supabase.remembermy.data.database.Profiles
@@ -42,6 +45,19 @@ fun OpinionSection(eventId : String, opinions : List<Opinions>){
             value = myOpinion,
             onValueChange = {myOpinion = it},
             label = {Text("My Opinion")},
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Send
+            ),
+            keyboardActions = KeyboardActions(
+                onSend = {
+                    if (myOpinion.isNotEmpty()) {
+                        profileViewModel.actions.postOpinion(eventId, myOpinion)
+                        profileViewModel.actions.update(state.value.idUser)
+                        homeViewMode.update()
+                    }
+                    myOpinion = ""
+                }
+            ),
             trailingIcon = {
                 IconButton(
                     onClick = {if(myOpinion.isNotEmpty()){
