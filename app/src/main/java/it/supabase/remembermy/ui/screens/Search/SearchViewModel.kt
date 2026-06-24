@@ -38,7 +38,7 @@ class SearchViewModel (
         viewModelScope.launch {
             try {
                 val events = data.getAllEvents()
-                val followedIds = data.getFollowedEventIds()
+                val followedIds = data.getFollowedEventIds(data.getCurrentUserId())
                 val profileByUserId = events
                     .map{it.id_user}
                     .distinct()
@@ -101,7 +101,7 @@ class SearchViewModel (
             try {
                 val events = data.searchEvents(query)
                 val users = data.searchUsers(query)
-                val followedIds = data.getFollowedEventIds()
+                val followedIds = data.getFollowedEventIds(data.getCurrentUserId())
 
 
                 val profileByUserId = events
