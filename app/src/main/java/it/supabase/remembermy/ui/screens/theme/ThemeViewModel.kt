@@ -2,7 +2,7 @@ package it.supabase.remembermy.ui.screens.theme
 
 
 import androidx.lifecycle.ViewModel
-import it.supabase.remembermy.ui.screens.Theme
+import it.supabase.remembermy.ui.screens.Settings.Theme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update

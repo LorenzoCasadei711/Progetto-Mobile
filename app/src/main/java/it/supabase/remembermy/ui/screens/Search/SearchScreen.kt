@@ -40,6 +40,10 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 
 @Composable
 fun SearchScreen(navController : NavHostController, viewModel: SearchViewModel){
@@ -55,8 +59,10 @@ fun SearchScreen(navController : NavHostController, viewModel: SearchViewModel){
                 .padding(paddingValues)
         ) {
             OutlinedTextField(
-                value = searchText,
-                onValueChange = { searchText = it},
+                value = state.searchText,
+                onValueChange = {
+                    viewModel.onSearchTextChange(it)
+                                },
                 label = { Text("Cerca eventi") },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(
@@ -64,22 +70,22 @@ fun SearchScreen(navController : NavHostController, viewModel: SearchViewModel){
                 ),
                 keyboardActions = KeyboardActions(
                     onSearch = {
-                        viewModel.onSearchTextChange(searchText)
+                        viewModel.submitSearch()
                     }
                 ),
-                trailingIcon ={
+                trailingIcon = {
                     IconButton(
-                        onClick = {viewModel.onSearchTextChange(searchText)}
+                        onClick = {viewModel.submitSearch()}
                     ) {
                         Icon(
                             imageVector = Icons.Default.Search,
-                            contentDescription = "Search Button"
+                            contentDescription = "search button"
                         )
                     }
                 }
             )
-            //viewModel.update(state.searchText)
-            if(state.searchText.isNotBlank() && state.users.isNotEmpty()){
+            //viewModel.update(searchText)
+            if(state.submittedQuery.isNotBlank() && state.users.isNotEmpty()){
 
                 LazyColumn(
                 ) {

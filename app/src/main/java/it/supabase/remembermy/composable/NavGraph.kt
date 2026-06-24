@@ -24,8 +24,8 @@ import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
 import androidx.savedstate.SavedState
 import it.supabase.remembermy.ui.screens.Home.HomeScreen
-import it.supabase.remembermy.ui.screens.SettingsScreen
-import it.supabase.remembermy.ui.screens.Theme
+import it.supabase.remembermy.ui.screens.Settings.SettingsScreen
+import it.supabase.remembermy.ui.screens.Settings.Theme
 import it.supabase.remembermy.ui.screens.auth.AccessViewModel
 import it.supabase.remembermy.ui.screens.auth.register.RegisterScreen
 import it.supabase.remembermy.ui.screens.profile.ProfileViewModel

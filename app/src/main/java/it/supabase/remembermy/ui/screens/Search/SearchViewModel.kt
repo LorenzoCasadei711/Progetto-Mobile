@@ -19,7 +19,8 @@ data class UserResult(
 data class SearchState(
     val posts: List<Post> = emptyList(),
     val followedEvents: Set<String> = emptySet(),
-    val searchText: String = "",
+    var searchText: String = "",
+    val submittedQuery : String = "",
     val users: List<UserResult> = emptyList()
 )
 class SearchViewModel (
@@ -28,16 +29,16 @@ class SearchViewModel (
 ): ViewModel(){
     private val _state = MutableStateFlow(SearchState())
     val state: StateFlow<SearchState> = _state
-    private val isSearching = MutableStateFlow(false)
+    private var isSearching = MutableStateFlow(false)
 
     init {
-        search("")
+        fetchAllPosts()
     }
     fun fetchAllPosts() {
         viewModelScope.launch {
             try {
                 val events = data.getAllEvents()
-                val followedIds = data.getFollowedEventIds(data.getCurrentUserId())
+                val followedIds = data.getFollowedEventIds()
                 val profileByUserId = events
                     .map{it.id_user}
                     .distinct()
@@ -100,8 +101,8 @@ class SearchViewModel (
             try {
                 val events = data.searchEvents(query)
                 val users = data.searchUsers(query)
-                val followedIds = data.getFollowedEventIds(data.getCurrentUserId())
-                isSearching.value = false
+                val followedIds = data.getFollowedEventIds()
+
 
                 val profileByUserId = events
                     .map { it.id_user }
@@ -144,9 +145,14 @@ class SearchViewModel (
 
     fun onSearchTextChange(text: String) {
         _state.value = _state.value.copy(searchText = text)
-        if(!isSearching.value){
-            isSearching.value = true
-            search(text)
-        }
+    }
+    fun submitSearch(){
+        val query = _state.value.searchText
+
+        _state.value = _state.value.copy(
+            submittedQuery = query
+        )
+
+        search(query)
     }
 }
