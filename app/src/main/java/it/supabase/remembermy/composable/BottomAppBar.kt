@@ -15,16 +15,21 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.Navigation
 import com.example.progettomobile.composable.NavigationRoute
+import it.supabase.remembermy.data.supabase.SupabaseData
+import it.supabase.remembermy.ui.screens.profile.ProfileViewModel
+import org.koin.compose.koinInject
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomAppBar(navController: NavHostController) {
+    val state = koinInject<ProfileViewModel>().state.collectAsState();
     BottomAppBar(
         modifier = Modifier.fillMaxWidth(),
         actions = {
@@ -51,7 +56,9 @@ fun BottomAppBar(navController: NavHostController) {
                     )
                 }
                 IconButton(
-                    onClick = { navController.navigateSingleTop(NavigationRoute.Profile) },
+                    onClick = {
+                        val userId = state.value.idUser
+                        navController.navigateSingleTop(NavigationRoute.Profile(userId)) },
                     enabled = navController.currentDestination?.hasRoute<NavigationRoute.Profile>() == false
                 ) {
                     Icon(

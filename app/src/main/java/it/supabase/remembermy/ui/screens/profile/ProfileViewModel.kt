@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import it.supabase.remembermy.data.database.Badges
 import it.supabase.remembermy.data.supabase.Events
+import it.supabase.remembermy.data.supabase.FollowedEvents
 import it.supabase.remembermy.data.supabase.Opinions
 import it.supabase.remembermy.data.supabase.Profiles
 import it.supabase.remembermy.data.supabase.SupabaseData
@@ -19,54 +20,69 @@ import kotlinx.coroutines.launch
 data class ProfileState(
     val info : Profiles?,
     val badges : List<UserBadge?>,
-    val events : List<Events?>
+    val events : List<Events?>,
+    val followedEvents: Set<String>,
+    var idUser : String
 )
-
 data class ProfileActions(
-    val update : ()->Unit,
+    val update : (userId : String?)->Unit,
     val editProfile: (profile: Profiles, localImageUri : Uri?)->Unit,
     val editEvent : (event : Events, localImageUri : Uri?) -> Unit,
     val deleteEvent : (event : Events) -> Unit,
     val postOpinion : (eventId : String, reviewOpinion : String) -> Unit,
-    val logout : ()->Unit
+    val logout : ()->Unit,
+    val toggleFollow : (idEvent : String)->Unit
 )
 
 class ProfileViewModel(
     private val data : SupabaseData
 ) : ViewModel(){
     private val _info = MutableStateFlow<Profiles?>(null)
-
     private val _badges = MutableStateFlow<List<UserBadge?>>(emptyList())
     private val _events = MutableStateFlow<List<Events?>>(emptyList())
+    private val _followedEvents = MutableStateFlow<Set<String>>(emptySet())
+    private val _idUser = MutableStateFlow<String>("")
+    private var currentViewedUserId: String = ""
 
     val state = combine(
-        _info, _badges, _events
-    ){info,badges,events ->
-        ProfileState(info,badges, events)
+        _info, _badges, _events, _followedEvents, _idUser
+    ){info,badges,events, followedEvents, idUser ->
+        ProfileState(info,badges, events, followedEvents, idUser)
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(),
-        ProfileState(null, emptyList(),emptyList())
+        ProfileState(null, emptyList(),emptyList(), emptySet(), "")
     )
 
-    fun fetchInitialData() {
+    fun fetchInitialData(targetUserId : String?) {
+        val resolvedId = if (targetUserId.isNullOrEmpty()) {
+            data.getCurrentUserId()
+        } else {
+            targetUserId
+        }
+        if (resolvedId == currentViewedUserId && _info.value != null) {
+            return
+        }
+        currentViewedUserId = resolvedId
         viewModelScope.launch {
             try {
-                _info.value = data.getUser()
-                _events.value = data.getListEvents()
-                _badges.value = data.getListBadges()
+                if (_idUser.value.isEmpty()) {
+                    _idUser.value = data.getCurrentUserId()
+                }
+                _info.value = data.getUser(resolvedId)
+                _events.value = data.getListEvents(resolvedId)
+                _badges.value = data.getListBadges(resolvedId)
+                _followedEvents.value = data.getFollowedEventIds(resolvedId)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
-    init {
-        fetchInitialData()
-    }
-
     val actions = ProfileActions(
-        update = { fetchInitialData() },
+        update = { userId ->
+            fetchInitialData(userId)
+                 },
         editProfile = { profile, localImageUri ->
             viewModelScope.launch {
                 var finalAvatarUrl = data.fileToBucket(profile.id_user, "avatars", state.value.info?.avatar_url?:"", localImageUri)?: profile.avatar_url
@@ -125,6 +141,24 @@ class ProfileViewModel(
                     Log.e("Logout Failed", e.message.toString())
                 }
             }
+        },
+        toggleFollow = { idEvent->
+                viewModelScope.launch {
+                    try {
+                        val followed = data.isFollowingEvent(idEvent)
+
+                        if(followed){
+                            data.unfollowEvent(idEvent)
+                        }else{
+                            data.followEvent(idEvent)
+                        }
+
+                    }catch (e: Exception){
+                        e.printStackTrace()
+                    }
+
+                }
+
         }
     )
 }

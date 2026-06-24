@@ -17,9 +17,7 @@ class SupabaseData(val supabase: SupabaseClient,
                    private val contentResolver: ContentResolver) {
 
 
-    suspend fun getUser(): Profiles? {
-        val userId = supabase.auth.currentSessionOrNull()?.user?.id ?: return null
-
+    suspend fun getUser(userId : String): Profiles {
         return supabase.from("profiles").select {
             single()
             filter {
@@ -28,9 +26,7 @@ class SupabaseData(val supabase: SupabaseClient,
         }.decodeAs<Profiles>()
     }
 
-    suspend fun getListEvents(): List<Events> {
-        val userId = this.getCurrentUserId()
-        if(userId.isEmpty()) throw IllegalStateException("No User logged out")
+    suspend fun getListEvents(userId : String): List<Events> {
         return supabase.from("events")
             .select(Columns.raw("*, followed_events(*), opinions(*, profiles(*))")) {
                 filter {
@@ -40,11 +36,7 @@ class SupabaseData(val supabase: SupabaseClient,
             .decodeList<Events>()
     }
 
-    suspend fun getListBadges(): List<UserBadge> {
-        val userId = this.getCurrentUserId()
-        if(userId.isEmpty()) throw IllegalStateException("No User logged out")
-
-        // 2. Query the junction table, embedding the related badge details
+    suspend fun getListBadges(userId : String): List<UserBadge> {
         return supabase.from("user_badges")
             .select(columns = Columns.raw("*, badges(*)")) {
                 filter {
@@ -89,19 +81,18 @@ class SupabaseData(val supabase: SupabaseClient,
 
     suspend fun logout() = supabase.auth.signOut()
 
-    suspend fun saveEvent(event: Events){
+    suspend fun saveEvent(event: Events): Events?{
         try {
-            println("PROVO A SALVARE EVENTO -> $event")
-
-            supabase
+            return supabase
                 .from("events")
-                .insert(event)
-
-            println("EVENTO INSERITO OK")
+                .insert(event){
+                    select()
+                }.decodeSingle<Events>()
 
         } catch (e: Exception) {
             println("ERRORE INSERIMENTO EVENTO -> ${e.message}")
             e.printStackTrace()
+            return null
         }
     }
 
@@ -221,15 +212,14 @@ class SupabaseData(val supabase: SupabaseClient,
         }
     }
     suspend fun getMyCreatedAndFollowedEvents(): List<Events>{
-        val created = getListEvents()
+
+        val created = getListEvents(getCurrentUserId())
         val followed = getMyFollowedEvents()
 
         return (created + followed).distinctBy { it.id_event }
     }
 
-    suspend fun getFollowedEventIds(): Set<String> {
-        val userId = this.getCurrentUserId()
-        if(userId.isEmpty()) throw IllegalStateException("No User logged out")
+    suspend fun getFollowedEventIds(userId : String): Set<String> {
         return supabase.from("followed_events").select {
             filter {
                 eq("id_user", userId)
@@ -238,27 +228,7 @@ class SupabaseData(val supabase: SupabaseClient,
             .map { it.id_event }
             .toSet()
     }
-    suspend fun getOpinionsByEvent(idEvent: String): List<Opinions>{
-        return supabase.from("opinions").select {
-            filter {
-                eq("event_id",idEvent)
-            }
-        }.decodeList<Opinions>()
-    }
 
-    suspend fun addOpinion(idEvent: String, review: String){
-        val idUser = getCurrentUserId()
-
-        val opinion = Opinions(
-            idUser,
-            idEvent,
-            null,
-            review,
-            null
-        )
-
-        supabase.from("opinions").insert(opinion)
-    }
     suspend fun searchUsers(query: String): List<Profiles> {
         if(query.isBlank()) return emptyList()
 
@@ -351,12 +321,9 @@ class SupabaseData(val supabase: SupabaseClient,
     }
 
     suspend fun saveEventWithTag(event: Events,tagName: String){
-        val savedEvent = supabase.from("events")
-            .insert(event) {
-                select()
-            }.decodeSingle<Events>()
+        val savedEvent = this.saveEvent(event)
 
-        if (tagName.isNotBlank()){
+        if (savedEvent != null && tagName.isNotBlank()){
             val tag = createTag(tagName)
             addTagToEvent(savedEvent.id_event!!,tag.id_tag!!)
         }

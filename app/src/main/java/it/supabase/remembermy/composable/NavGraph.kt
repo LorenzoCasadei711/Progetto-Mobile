@@ -76,7 +76,9 @@ sealed interface NavigationRoute {
     data object Search : NavigationRoute
 
     @Serializable
-    data object Profile : NavigationRoute
+    data class Profile(
+        val idUser : String
+    ) : NavigationRoute
 
     @Serializable
     data object Camera : NavigationRoute {
@@ -195,8 +197,9 @@ fun NavGraph(navController: NavHostController, supabase: SupabaseClient, start: 
                 composable<NavigationRoute.Search> {
                     SearchScreen(navController, SearchModel)
                 }
-                composable<NavigationRoute.Profile> {
-                    ToProfile(navController, profileModel)
+                composable<NavigationRoute.Profile> {backstackEntry ->
+                    val entry = backstackEntry.toRoute<NavigationRoute.Profile>()
+                    ToProfile(navController, profileModel, entry.idUser)
                 }
 
                 composable<NavigationRoute.ResetPassword>(

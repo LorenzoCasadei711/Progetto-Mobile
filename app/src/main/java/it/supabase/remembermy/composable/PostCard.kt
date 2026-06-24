@@ -1,6 +1,8 @@
 package it.supabase.remembermy.composable
 
+import android.widget.Space
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,8 +17,10 @@ import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -40,6 +44,7 @@ import it.supabase.remembermy.ui.screens.Event.OpinionSection
 import it.supabase.remembermy.ui.screens.Home.HomeViewModel
 
 data class Post(
+    val idUser : String,
     val idEvent : String,
     val username: String,
     val userImage : String,
@@ -68,8 +73,14 @@ fun PostCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(12.dp)
+                .clickable(
+                    onClick = {
+                        navController.navigate(NavigationRoute.Profile(post.idUser))
+                    }
+                ),
+            verticalAlignment = Alignment.CenterVertically,
+
         ){
             AsyncImage(
                 model = post.userImage,
@@ -77,7 +88,7 @@ fun PostCard(
                 modifier = Modifier
                     .size(42.dp)
                     .clip(CircleShape),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
             )
             Spacer(modifier = Modifier.width(10.dp))
 
@@ -86,6 +97,17 @@ fun PostCard(
                 fontWeight = FontWeight.Bold
             )
         }
+        HorizontalDivider(
+            modifier = Modifier.height(2.dp),
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        Text(
+            text = post.description,
+            modifier = Modifier.padding(6.dp),
+            fontSize = 24.sp,
+            fontWeight = FontWeight.SemiBold
+        )
+        Spacer(Modifier.height(16.dp))
         AsyncImage(
             model = post.postImage,
             contentDescription = "Foto del post",
@@ -152,13 +174,8 @@ fun PostCard(
             ) {
                 Text(post.position,
                     fontSize = 12.sp,
-                    fontWeight = FontWeight.Thin,
                     fontStyle = FontStyle.Italic)
             }
-            Text(
-                text = post.description,
-                modifier = Modifier.padding(horizontal = 6.dp)
-            )
         }
     }
 }

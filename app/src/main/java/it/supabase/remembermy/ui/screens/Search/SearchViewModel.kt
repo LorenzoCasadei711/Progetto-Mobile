@@ -36,7 +36,7 @@ class SearchViewModel (
         viewModelScope.launch {
             try {
                 val events = data.getAllEvents()
-                val followedIds = data.getFollowedEventIds()
+                val followedIds = data.getFollowedEventIds(data.getCurrentUserId())
                 val profileByUserId = events
                     .map{it.id_user}
                     .distinct()
@@ -60,7 +60,8 @@ class SearchViewModel (
                             latitude = event.latitude,
                             longitude = event.longitude,
                             position = position,
-                            opinion = event.opinions
+                            opinion = event.opinions,
+                            idUser = event.id_user
                         )
                     }
                 )
@@ -96,7 +97,7 @@ class SearchViewModel (
             try {
                 val events = data.searchEvents(query)
                 val users = data.searchUsers(query)
-                val followedIds = data.getFollowedEventIds()
+                val followedIds = data.getFollowedEventIds(data.getCurrentUserId())
 
 
                 val profileByUserId = events
@@ -125,7 +126,8 @@ class SearchViewModel (
                             latitude = event.latitude,
                             longitude = event.longitude,
                             position = event.place_name?:"Place Name",
-                            opinion = event.opinions
+                            opinion = event.opinions,
+                            idUser = event.id_user
                         )
                     }
                 )

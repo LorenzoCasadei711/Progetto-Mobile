@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import it.supabase.remembermy.composable.OpinionRow
 import it.supabase.remembermy.data.database.Profiles
 import it.supabase.remembermy.data.supabase.Opinions
+import it.supabase.remembermy.ui.screens.Home.HomeViewModel
 import it.supabase.remembermy.ui.screens.profile.ProfileViewModel
 import org.koin.compose.koinInject
 
@@ -29,6 +30,7 @@ import org.koin.compose.koinInject
 fun OpinionSection(eventId : String, opinions : List<Opinions>){
     var myOpinion by remember {mutableStateOf("")}
     val profileViewModel = koinInject<ProfileViewModel>()
+    val homeViewMode = koinInject<HomeViewModel>()
     Column(
         modifier = Modifier
             .height(120.dp)
@@ -42,7 +44,8 @@ fun OpinionSection(eventId : String, opinions : List<Opinions>){
                 IconButton(
                     onClick = {if(myOpinion.isNotEmpty()){
                         profileViewModel.actions.postOpinion(eventId, myOpinion)
-                        profileViewModel.actions.update()
+                        profileViewModel.actions.update(null)
+                        homeViewMode.update()
                     } }
                 ) {
                     Icon(Icons.AutoMirrored.Filled.Send, "Send Icon")

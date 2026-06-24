@@ -32,7 +32,7 @@ class HomeViewModel (
         viewModelScope.launch {
             try {
                 val events = data.getMyCreatedAndFollowedEvents()
-                val followedIds = data.getFollowedEventIds()
+                val followedIds = data.getFollowedEventIds(data.getCurrentUserId())
                 val profilesByUserId = events
                     .map { it.id_user }
                     .distinct()
@@ -53,7 +53,8 @@ class HomeViewModel (
                             latitude = event.latitude,
                             longitude = event.longitude,
                             position = event.place_name?:"",
-                            opinion = event.opinions
+                            opinion = event.opinions,
+                            idUser = event.id_user
                         )
                     }
                 )
@@ -63,22 +64,10 @@ class HomeViewModel (
         }
     }
 
-    fun postOpinion(eventId : String, reviewOpinion : String){
-        viewModelScope.launch {
-            try {
-                val opinion = Opinions(
-                    id_user = data.getCurrentUserId(),
-                    id_event = eventId,
-                    id_opinion = null,
-                    review_opinion = reviewOpinion,
-                    profiles = null
-                )
-                data.postOpinion(opinion)
-            }catch (e : Exception){
-                Log.e("ERROR-PostOpinion", e.message.toString())
-            }
+    fun update(){
+        this.fetchPosts()
     }
-    }
+
     fun toggleFollow(idEvent: String){
         viewModelScope.launch {
             try {

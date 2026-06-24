@@ -53,6 +53,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.compose.runtime.collectAsState
@@ -87,7 +88,12 @@ import it.supabase.remembermy.data.supabase.Profiles
 import it.supabase.remembermy.ui.screens.Event.OpinionSection
 
 @Composable
-fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) {
+fun ToProfile(navController: NavHostController,
+              profileModel: ProfileViewModel,
+              userId : String?) {
+    LaunchedEffect(userId) {
+        profileModel.actions.update(userId)
+    }
     val state by profileModel.state.collectAsState()
     val user = state.info
     Log.d("PROFILE_DEBUG", user.toString())
@@ -109,7 +115,6 @@ fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) 
         bottomBar = { BottomAppBar(navController) },
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
-        profileModel.actions.update()
         Column(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -212,7 +217,28 @@ fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) 
                     }
                 } else {
                     items(posts) { post ->
-                        ProfileCard(checkNotNull(post), navController, profileModel)
+                        if(userId == state.idUser) {
+                            ProfileCard(checkNotNull(post), navController, profileModel)
+                        }else{
+                            PostCard(navController,
+                                Post(
+                                    idEvent = post?.id_event?:"",
+                                    username = nickname,
+                                    userImage = image.toString(),
+                                    postImage = post?.event_photo?:"",
+                                    likes = 0,
+                                    description = post?.event_details?:"",
+                                    position = post?.place_name?:"",
+                                    latitude = post?.latitude?:1.0,
+                                    longitude = post?.longitude?:1.0,
+                                    opinion = post?.opinions?:emptyList(),
+                                    idUser = post?.id_user?:""
+                                ),
+                                post?.id_event in state.followedEvents,
+                                { profileModel.actions.toggleFollow(post?.id_event?:"")
+                                }
+                            )
+                        }
                         HorizontalDivider(
                             modifier = Modifier.height(2.dp),
                             color = MaterialTheme.colorScheme.onBackground
@@ -220,27 +246,28 @@ fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) 
                     }
                 }
             }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Button(
-                    onClick = {
-                        profileModel.actions.logout()
-                    }
+            if(userId == state.idUser) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    Text("Logout")
-                }
-                Spacer(Modifier.width(32.dp))
-                Button(
-                    onClick = {
-                        navController.navigate(NavigationRoute.ChangeInfo)
+                    Button(
+                        onClick = {
+                            profileModel.actions.logout()
+                        }
+                    ) {
+                        Text("Logout")
                     }
-                ) {
-                    Text("Cambia Info")
+                    Spacer(Modifier.width(32.dp))
+                    Button(
+                        onClick = {
+                            navController.navigate(NavigationRoute.ChangeInfo)
+                        }
+                    ) {
+                        Text("Cambia Info")
+                    }
                 }
             }
         }
@@ -250,10 +277,9 @@ fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) 
 
 @Composable
 fun ProfileCard(event : Events, navController : NavHostController, profileViewModel: ProfileViewModel){
-
+    val state = profileViewModel.state.collectAsState()
     val followNumber = event.followedEvents.size
     val opinions = event.opinions
-    var myOpinion by remember {mutableStateOf("")}
     var deletionAlertShown by remember { mutableStateOf(false) }
     var isOpinionsVisible by remember { mutableStateOf(false) }
     Column(
@@ -273,7 +299,7 @@ fun ProfileCard(event : Events, navController : NavHostController, profileViewMo
                 name = event.name_event,
                 onAction = {
                     profileViewModel.actions.deleteEvent(event)
-                    profileViewModel.actions.update()
+                    profileViewModel.actions.update(state.value.idUser)
                            },
                 onHide = { deletionAlertShown = false }
             )
