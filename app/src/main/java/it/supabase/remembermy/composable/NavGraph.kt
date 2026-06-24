@@ -227,7 +227,8 @@ fun NavGraph(navController: NavHostController, supabase: SupabaseClient, start: 
                         navController = navController,
                         viewModel = mapModel,
                         latitude = coordinates.latitude,
-                        longitude = coordinates.longitude
+                        longitude = coordinates.longitude,
+                        imagePic = coordinates.imagePic
                     )
                 }
                 composable<NavigationRoute.CreateEvent> {

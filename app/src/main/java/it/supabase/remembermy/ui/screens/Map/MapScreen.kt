@@ -13,6 +13,8 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import org.osmdroid.views.overlay.Marker
 import com.example.progettomobile.utils.PlaceInfoWindow
 import it.supabase.remembermy.R
@@ -58,6 +60,34 @@ fun MapScreen(
             },
             update = { mapView ->
                 mapView.overlays.clear()
+
+                if(latitude != 44.1391 && longitude != 12.2431){
+                    val newMarker = Marker(mapView).apply {
+                        position = GeoPoint(latitude, longitude)
+                        title = "Opened Event"
+                        setAnchor(
+                            Marker.ANCHOR_CENTER,
+                            Marker.ANCHOR_BOTTOM
+                        )
+                        textLabelBackgroundColor = Color.Red.toArgb()
+                        textLabelForegroundColor = Color.Red.toArgb()
+
+                        infoWindow = PlaceInfoWindow(
+                            mapView = mapView,
+                            imageUrl = imagePic,
+                            description = ""
+                        )
+                        setOnMarkerClickListener { marker, view ->
+                            if(marker.isInfoWindowShown){
+                                marker.closeInfoWindow()
+                            } else{
+                                marker.showInfoWindow()
+                            }
+                            true
+                        }
+                    }
+                    mapView.overlays.add(newMarker)
+                }
 
                 state.events.forEach { event ->
                     val marker = Marker(mapView).apply {
