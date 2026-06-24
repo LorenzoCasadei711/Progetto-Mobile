@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.sql.Date
 
 data class ProfileState(
     val info : Profiles?,
@@ -29,7 +30,7 @@ data class ProfileActions(
     val editProfile: (profile: Profiles, localImageUri : Uri?)->Unit,
     val editEvent : (event : Events, localImageUri : Uri?) -> Unit,
     val deleteEvent : (event : Events) -> Unit,
-    val postOpinion : (eventId : String, reviewOpinion : String) -> Unit,
+    val postOpinion : (eventId : String, reviewOpinion : String) -> Opinions?,
     val logout : ()->Unit,
     val toggleFollow : (idEvent : String)->Unit
 )
@@ -70,7 +71,7 @@ class ProfileViewModel(
                     _idUser.value = data.getCurrentUserId()
                 }
                 _info.value = data.getUser(resolvedId)
-                _events.value = data.getListEvents(resolvedId)
+                _events.value = data.getListEvents(resolvedId).sortedBy { Date.valueOf( it.date_event) }.reversed()
                 _badges.value = data.getListBadges(resolvedId)
                 _followedEvents.value = data.getFollowedEventIds(_idUser.value)
             } catch (e: Exception) {
@@ -106,6 +107,7 @@ class ProfileViewModel(
             }
         },
         postOpinion = {eventId, reviewOpinion->
+            var returnedOpinion : Opinions? = null
             viewModelScope.launch {
                 try {
                     val opinion = Opinions(
@@ -115,12 +117,15 @@ class ProfileViewModel(
                         review_opinion = reviewOpinion,
                         profiles = null
                     )
-                    data.postOpinion(opinion)
+                     returnedOpinion = data.postOpinion(opinion)
                 }catch (e : Exception){
                     Log.e("ERROR-PostOpinion", e.message.toString())
+
                 }
 
             }
+            return@ProfileActions returnedOpinion
+
         } ,
         editEvent = {event, localImageUri ->
             viewModelScope.launch {
@@ -147,14 +152,19 @@ class ProfileViewModel(
             }
         },
         toggleFollow = { idEvent->
+            Log.d("TOGGLE_FOLLOW", "Toggled followed on event $idEvent")
                 viewModelScope.launch {
                     try {
                         val followed = data.isFollowingEvent(idEvent)
-
+                        Log.d("TOGGLE_FOLLOW", "The Event was followed: $followed")
                         if(followed){
                             data.unfollowEvent(idEvent)
+                            _followedEvents.value -= idEvent
+                            Log.d("TOGGLE_FOLLOW", "The event was unfollowed")
                         }else{
                             data.followEvent(idEvent)
+                            _followedEvents.value += idEvent
+                            Log.d("TOGGLE_FOLLOW","The event was followed")
                         }
 
                     }catch (e: Exception){

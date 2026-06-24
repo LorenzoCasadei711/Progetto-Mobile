@@ -1,6 +1,7 @@
 package it.supabase.remembermy.ui.screens.Event
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -33,15 +34,19 @@ import org.koin.compose.koinInject
 @Composable
 fun OpinionSection(eventId : String, opinions : List<Opinions>){
     var myOpinion by remember {mutableStateOf("")}
+    var allOpinions by remember { mutableStateOf(opinions) }
     val profileViewModel = koinInject<ProfileViewModel>()
-    val homeViewMode = koinInject<HomeViewModel>()
-    val state = profileViewModel.state.collectAsState()
     Column(
         modifier = Modifier
-            .height(120.dp)
+            .fillMaxWidth()
+            .padding(16.dp)
+            .height(240.dp)
             .verticalScroll(rememberScrollState())
     ) {
         OutlinedTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
             value = myOpinion,
             onValueChange = {myOpinion = it},
             label = {Text("My Opinion")},
@@ -51,34 +56,39 @@ fun OpinionSection(eventId : String, opinions : List<Opinions>){
             keyboardActions = KeyboardActions(
                 onSend = {
                     if (myOpinion.isNotEmpty()) {
-                        profileViewModel.actions.postOpinion(eventId, myOpinion)
-                        profileViewModel.actions.update(state.value.idUser)
-                        homeViewMode.update()
+                        val newOpinion = profileViewModel.actions.postOpinion(eventId, myOpinion)
+                        if(newOpinion != null){
+                            allOpinions += newOpinion
+                        }
                     }
                     myOpinion = ""
                 }
             ),
             trailingIcon = {
                 IconButton(
-                    onClick = {if(myOpinion.isNotEmpty()){
-                        profileViewModel.actions.postOpinion(eventId, myOpinion)
-                        profileViewModel.actions.update(state.value.idUser)
-                        homeViewMode.update()
-                    } }
+                    onClick = {
+                        if (myOpinion.isNotEmpty()) {
+                            val newOpinion = profileViewModel.actions.postOpinion(eventId, myOpinion)
+                            if(newOpinion != null){
+                                allOpinions += newOpinion
+                            }
+                        }
+                        myOpinion = ""
+                    }
                 ) {
                     Icon(Icons.AutoMirrored.Filled.Send, "Send Icon")
                 }
             }
 
         )
-        if (opinions.isEmpty()) {
+        if (allOpinions.isEmpty()) {
             Text(
                 text = "Non ci sono ancora recensioni per questo evento.",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(vertical = 16.dp)
             )
         } else {
-            opinions.forEach { opinion ->
+            allOpinions.forEach { opinion ->
                 OpinionRow(opinion)
             }
         }

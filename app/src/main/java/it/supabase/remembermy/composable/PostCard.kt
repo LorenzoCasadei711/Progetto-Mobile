@@ -1,5 +1,6 @@
 package it.supabase.remembermy.composable
 
+import android.util.Log
 import android.widget.Space
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable

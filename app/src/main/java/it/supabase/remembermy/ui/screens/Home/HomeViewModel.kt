@@ -13,6 +13,7 @@ import it.supabase.remembermy.data.supabase.SupabaseData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.sql.Date
 
 data class HomeState(
     val posts: List<Post> = emptyList(),
@@ -31,7 +32,7 @@ class HomeViewModel (
     fun fetchPosts(){
         viewModelScope.launch {
             try {
-                val events = data.getMyCreatedAndFollowedEvents()
+                val events = data.getMyCreatedAndFollowedEvents().sortedBy { Date.valueOf( it.date_event) }.reversed()
                 val followedIds = data.getFollowedEventIds(data.getCurrentUserId())
                 val profilesByUserId = events
                     .map { it.id_user }

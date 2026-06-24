@@ -82,9 +82,20 @@ class SupabaseData(val supabase: SupabaseClient,
         }
     }
 
-    suspend fun postOpinion(opinion : Opinions) = supabase
-        .from("opinions")
-        .insert(opinion)
+    suspend fun postOpinion(opinion : Opinions) : Opinions? {
+        try {
+            return supabase
+                .from("opinions")
+                .insert(opinion) {
+                    select()
+                }.decodeSingle<Opinions>()
+        }catch (e : Exception){
+            println("ERRORE INSERIMENTO Opinione -> ${e.message}")
+            e.printStackTrace()
+            return null
+        }
+
+    }
 
     suspend fun logout() = supabase.auth.signOut()
 

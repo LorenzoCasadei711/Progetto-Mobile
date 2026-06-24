@@ -150,7 +150,11 @@ fun NavGraph(navController: NavHostController, supabase: SupabaseClient, start: 
                     }
                 }
 
-                else -> {}
+                else -> {
+                    navController.navigate(NavigationRoute.Login) {
+                        popUpTo(0)
+                    }
+                }
             }
         }
     }

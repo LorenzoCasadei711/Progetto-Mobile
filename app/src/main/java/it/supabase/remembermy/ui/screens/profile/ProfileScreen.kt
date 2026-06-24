@@ -162,39 +162,42 @@ fun ToProfile(navController: NavHostController,
                             Text("Level: $level")
                         }
                     }
-                    Row(
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Start
-                    ) {
-                        for (badge in badges){
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(2.dp)
-                                    .background(
-                                        color = Color.Yellow,
-                                        RoundedCornerShape(25.dp)
-                                    )
-                                    .clip(RoundedCornerShape(25.dp))
-                                    .padding(horizontal = 8.dp, vertical = 4.dp)
-                            ){
-                                Text(
-                                    text = ("Level" + badge?.badges?.name_badge),
+                    if(badges.isNotEmpty()) {
+                        Row(
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            for (badge in badges) {
+                                Box(
+                                    contentAlignment = Alignment.Center,
                                     modifier = Modifier
-                                        .align(Alignment.Center)
-                                        .padding(8.dp),
-                                    color = Color.Black,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    lineHeight = 16.sp
-                                )
+                                        .weight(1f)
+                                        .padding(2.dp)
+                                        .background(
+                                            color = Color.Yellow,
+                                            RoundedCornerShape(25.dp)
+                                        )
+                                        .clip(RoundedCornerShape(25.dp))
+                                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                                        .width(160.dp)
+                                ) {
+                                    Text(
+                                        text = ("Level" + badge?.badges?.name_badge),
+                                        modifier = Modifier
+                                            .align(Alignment.Center)
+                                            .padding(8.dp),
+                                        color = Color.Black,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        lineHeight = 16.sp
+                                    )
+                                }
                             }
                         }
+                        Spacer(Modifier.height(16.dp))
                     }
-                    Spacer(Modifier.height(16.dp))
-                    HorizontalDivider(thickness = 16.dp)
+                    HorizontalDivider(thickness = 8.dp)
                 }
 
                 if (posts.isEmpty()) {
@@ -218,7 +221,10 @@ fun ToProfile(navController: NavHostController,
                 } else {
                     items(posts) { post ->
                         if(userId == "utente") {
-                            ProfileCard(checkNotNull(post), navController, profileModel)
+                            ProfileCard(
+                                checkNotNull(post),
+                                navController,
+                                profileModel)
                         }else{
                             PostCard(navController,
                                 Post(
@@ -236,8 +242,11 @@ fun ToProfile(navController: NavHostController,
                                     opinion = post?.opinions?:emptyList(),
                                     idUser = post?.id_user?:""
                                 ),
-                                post?.id_event in state.followedEvents,
-                                { profileModel.actions.toggleFollow(post?.id_event?:"")
+                                isFollowed =  post?.id_event in state.followedEvents,
+                                onFollowClick = {
+                                    Log.d("TOGGLE_FOLLOW", "On Follow Button clicked")
+                                    profileModel.actions.toggleFollow(post?.id_event ?: "")
+
                                 }
                             )
                         }

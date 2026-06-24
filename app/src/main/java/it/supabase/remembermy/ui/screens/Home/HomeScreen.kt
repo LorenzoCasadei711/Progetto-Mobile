@@ -1,5 +1,6 @@
 package it.supabase.remembermy.ui.screens.Home
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -66,7 +67,9 @@ fun HomeScreen(
                 PostCard(
                     post = post,
                     isFollowed = post.idEvent in state.followedEvents,
-                    onFollowClick = { viewModel.toggleFollow(post.idEvent) },
+                    onFollowClick = {
+                        Log.d("TOGGLE_FOLLOW", "Follow button clicked on Home")
+                        viewModel.toggleFollow(post.idEvent) },
                     navController = navController
                 )
             }
