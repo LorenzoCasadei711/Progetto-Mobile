@@ -95,36 +95,6 @@ fun MapScreen(
         )
     }
 }
-                /*val puntiInteresse = listOf(
-                    GeoPoint(44.1391, 12.2431) to "Cesena centro",
-                    GeoPoint(44.1464, 12.2362) to "Stazione di Cesena",
-                    GeoPoint(44.1376, 12.2464) to "Biblioteca Malatestiana"
-                )
-                val mapView = this*/
-
-                /*puntiInteresse.forEach { (posizione, nome) ->
-                    val marker = Marker(this).apply {
-                        position = posizione
-                        title = nome
-                        setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                        infoWindow = PlaceInfoWindow(
-                            mapView = mapView,
-                            imageResId = R.drawable.cesena_centro,
-                            description = "Centro storico di Cesena"
-                        )
-                        setOnMarkerClickListener { marker, mapView ->
-                            if (marker.isInfoWindowShown) {
-                                marker.closeInfoWindow()
-                            } else {
-                                marker.showInfoWindow()
-                            }
-
-                            true
-                        }
-                    }
-
-                    overlays.add(marker)
-                }*/
 
 
 

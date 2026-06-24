@@ -41,7 +41,7 @@ fun SearchScreen(navController : NavHostController, viewModel: SearchViewModel){
         topBar = { TopAppBar("Cerca", navController) },
         bottomBar = { BottomAppBar(navController) }
     ) { paddingValues ->
-        viewModel.update()
+
         Column(
             modifier = Modifier
                 .padding(paddingValues)
@@ -52,6 +52,7 @@ fun SearchScreen(navController : NavHostController, viewModel: SearchViewModel){
                 label = { Text("Cerca eventi") },
                 modifier = Modifier.fillMaxWidth()
             )
+            viewModel.update(state.searchText)
             if(state.searchText.isNotBlank() && state.users.isNotEmpty()){
 
                 LazyColumn(
@@ -61,6 +62,9 @@ fun SearchScreen(navController : NavHostController, viewModel: SearchViewModel){
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(12.dp)
+                                .clickable{
+
+                                }
                         ) {
                             AsyncImage(
                                 model = user.avatarUrl,

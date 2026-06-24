@@ -260,15 +260,8 @@ fun ToProfile(navController: NavHostController,
                     ) {
                         Text("Logout")
                     }
-                    Spacer(Modifier.width(32.dp))
-                    Button(
-                        onClick = {
-                            navController.navigate(NavigationRoute.ChangeInfo)
-                        }
-                    ) {
-                        Text("Cambia Info")
-                    }
                 }
+                Spacer(Modifier.width(32.dp))
             }
         }
 
@@ -282,6 +275,7 @@ fun ProfileCard(event : Events, navController : NavHostController, profileViewMo
     val opinions = event.opinions
     var deletionAlertShown by remember { mutableStateOf(false) }
     var isOpinionsVisible by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()

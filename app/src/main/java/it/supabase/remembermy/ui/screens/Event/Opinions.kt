@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,6 +32,7 @@ fun OpinionSection(eventId : String, opinions : List<Opinions>){
     var myOpinion by remember {mutableStateOf("")}
     val profileViewModel = koinInject<ProfileViewModel>()
     val homeViewMode = koinInject<HomeViewModel>()
+    val state = profileViewModel.state.collectAsState()
     Column(
         modifier = Modifier
             .height(120.dp)
@@ -44,7 +46,7 @@ fun OpinionSection(eventId : String, opinions : List<Opinions>){
                 IconButton(
                     onClick = {if(myOpinion.isNotEmpty()){
                         profileViewModel.actions.postOpinion(eventId, myOpinion)
-                        profileViewModel.actions.update(null)
+                        profileViewModel.actions.update(state.value.idUser)
                         homeViewMode.update()
                     } }
                 ) {

@@ -2,6 +2,8 @@ package it.supabase.remembermy.ui.screens.Event
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -33,6 +35,7 @@ fun EventPostScreen(
         if(post!=null){
             Column(
                 modifier = Modifier.padding(paddingValues)
+                    .verticalScroll(rememberScrollState()),
             ) {
                 PostCard(
                     post = post,

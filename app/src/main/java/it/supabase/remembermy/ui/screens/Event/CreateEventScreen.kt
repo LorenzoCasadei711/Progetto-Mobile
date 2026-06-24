@@ -217,25 +217,37 @@ fun CreateEventScreen(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Nome evento") }
+                    label = { Text("Nome evento") },
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth()
                 )
 
                 OutlinedTextField(
                     value = details,
                     onValueChange = { details = it },
-                    label = { Text("Dettagli evento") }
+                    label = { Text("Dettagli evento") },
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth()
                 )
 
                 OutlinedTextField(
                     value = date,
                     onValueChange = { date = it },
-                    label = { Text("Data evento") }
+                    label = { Text("Data evento") },
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth()
                 )
 
                 OutlinedTextField(
                     value = tag,
                     onValueChange = {tag = it},
-                    label = {Text("tag")}
+                    label = {Text("tag")},
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth()
                 )
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
