@@ -33,10 +33,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.example.progettomobile.composable.NavigationRoute
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 
 @Composable
 fun SearchScreen(navController : NavHostController, viewModel: SearchViewModel){
     val state by viewModel.state.collectAsState()
+    var searchText by remember { mutableStateOf("") }
     Scaffold(
         topBar = { TopAppBar("Cerca", navController) },
         bottomBar = { BottomAppBar(navController) }
@@ -48,12 +53,24 @@ fun SearchScreen(navController : NavHostController, viewModel: SearchViewModel){
         ) {
             OutlinedTextField(
                 value = state.searchText,
-                onValueChange = { viewModel.onSearchTextChange(it)},
+                onValueChange = {
+                    viewModel.onSearchTextChange(it)
+                                },
                 label = { Text("Cerca eventi") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                trailingIcon = {
+                    IconButton(
+                        onClick = {viewModel.submitSearch()}
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "search button"
+                        )
+                    }
+                }
             )
-            viewModel.update(state.searchText)
-            if(state.searchText.isNotBlank() && state.users.isNotEmpty()){
+            //viewModel.update(searchText)
+            if(state.submittedQuery.isNotBlank() && state.users.isNotEmpty()){
 
                 LazyColumn(
                 ) {
