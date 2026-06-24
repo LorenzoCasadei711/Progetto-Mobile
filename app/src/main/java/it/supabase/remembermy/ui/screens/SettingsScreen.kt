@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import it.supabase.remembermy.utils.rememberMultiplePermissions
 
 enum class Theme { Light, Dark, System}
 @Composable
@@ -44,7 +45,14 @@ fun SettingsScreen(navController : NavHostController,
                    selectedPalette: AppPalette,
                    onPaletteChange: (AppPalette) -> Unit
 ) {
-
+    val cameraPermission = rememberMultiplePermissions(
+        permissions = listOf(
+            android.Manifest.permission.CAMERA
+        ),
+        onResult = {}
+    )
+    val cameraEnabled = cameraPermission
+        .statuses[android.Manifest.permission.CAMERA]?.isGranted == true
     Scaffold(
         containerColor = MaterialTheme.colorScheme.secondaryContainer,
         contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -122,6 +130,26 @@ fun SettingsScreen(navController : NavHostController,
                 }
             ) {
                 Text("Modifica informazioni profilo.")
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Fotocamera",
+                    modifier = Modifier.weight(1f)
+                )
+                Button(
+                    onClick = {
+                        cameraPermission.launcherPermissionRequest()
+                    }
+                ) {
+                    Text(
+                        if(cameraEnabled)
+                            "Autorizzata"
+                        else "Abilita"
+                    )
+                }
             }
         }
     }

@@ -78,7 +78,6 @@ sealed interface NavigationRoute {
 
     @Serializable
     data object Profile : NavigationRoute
-
     @Serializable
     data object Camera : NavigationRoute {
     }

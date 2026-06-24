@@ -250,6 +250,7 @@ fun ProfileCard(event : Events, navController : NavHostController, profileViewMo
     var myOpinion by remember {mutableStateOf("")}
     var deletionAlertShown by remember { mutableStateOf(false) }
     var isOpinionsVisible by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()

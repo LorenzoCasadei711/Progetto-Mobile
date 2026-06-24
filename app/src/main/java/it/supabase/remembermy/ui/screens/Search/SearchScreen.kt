@@ -62,6 +62,9 @@ fun SearchScreen(navController : NavHostController, viewModel: SearchViewModel){
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(12.dp)
+                                .clickable{
+
+                                }
                         ) {
                             AsyncImage(
                                 model = user.avatarUrl,

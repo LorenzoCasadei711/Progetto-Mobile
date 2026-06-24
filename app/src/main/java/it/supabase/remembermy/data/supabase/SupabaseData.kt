@@ -63,6 +63,13 @@ class SupabaseData(val supabase: SupabaseClient,
         }
     }.decodeAs<Profiles>()
 
+    suspend fun getEventsByUserId(idUser: String) =
+        supabase.from("events").select {
+            filter {
+                eq("id_user",idUser)
+            }
+        }.decodeList<Events>()
+
     suspend fun editProfile(profile : Profiles) {
         val userId = getCurrentUserId()
         if (userId.isNotEmpty()) {
