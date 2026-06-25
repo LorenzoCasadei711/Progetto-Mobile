@@ -45,8 +45,9 @@ class SupabaseData(val supabase: SupabaseClient,
             }.decodeList<UserBadge>()
     }
 
-    suspend fun getAllEvents() = supabase.from("events").select()
-        .decodeList<Events>()
+    suspend fun getAllEvents()= supabase.from("events")
+            .select(Columns.raw("*, followed_events(*), opinions(*, profiles(*))"))
+            .decodeList<Events>()
 
     suspend fun getProfileById(idUser: String) = supabase.from("profiles").select {
         single()
