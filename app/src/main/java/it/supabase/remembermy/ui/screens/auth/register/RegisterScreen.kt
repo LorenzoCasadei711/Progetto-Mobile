@@ -114,7 +114,7 @@ fun RegisterScreen(accessViewModel: AccessViewModel, navController : NavHostCont
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Create An Account",
+            Text(text = "Crea un Account",
                 style = MaterialTheme.typography.titleLarge,
                 color = Color.White,
                 fontWeight = FontWeight.Bold)
@@ -122,7 +122,7 @@ fun RegisterScreen(accessViewModel: AccessViewModel, navController : NavHostCont
             Spacer(Modifier.height(8.dp))
 
             Text(
-                text = "Enter your personal data to create an account",
+                text = "Inserisci i tuoi dati per creare un'account",
                 style= MaterialTheme.typography.bodyMedium,
                 color = Color.White
             )
@@ -225,7 +225,7 @@ fun RegisterScreen(accessViewModel: AccessViewModel, navController : NavHostCont
                     },
                     placeholder = {
                         Text(
-                            text = "Enter your password",
+                            text = "Inserisci la password",
                             color = Color.White.copy(alpha = 0.7f)
                         )
                     },
@@ -284,7 +284,7 @@ fun RegisterScreen(accessViewModel: AccessViewModel, navController : NavHostCont
                 modifier = Modifier.fillMaxWidth()
             ) {
                 if(!accessViewModel.state.collectAsState().value.isLoading){
-                    Text(text = "Sign up",
+                    Text(text = "Registrati",
                         modifier=Modifier.padding(vertical = 4.dp),
                         color = Color.Black)
                 }else{
@@ -307,7 +307,7 @@ fun RegisterScreen(accessViewModel: AccessViewModel, navController : NavHostCont
                             color = Color.White.copy(alpha = 0.8f)
                         )
                     ){
-                        append("Already have an account? ")
+                        append("Hai già un profilo? ")
                     }
                     withStyle(
                         style = SpanStyle(
@@ -315,7 +315,7 @@ fun RegisterScreen(accessViewModel: AccessViewModel, navController : NavHostCont
                             color = Color.White
                         )
                     ){
-                        append("Log In")
+                        append("Login")
                     }
                 })
             }

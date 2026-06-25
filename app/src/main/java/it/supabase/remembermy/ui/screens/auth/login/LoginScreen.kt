@@ -110,7 +110,7 @@ fun LoginScreen(accessViewModel: AccessViewModel, navController : NavHostControl
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Log Into Your Account",
+            Text(text = "Accedi al tuo Account",
                 style = MaterialTheme.typography.titleLarge,
                 color = Color.White,
                 fontWeight = FontWeight.Bold)
@@ -118,7 +118,7 @@ fun LoginScreen(accessViewModel: AccessViewModel, navController : NavHostControl
             Spacer(Modifier.height(8.dp))
 
             Text(
-                text = "Enter your personal data to access your account",
+                text = "Inserisci i tuoi dati personali",
                 style= MaterialTheme.typography.bodyMedium,
                 color = Color.White
             )
@@ -136,7 +136,7 @@ fun LoginScreen(accessViewModel: AccessViewModel, navController : NavHostControl
                     modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
-                Text(text = "Login With Github",
+                Text(text = "Accedi tramite Github",
                     color=Color.White)
             }
             //Magic Link Login
@@ -151,7 +151,7 @@ fun LoginScreen(accessViewModel: AccessViewModel, navController : NavHostControl
                     modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
-                Text(text = "Login With A One Time Link",
+                Text(text = "Accedi con un magic link",
                     color=Color.White)
             }
 
@@ -238,7 +238,7 @@ fun LoginScreen(accessViewModel: AccessViewModel, navController : NavHostControl
                     },
                     placeholder = {
                         Text(
-                            text = "Enter your password",
+                            text = "Inserisci la password",
                             color = Color.White.copy(alpha = 0.7f)
                         )
                     },
@@ -294,7 +294,7 @@ fun LoginScreen(accessViewModel: AccessViewModel, navController : NavHostControl
                                 color = Color.White.copy(alpha = 0.8f)
                             )
                         ){
-                            append("Forgot Password? ")
+                            append("Dimenticato la Password? ")
                         }
                         withStyle(
                             style = SpanStyle(
@@ -302,7 +302,7 @@ fun LoginScreen(accessViewModel: AccessViewModel, navController : NavHostControl
                                 color = Color.White
                             )
                         ){
-                            append("Send Recovery Email")
+                            append("Manda una email di recupero")
                         }
                     })
                 }
@@ -321,7 +321,7 @@ fun LoginScreen(accessViewModel: AccessViewModel, navController : NavHostControl
                 modifier = Modifier.fillMaxWidth()
             ) {
                 if(!accessViewModel.state.collectAsState().value.isLoading){
-                    Text(text = "Sign in",
+                    Text(text = "Accedi",
                         modifier=Modifier.padding(vertical = 4.dp),
                         color = Color.Black)
                 }else{
@@ -346,7 +346,7 @@ fun LoginScreen(accessViewModel: AccessViewModel, navController : NavHostControl
                             color = Color.White.copy(alpha = 0.8f)
                         )
                     ){
-                        append("Don't have an account? ")
+                        append("Non hai ancora un account? ")
                     }
                     withStyle(
                         style = SpanStyle(
@@ -354,7 +354,7 @@ fun LoginScreen(accessViewModel: AccessViewModel, navController : NavHostControl
                             color = Color.White
                         )
                     ){
-                        append("Register")
+                        append("Registrati")
                     }
                 })
             }

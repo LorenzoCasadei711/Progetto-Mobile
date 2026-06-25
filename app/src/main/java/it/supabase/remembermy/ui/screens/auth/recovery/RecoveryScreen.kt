@@ -90,7 +90,7 @@ fun RecoveryScreen(accessViewModel: AccessViewModel, navController: NavHostContr
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Send a Recovery Link to Your Email",
+                text = "Manda un link di recupero alla tua mail",
                 style = MaterialTheme.typography.titleLarge,
                 color = Color.White,
                 fontWeight = FontWeight.Bold
@@ -175,7 +175,7 @@ fun RecoveryScreen(accessViewModel: AccessViewModel, navController: NavHostContr
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Send Email",
+                    text = "Manda Email",
                     modifier = Modifier.padding(vertical = 4.dp),
                     color = Color.Black
                 )
@@ -197,7 +197,7 @@ fun RecoveryScreen(accessViewModel: AccessViewModel, navController: NavHostContr
                             color = Color.White.copy(alpha = 0.8f)
                         )
                     ) {
-                        append("Remembered your password? ")
+                        append("Hai ricordato la password? ")
                     }
                     withStyle(
                         style = SpanStyle(

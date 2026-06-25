@@ -101,7 +101,7 @@ fun ResetPasswordScreen(accessViewModel: AccessViewModel, navController: NavHost
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Change your Password",
+                text = "Cambia la tua Password",
                 style = MaterialTheme.typography.titleLarge,
                 color = Color.White,
                 fontWeight = FontWeight.Bold
@@ -125,7 +125,7 @@ fun ResetPasswordScreen(accessViewModel: AccessViewModel, navController: NavHost
                 horizontalAlignment = Alignment.Start
             ) {
                 Text(
-                    text = "New Password",
+                    text = "Nuova Password",
                     color = Color.White,
                     fontWeight = FontWeight.Bold
                 )
@@ -137,7 +137,7 @@ fun ResetPasswordScreen(accessViewModel: AccessViewModel, navController: NavHost
                     },
                     placeholder = {
                         Text(
-                            text = "Enter your new Password",
+                            text = "Inserisci la nuova Password",
                             color = Color.White.copy(alpha = 0.7f)
                         )
                     },
@@ -206,7 +206,7 @@ fun ResetPasswordScreen(accessViewModel: AccessViewModel, navController: NavHost
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Change Password",
+                    text = "Cambia Password",
                     modifier = Modifier.padding(vertical = 4.dp),
                     color = Color.Black
                 )
@@ -228,7 +228,7 @@ fun ResetPasswordScreen(accessViewModel: AccessViewModel, navController: NavHost
                             color = Color.White.copy(alpha = 0.8f)
                         )
                     ) {
-                        append("Remembered your password? ")
+                        append("Hai ricordato la password? ")
                     }
                     withStyle(
                         style = SpanStyle(

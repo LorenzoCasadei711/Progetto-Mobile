@@ -85,7 +85,7 @@ fun MagicLinkScreen(accessViewModel: AccessViewModel, navController: NavHostCont
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Send a Link to your Email",
+                text = "Manda un link alla tua Email",
                 style = MaterialTheme.typography.titleLarge,
                 color = Color.White,
                 fontWeight = FontWeight.Bold
@@ -175,7 +175,7 @@ fun MagicLinkScreen(accessViewModel: AccessViewModel, navController: NavHostCont
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Send Email",
+                    text = "Manda l'email",
                     modifier = Modifier.padding(vertical = 4.dp),
                     color = Color.Black
                 )
@@ -197,7 +197,7 @@ fun MagicLinkScreen(accessViewModel: AccessViewModel, navController: NavHostCont
                             color = Color.White.copy(alpha = 0.8f)
                         )
                     ) {
-                        append("You are not registered? ")
+                        append("Non sei registrato? ")
                     }
                     withStyle(
                         style = SpanStyle(
@@ -205,7 +205,7 @@ fun MagicLinkScreen(accessViewModel: AccessViewModel, navController: NavHostCont
                             color = Color.White
                         )
                     ) {
-                        append("Register")
+                        append("Registrati")
                     }
                 })
             }
