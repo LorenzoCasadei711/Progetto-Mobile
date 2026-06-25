@@ -16,7 +16,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,9 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import it.supabase.remembermy.composable.OpinionRow
-import it.supabase.remembermy.data.database.Profiles
 import it.supabase.remembermy.data.supabase.Opinions
-import it.supabase.remembermy.ui.screens.Home.HomeViewModel
 import it.supabase.remembermy.ui.screens.profile.ProfileViewModel
 import org.koin.compose.koinInject
 
@@ -40,7 +37,7 @@ fun OpinionSection(eventId : String, opinions : List<Opinions>){
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
-            .height(240.dp)
+            .height(100.dp)
             .verticalScroll(rememberScrollState())
     ) {
         OutlinedTextField(
@@ -85,7 +82,7 @@ fun OpinionSection(eventId : String, opinions : List<Opinions>){
             Text(
                 text = "Non ci sono ancora recensioni per questo evento.",
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(vertical = 16.dp)
+                modifier = Modifier.padding(vertical = 5.dp)
             )
         } else {
             allOpinions.forEach { opinion ->

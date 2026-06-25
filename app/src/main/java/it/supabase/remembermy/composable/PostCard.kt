@@ -1,7 +1,5 @@
 package it.supabase.remembermy.composable
 
-import android.util.Log
-import android.widget.Space
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -15,13 +13,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChatBubbleOutline
-import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -42,7 +37,7 @@ import coil.compose.AsyncImage
 import com.example.progettomobile.composable.NavigationRoute
 import it.supabase.remembermy.data.supabase.Opinions
 import it.supabase.remembermy.ui.screens.Event.OpinionSection
-import it.supabase.remembermy.ui.screens.Home.HomeViewModel
+
 
 data class Post(
     val idUser : String,
@@ -99,18 +94,18 @@ fun PostCard(
                 fontWeight = FontWeight.Bold,
                 fontSize = 24.sp
             )
-            Text(
+            /*Text(
                 text = post.nameEvent,
                 modifier = Modifier.padding(6.dp),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
-            )
+            )*/
         }
-        Text(
+        /*Text(
             text = post.dateEvent,
             modifier = Modifier.padding(6.dp),
             fontSize = 12.sp
-        )
+        )*/
         Spacer(Modifier.height(16.dp))
         AsyncImage(
             model = post.postImage,
@@ -126,7 +121,7 @@ fun PostCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding(4.dp),
             verticalAlignment = Alignment.CenterVertically
         ){
             IconButton(onClick = onFollowClick){
@@ -146,24 +141,32 @@ fun PostCard(
                     contentDescription = "Comment icon"
                 )
             }
-            IconButton(onClick = {}){
-                Icon(
-                    imageVector = Icons.Default.CreditCard,
-                    contentDescription = "Comment icon"
-                )
-            }
-
         }
 
         Column(modifier = Modifier.padding(8.dp)) {
             AnimatedVisibility(visible = isOpinionsVisible) {
                 OpinionSection(post.idEvent, post.opinion)
             }
+            Row(
+
+            ) {
+                Text(
+                    text = post.username,
+                    modifier = Modifier.padding(horizontal =6.dp),
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = post.nameEvent,
+                    modifier = Modifier.padding(horizontal = 6.dp),
+                    fontSize = 16.sp
+                )
+            }
             Text(
-                text = post.username,
-                modifier = Modifier.padding(horizontal = 6.dp),
-                fontWeight = FontWeight.Bold
+                text = post.dateEvent,
+                modifier = Modifier.padding(6.dp),
+                fontSize = 12.sp
             )
+
             TextButton(
                 onClick = {
                     navController.navigate(
