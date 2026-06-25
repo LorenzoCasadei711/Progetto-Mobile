@@ -53,6 +53,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.compose.runtime.collectAsState
@@ -87,7 +88,12 @@ import it.supabase.remembermy.data.supabase.Profiles
 import it.supabase.remembermy.ui.screens.Event.OpinionSection
 
 @Composable
-fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) {
+fun ToProfile(navController: NavHostController,
+              profileModel: ProfileViewModel,
+              userId : String?) {
+    LaunchedEffect(userId) {
+        profileModel.actions.update(userId)
+    }
     val state by profileModel.state.collectAsState()
     val user = state.info
     Log.d("PROFILE_DEBUG", user.toString())
@@ -109,7 +115,6 @@ fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) 
         bottomBar = { BottomAppBar(navController) },
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
-        profileModel.actions.update()
         Column(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -157,39 +162,42 @@ fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) 
                             Text("Level: $level")
                         }
                     }
-                    Row(
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Start
-                    ) {
-                        for (badge in badges){
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(2.dp)
-                                    .background(
-                                        color = Color.Yellow,
-                                        RoundedCornerShape(25.dp)
-                                    )
-                                    .clip(RoundedCornerShape(25.dp))
-                                    .padding(horizontal = 8.dp, vertical = 4.dp)
-                            ){
-                                Text(
-                                    text = ("Level" + badge?.name_badge),
+                    if(badges.isNotEmpty()) {
+                        Row(
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            for (badge in badges) {
+                                Box(
+                                    contentAlignment = Alignment.Center,
                                     modifier = Modifier
-                                        .align(Alignment.Center)
-                                        .padding(8.dp),
-                                    color = Color.Black,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    lineHeight = 16.sp
-                                )
+                                        .weight(1f)
+                                        .padding(2.dp)
+                                        .background(
+                                            color = Color.Yellow,
+                                            RoundedCornerShape(25.dp)
+                                        )
+                                        .clip(RoundedCornerShape(25.dp))
+                                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                                        .width(160.dp)
+                                ) {
+                                    Text(
+                                        text = ("Level" + badge?.badges?.name_badge),
+                                        modifier = Modifier
+                                            .align(Alignment.Center)
+                                            .padding(8.dp),
+                                        color = Color.Black,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        lineHeight = 16.sp
+                                    )
+                                }
                             }
                         }
+                        Spacer(Modifier.height(16.dp))
                     }
-                    Spacer(Modifier.height(16.dp))
-                    HorizontalDivider(thickness = 16.dp)
+                    HorizontalDivider(thickness = 8.dp)
                 }
 
                 if (posts.isEmpty()) {
@@ -212,7 +220,36 @@ fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) 
                     }
                 } else {
                     items(posts) { post ->
-                        ProfileCard(checkNotNull(post), navController, profileModel)
+                        if(userId == "utente") {
+                            ProfileCard(
+                                checkNotNull(post),
+                                navController,
+                                profileModel)
+                        }else{
+                            PostCard(navController,
+                                Post(
+                                    idEvent = post?.id_event?:"",
+                                    username = nickname,
+                                    userImage = image.toString(),
+                                    postImage = post?.event_photo?:"",
+                                    likes = 0,
+                                    nameEvent = post?.name_event?:"",
+                                    descriptionEvent = post?.event_details?:"",
+                                    dateEvent = post?.date_event?:"",
+                                    position = post?.place_name?:"",
+                                    latitude = post?.latitude?:1.0,
+                                    longitude = post?.longitude?:1.0,
+                                    opinion = post?.opinions?:emptyList(),
+                                    idUser = post?.id_user?:""
+                                ),
+                                isFollowed =  post?.id_event in state.followedEvents,
+                                onFollowClick = {
+                                    Log.d("TOGGLE_FOLLOW", "On Follow Button clicked")
+                                    profileModel.actions.toggleFollow(post?.id_event ?: "")
+
+                                }
+                            )
+                        }
                         HorizontalDivider(
                             modifier = Modifier.height(2.dp),
                             color = MaterialTheme.colorScheme.onBackground
@@ -220,22 +257,22 @@ fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) 
                     }
                 }
             }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Button(
-                    onClick = {
-                        profileModel.actions.logout()
-                    }
+            if(userId == "utente") {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    Text("Logout")
+                    Button(
+                        onClick = {
+                            profileModel.actions.logout()
+                        }
+                    ) {
+                        Text("Logout")
+                    }
                 }
                 Spacer(Modifier.width(32.dp))
-
             }
         }
 
@@ -244,10 +281,9 @@ fun ToProfile(navController: NavHostController, profileModel: ProfileViewModel) 
 
 @Composable
 fun ProfileCard(event : Events, navController : NavHostController, profileViewModel: ProfileViewModel){
-
+    val state = profileViewModel.state.collectAsState()
     val followNumber = event.followedEvents.size
     val opinions = event.opinions
-    var myOpinion by remember {mutableStateOf("")}
     var deletionAlertShown by remember { mutableStateOf(false) }
     var isOpinionsVisible by remember { mutableStateOf(false) }
 
@@ -268,7 +304,7 @@ fun ProfileCard(event : Events, navController : NavHostController, profileViewMo
                 name = event.name_event,
                 onAction = {
                     profileViewModel.actions.deleteEvent(event)
-                    profileViewModel.actions.update()
+                    profileViewModel.actions.update(state.value.idUser)
                            },
                 onHide = { deletionAlertShown = false }
             )
@@ -348,7 +384,7 @@ fun ProfileCard(event : Events, navController : NavHostController, profileViewMo
         )
 
         AnimatedVisibility(visible = isOpinionsVisible) {
-            OpinionSection(event.id_event?:"", opinions, profileViewModel)
+            OpinionSection(event.id_event?:"", opinions)
         }
 
     }

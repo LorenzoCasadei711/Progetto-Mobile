@@ -33,6 +33,7 @@ import androidx.core.net.toUri
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.progettomobile.composable.BottomAppBar
+import com.example.progettomobile.composable.NavigationRoute
 import it.supabase.remembermy.R
 import it.supabase.remembermy.composable.ImagePickerButton
 import it.supabase.remembermy.composable.TopAppBar
@@ -114,6 +115,7 @@ fun ChangeInfoProfileScreen(navController : NavHostController, profileModel : Pr
                         ),
                          selectedLocalUri
                     )
+                    navController.navigateUp()
                 }
             ) {
                 Text("Cambia Info")

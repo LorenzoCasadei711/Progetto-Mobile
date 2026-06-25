@@ -33,7 +33,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.example.progettomobile.composable.NavigationRoute
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -58,6 +64,14 @@ fun SearchScreen(navController : NavHostController, viewModel: SearchViewModel){
                                 },
                 label = { Text("Cerca eventi") },
                 modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Search
+                ),
+                keyboardActions = KeyboardActions(
+                    onSearch = {
+                        viewModel.submitSearch()
+                    }
+                ),
                 trailingIcon = {
                     IconButton(
                         onClick = {viewModel.submitSearch()}
@@ -80,7 +94,7 @@ fun SearchScreen(navController : NavHostController, viewModel: SearchViewModel){
                                 .fillMaxWidth()
                                 .padding(12.dp)
                                 .clickable{
-
+                                    navController.navigate(NavigationRoute.Profile(user.idUser))
                                 }
                         ) {
                             AsyncImage(

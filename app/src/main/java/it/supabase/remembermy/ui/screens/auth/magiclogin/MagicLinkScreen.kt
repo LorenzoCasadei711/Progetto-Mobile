@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -33,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -135,7 +138,21 @@ fun MagicLinkScreen(accessViewModel: AccessViewModel, navController: NavHostCont
                     ),
                     modifier = Modifier.fillMaxWidth(),
                     isError = errorText.isNotEmpty(),
-                    supportingText = { Text(errorText, color = Color.White) }
+                    supportingText = { Text(errorText, color = Color.White)
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Next
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = {
+                            accessViewModel.actions.sendMagicLink(emailValue)
+                            if(errorText.isEmpty() && emailValue.isNotEmpty()){
+                                navController.navigate(NavigationRoute.Login){
+                                    popUpTo(0)
+                                }
+                            }
+                        }
+                    )
                 )
             }
             Spacer(Modifier.height(25.dp))

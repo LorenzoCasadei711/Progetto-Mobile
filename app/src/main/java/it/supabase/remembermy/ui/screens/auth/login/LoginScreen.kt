@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.HorizontalRule
@@ -54,6 +56,9 @@ import com.example.progettomobile.composable.NavigationRoute
 import io.ktor.utils.io.InternalAPI
 import it.supabase.remembermy.ui.screens.auth.AccessViewModel
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
 import it.supabase.remembermy.composable.LoadingImage
 
 @OptIn(InternalAPI::class)
@@ -71,6 +76,8 @@ fun LoginScreen(accessViewModel: AccessViewModel, navController : NavHostControl
     var isPasswordHidden by remember {
         mutableStateOf(true)
     }
+
+    val focusManager = LocalFocusManager.current
 
     Box(
         modifier = Modifier
@@ -204,7 +211,15 @@ fun LoginScreen(accessViewModel: AccessViewModel, navController : NavHostControl
                     ),
                     modifier = Modifier.fillMaxWidth(),
                     isError = accessViewModel.state.collectAsState().value.error.contains("credentials") || accessViewModel.state.collectAsState().value.error.contains("email"),
-                    supportingText = {Text(accessViewModel.state.collectAsState().value.error, color = Color.White)}
+                    supportingText = {Text(accessViewModel.state.collectAsState().value.error, color = Color.White)},
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Next
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = {
+                            focusManager.moveFocus(FocusDirection.Down)
+                        }
+                    )
                 )
             }
             Spacer(Modifier.height(25.dp))
@@ -256,7 +271,16 @@ fun LoginScreen(accessViewModel: AccessViewModel, navController : NavHostControl
 
                             }
                         }
-                    }
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Send
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onSend = {
+                            accessViewModel.state.value.error = ""
+                            accessViewModel.actions.signIn(emailValue, passwordValue)
+                        }
+                    )
                 )
                 TextButton(
                     onClick = {navController.navigate(NavigationRoute.Recovery){

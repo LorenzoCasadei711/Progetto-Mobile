@@ -1,5 +1,6 @@
 package it.supabase.remembermy.ui.screens.Home
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import it.supabase.remembermy.composable.OSMState
@@ -7,18 +8,19 @@ import it.supabase.remembermy.composable.Post
 import it.supabase.remembermy.composable.PostCard
 import it.supabase.remembermy.composable.rememberOSM
 import it.supabase.remembermy.data.repository.OSMDataSource
+import it.supabase.remembermy.data.supabase.Opinions
 import it.supabase.remembermy.data.supabase.SupabaseData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.sql.Date
 
 data class HomeState(
     val posts: List<Post> = emptyList(),
     val followedEvents: Set<String> = emptySet()
 )
 class HomeViewModel (
-    private val data: SupabaseData,
-    private val osmDataSource: OSMDataSource
+    private val data: SupabaseData
 ) : ViewModel(){
     private val _state = MutableStateFlow(HomeState())
     val state: StateFlow<HomeState> = _state
@@ -30,8 +32,8 @@ class HomeViewModel (
     fun fetchPosts(){
         viewModelScope.launch {
             try {
-                val events = data.getMyCreatedAndFollowedEvents()
-                val followedIds = data.getFollowedEventIds()
+                val events = data.getMyCreatedAndFollowedEvents().sortedBy { Date.valueOf( it.date_event) }.reversed()
+                val followedIds = data.getFollowedEventIds(data.getCurrentUserId())
                 val profilesByUserId = events
                     .map { it.id_user }
                     .distinct()
@@ -48,10 +50,14 @@ class HomeViewModel (
                             userImage = profile?.avatar_url ?: "https://picsum.photos/100",
                             postImage = event.event_photo ?: "https://picsum.photos/100",
                             likes = 0,
-                            description = event.name_event,
+                            nameEvent = event.name_event,
+                            descriptionEvent = event.event_details?:"",
+                            dateEvent = event.date_event,
                             latitude = event.latitude,
                             longitude = event.longitude,
-                            position = event.place_name?:""
+                            position = event.place_name?:"",
+                            opinion = event.opinions,
+                            idUser = event.id_user
                         )
                     }
                 )
@@ -60,7 +66,12 @@ class HomeViewModel (
             }
         }
     }
-    fun togleFollow(idEvent: String){
+
+    fun update(){
+        this.fetchPosts()
+    }
+
+    fun toggleFollow(idEvent: String){
         viewModelScope.launch {
             try {
                 val followed = data.isFollowingEvent(idEvent)

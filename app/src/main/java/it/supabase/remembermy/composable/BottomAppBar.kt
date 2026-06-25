@@ -15,9 +15,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
+import it.supabase.remembermy.ui.screens.profile.ProfileViewModel
+import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,6 +32,7 @@ fun BottomAppBar(navController: NavHostController) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
+
                 IconButton(
                     onClick = { navController.navigateSingleTop(NavigationRoute.HomeScreen) },
                     enabled = navController.currentDestination?.hasRoute<NavigationRoute.HomeScreen>() == false
@@ -47,8 +51,11 @@ fun BottomAppBar(navController: NavHostController) {
                         contentDescription = "Search"
                     )
                 }
+                val state = koinInject<ProfileViewModel>().state.collectAsState();
                 IconButton(
-                    onClick = { navController.navigateSingleTop(NavigationRoute.Profile) },
+                    onClick = {
+                        val userId = "utente"
+                        navController.navigateSingleTop(NavigationRoute.Profile(userId)) },
                     enabled = navController.currentDestination?.hasRoute<NavigationRoute.Profile>() == false
                 ) {
                     Icon(

@@ -34,10 +34,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.GpsFixed
@@ -58,10 +61,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
@@ -88,7 +95,6 @@ fun CreateEventScreen(
     var date by remember { mutableStateOf("") }
     var isPrivate by remember { mutableStateOf(false) }
     var locationFound = remember { mutableStateOf(false) }
-    var confirmedPlace by remember { mutableStateOf("") }
     var tag by remember { mutableStateOf("") }
     val suggestedTags = listOf(
         "Sport",
@@ -109,7 +115,7 @@ fun CreateEventScreen(
     val osmState = rememberOSM()
     var waitingForLocation by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
-
+    val focusManager = LocalFocusManager.current
 
     val scope = rememberCoroutineScope()
 
@@ -124,7 +130,8 @@ fun CreateEventScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
                     .verticalScroll(
-                        rememberScrollState()),
+                        rememberScrollState()
+                    ),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text("Crea evento")
@@ -132,18 +139,18 @@ fun CreateEventScreen(
                     Image(
                         painter = rememberAsyncImagePainter(pictureUri),
                         contentDescription = "Event Image",
-                        modifier = Modifier.size(400.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(400.dp),
+                        contentScale = ContentScale.Crop
                     )
                 }
-
-
-
-
 
                 ImagePickerButton({
                     vm.setPictureData(it,
                         null)
                 pictureSelected = true})
+
                 LaunchedEffect(gpsState.coordinates.value, waitingForLocation) {
                     val currentCoords = gpsState.coordinates.value
                     if (waitingForLocation && currentCoords != null) {
@@ -204,7 +211,15 @@ fun CreateEventScreen(
                                 Icon(Icons.Filled.GpsFixed, "GPS Icon")
                             }
                         }
-                    }
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Next
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = {
+                            focusManager.moveFocus(FocusDirection.Down)
+                        }
+                    )
                 )
                 LocationDisabledAlert(
                     show = gpsState.showLocationDisabledAlert,
@@ -220,7 +235,15 @@ fun CreateEventScreen(
                     label = { Text("Nome evento") },
                     modifier = Modifier
                         .padding(8.dp)
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Next
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = {
+                            focusManager.moveFocus(FocusDirection.Down)
+                        }
+                    )
                 )
 
                 OutlinedTextField(
@@ -229,7 +252,15 @@ fun CreateEventScreen(
                     label = { Text("Dettagli evento") },
                     modifier = Modifier
                         .padding(8.dp)
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Next
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = {
+                            focusManager.moveFocus(FocusDirection.Down)
+                        }
+                    )
                 )
 
                 OutlinedTextField(
@@ -238,7 +269,15 @@ fun CreateEventScreen(
                     label = { Text("Data evento") },
                     modifier = Modifier
                         .padding(8.dp)
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Next
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = {
+                            focusManager.moveFocus(FocusDirection.Down)
+                        }
+                    )
                 )
 
                 OutlinedTextField(
@@ -247,7 +286,15 @@ fun CreateEventScreen(
                     label = {Text("tag")},
                     modifier = Modifier
                         .padding(8.dp)
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Next
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = {
+                            focusManager.moveFocus(FocusDirection.Down)
+                        }
+                    )
                 )
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -267,10 +314,6 @@ fun CreateEventScreen(
                             label = {Text(suggestedTag)}
                         )
                     }
-
-
-
-
                 }
 
                 Row {
@@ -284,6 +327,13 @@ fun CreateEventScreen(
                 Button(
                     onClick = {
                         scope.launch {
+                            if(name.isEmpty() || details.isEmpty() || date.isEmpty() || place.isEmpty()){
+                                snackbarHostState.showSnackbar(
+                                    message = "Nome, dettagli, data e luogo non possono essere vuoti",
+                                    duration = SnackbarDuration.Short
+                                )
+                                return@launch
+                            }
                             if(osmPlace){
                                 osmState.latitudeResult.value =
                                     gpsState.coordinates.value?.latitude!!
@@ -328,13 +378,16 @@ fun CreateEventScreen(
                                 placeName = place,
                                 tags = tag
                             )
-                            navController.navigate(NavigationRoute.Map(
-                                osmState.latitudeResult.value,
-                                osmState.longitudeResult.value,
-                                    vm.finalUri?:""
-                            )) {
-                                popUpTo(NavigationRoute.HomeScreen)
-                            }
+                                navController.navigate(
+                                    NavigationRoute.Map(
+                                        osmState.latitudeResult.value,
+                                        osmState.longitudeResult.value,
+                                        vm.finalUri ?: ""
+                                    )
+                                ) {
+                                    popUpTo(NavigationRoute.HomeScreen)
+                                }
+
                         }
 
                     },

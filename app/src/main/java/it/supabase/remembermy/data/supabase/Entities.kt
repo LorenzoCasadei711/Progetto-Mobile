@@ -44,15 +44,15 @@ data class FollowedEvents(
 ) : Parcelable
 @Serializable
 data class Badges(
-    val badge_id : String,
+    val id_badge : String,
     val name_badge:String,
 
 )
 @Serializable
 data class UserBadge(
-     val badge_id: String,
+     val id_badge: String,
      val id_user: String,
-     val badgeDetails: Badges
+     val badges: Badges
 )
 
 @Serializable

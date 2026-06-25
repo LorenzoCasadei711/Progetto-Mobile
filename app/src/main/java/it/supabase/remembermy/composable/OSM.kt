@@ -44,6 +44,7 @@ class OSMState(
     var longitudeResult : MutableState<Double> = mutableDoubleStateOf(0.0)
 
     var coordinates : MutableState<Coordinates> = mutableStateOf(Coordinates(0.0, 0.0))
+    var errorOSM : MutableState<String> = mutableStateOf("")
     fun isOnline() : Boolean{
         val connectivityManager = ctx
             .getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -85,9 +86,14 @@ class OSMState(
 
     fun searchWithCoords() = scope.launch {
         if(isOnline()){
+            errorOSM.value = ""
             result.value = "Loading..."
             val res = osmDataSource.searchWithCoordinates(coordinates.value.latitude, coordinates.value.longitude)
-            result.value = res.displayName
+            if(res == null) {
+                errorOSM.value = "Error during the search of the place"
+            }else{
+                result.value = res.displayName
+            }
         } else {
             val res = snackbarHostState.showSnackbar(
                 message = "No Internet connectivity",

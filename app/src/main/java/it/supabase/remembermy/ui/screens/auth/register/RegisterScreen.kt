@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.HorizontalRule
@@ -38,12 +40,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
@@ -75,6 +81,7 @@ fun RegisterScreen(accessViewModel: AccessViewModel, navController : NavHostCont
         mutableStateOf(accessViewModel.state.value.error)
     }
 
+    val focusManager = LocalFocusManager.current
 
     Box(
         modifier = Modifier
@@ -191,7 +198,15 @@ fun RegisterScreen(accessViewModel: AccessViewModel, navController : NavHostCont
                     ),
                     modifier = Modifier.fillMaxWidth(),
                     isError = errorText.contains("credentials") || errorText.contains("email"),
-                    supportingText = {Text(errorText, color = Color.White)}
+                    supportingText = {Text(errorText, color = Color.White)},
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Next
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = {
+                            focusManager.moveFocus(FocusDirection.Down)
+                        }
+                    )
                 )
             }
             Spacer(Modifier.height(25.dp))
@@ -243,7 +258,16 @@ fun RegisterScreen(accessViewModel: AccessViewModel, navController : NavHostCont
 
                             }
                         }
-                    }
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Send
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onSend = {
+                            accessViewModel.state.value.error = ""
+                            accessViewModel.actions.signUp(emailValue, passwordValue)
+                        }
+                    )
                 )
             }
             Spacer(modifier = Modifier.height(62.dp))
