@@ -50,7 +50,6 @@ data class Post(
     val username: String,
     val userImage : String,
     val postImage : String,
-    val likes: Int,
     val nameEvent : String,
     val descriptionEvent: String,
     val dateEvent : String,

@@ -49,7 +49,6 @@ class HomeViewModel (
                             username = profile?.nickname ?: profile?.email ?: "Utente",
                             userImage = profile?.avatar_url ?: "https://picsum.photos/100",
                             postImage = event.event_photo ?: "https://picsum.photos/100",
-                            likes = 0,
                             nameEvent = event.name_event,
                             descriptionEvent = event.event_details?:"",
                             dateEvent = event.date_event,
