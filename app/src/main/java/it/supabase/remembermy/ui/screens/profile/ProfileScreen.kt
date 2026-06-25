@@ -112,7 +112,7 @@ fun ToProfile(navController: NavHostController,
     }
 
     Scaffold(
-        topBar = { TopAppBar("Profile", navController) },
+        topBar = { TopAppBar("Profilo", navController) },
         bottomBar = { BottomAppBar(navController) },
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->

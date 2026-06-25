@@ -48,7 +48,7 @@ fun SettingsScreen(navController : NavHostController,
         contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
         modifier = Modifier.fillMaxSize(),
         bottomBar = {BottomAppBar(navController)},
-        topBar = {TopAppBar("AppMobile",navController)}
+        topBar = {TopAppBar("Impostazioni",navController)}
 
     ) { innerPadding ->
         Column(Modifier.padding(innerPadding).selectableGroup()) {
