@@ -33,7 +33,7 @@ fun OpinionRow(opinion : Opinions){
         Row {
             Spacer(Modifier.width(4.dp))
             Image(
-                painter = rememberAsyncImagePainter(opinion.profiles?.avatar_url),
+                painter = rememberAsyncImagePainter(opinion.profiles?.avatar_url?:R.drawable.profile_simple_svgrepo_com),
                 contentDescription = "Avatar URL",
                 modifier = Modifier
                     .size(32.dp)
