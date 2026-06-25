@@ -14,6 +14,7 @@ import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,10 +34,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -59,6 +62,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusDirection
@@ -68,7 +72,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
@@ -89,13 +95,13 @@ fun CreateEventScreen(
     navController: NavHostController,
     vm: CameraViewModel
 ) {
-    var name by remember { mutableStateOf("") }
-    var details by remember { mutableStateOf("") }
-    var place by remember { mutableStateOf("") }
-    var date by remember { mutableStateOf("") }
-    var isPrivate by remember { mutableStateOf(false) }
-    var locationFound = remember { mutableStateOf(false) }
-    var tag by remember { mutableStateOf("") }
+    var name by rememberSaveable() { mutableStateOf("") }
+    var details by rememberSaveable() { mutableStateOf("") }
+    var place by rememberSaveable() { mutableStateOf("") }
+    var date by rememberSaveable() { mutableStateOf("") }
+    var isPrivate by rememberSaveable() { mutableStateOf(false) }
+    var locationFound = rememberSaveable() { mutableStateOf(false) }
+    var tag by rememberSaveable() { mutableStateOf("") }
     val suggestedTags = listOf(
         "Sport",
         "Cinema",
@@ -134,7 +140,24 @@ fun CreateEventScreen(
                     ),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text("Crea evento")
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text="Crea evento",
+                        modifier = Modifier.padding(8.dp),
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold)
+
+                    ImagePickerButton({
+                        vm.setPictureData(it,
+                            null)
+                        pictureSelected = true})
+                }
+
                 AnimatedVisibility(visible = pictureSelected) {
                     Image(
                         painter = rememberAsyncImagePainter(pictureUri),
@@ -145,11 +168,6 @@ fun CreateEventScreen(
                         contentScale = ContentScale.Crop
                     )
                 }
-
-                ImagePickerButton({
-                    vm.setPictureData(it,
-                        null)
-                pictureSelected = true})
 
                 LaunchedEffect(gpsState.coordinates.value, waitingForLocation) {
                     val currentCoords = gpsState.coordinates.value
@@ -174,7 +192,7 @@ fun CreateEventScreen(
                         osmState.query.value = place
                         osmPlace = false
                     },
-                    label = { Text("place") },
+                    label = { Text("Luogo") },
                     modifier = Modifier
                         .padding(8.dp)
                         .fillMaxWidth(),
@@ -205,7 +223,7 @@ fun CreateEventScreen(
                                 Icon(
                                     imageVector = Icons.Filled.Replay,
                                     contentDescription = "Loading",
-                                    modifier = Modifier.rotate(rotation) // Apply the animated rotation here
+                                    modifier = Modifier.rotate(rotation)
                                 )
                             } else {
                                 Icon(Icons.Filled.GpsFixed, "GPS Icon")
@@ -267,6 +285,7 @@ fun CreateEventScreen(
                     value = date,
                     onValueChange = { date = it },
                     label = { Text("Data evento") },
+                    placeholder = {Text("dd/mm/YY")},
                     modifier = Modifier
                         .padding(8.dp)
                         .fillMaxWidth(),
@@ -297,13 +316,12 @@ fun CreateEventScreen(
                     )
                 )
                 FlowRow(
+                    modifier = Modifier.padding(8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
 
-                    Row(
-
-                    ) {
+                    Row{
                             Text("Tag suggeriti.")
                     }
 
@@ -316,7 +334,13 @@ fun CreateEventScreen(
                     }
                 }
 
-                Row {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Checkbox(
                         checked = isPrivate,
                         onCheckedChange = { isPrivate = it }
@@ -324,39 +348,47 @@ fun CreateEventScreen(
                     Text("Evento privato")
                 }
 
-                Button(
-                    onClick = {
-                        scope.launch {
-                            if(name.isEmpty() || details.isEmpty() || date.isEmpty() || place.isEmpty()){
-                                snackbarHostState.showSnackbar(
-                                    message = "Nome, dettagli, data e luogo non possono essere vuoti",
-                                    duration = SnackbarDuration.Short
-                                )
-                                return@launch
-                            }
-                            if(osmPlace){
-                                osmState.latitudeResult.value =
-                                    gpsState.coordinates.value?.latitude!!
-                                osmState.longitudeResult.value =
-                                    gpsState.coordinates.value?.longitude!!
-                                locationFound.value = true
-                            } else {
-                                osmState.searchPlaces().join()
-                                val result = osmState.result.value
-                                if (result != "Place not found" && result != "Loading..." && result.isNotEmpty()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Button(
+                        modifier = Modifier
+                            .padding(16.dp),
+                        onClick = {
+                            scope.launch {
+                                if(name.isEmpty() || details.isEmpty() || date.isEmpty() || place.isEmpty()){
+                                    snackbarHostState.showSnackbar(
+                                        message = "Nome, dettagli, data e luogo non possono essere vuoti",
+                                        duration = SnackbarDuration.Short
+                                    )
+                                    return@launch
+                                }
+                                if(osmPlace){
+                                    osmState.latitudeResult.value =
+                                        gpsState.coordinates.value?.latitude!!
+                                    osmState.longitudeResult.value =
+                                        gpsState.coordinates.value?.longitude!!
                                     locationFound.value = true
                                 } else {
-                                    snackbarHostState.showSnackbar(
-                                        message = "Place not found",
-                                        duration = SnackbarDuration.Long
-                                    )
+                                    osmState.searchPlaces().join()
+                                    val result = osmState.result.value
+                                    if (result != "Place not found" && result != "Loading..." && result.isNotEmpty()) {
+                                        locationFound.value = true
+                                    } else {
+                                        snackbarHostState.showSnackbar(
+                                            message = "Place not found",
+                                            duration = SnackbarDuration.Long
+                                        )
+                                    }
                                 }
                             }
                         }
+                    ) {
+                        Text("Crea il tuo evento")
                     }
-                ) {
-                    Text("Crea il tuo evento")
                 }
+
 
             }
             if (locationFound.value) {

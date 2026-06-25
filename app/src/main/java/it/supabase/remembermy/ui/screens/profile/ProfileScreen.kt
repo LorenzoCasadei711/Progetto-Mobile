@@ -94,6 +94,7 @@ fun ToProfile(navController: NavHostController,
     LaunchedEffect(userId) {
         profileModel.actions.update(userId)
     }
+
     val state by profileModel.state.collectAsState()
     val user = state.info
     Log.d("PROFILE_DEBUG", user.toString())
@@ -115,6 +116,9 @@ fun ToProfile(navController: NavHostController,
         bottomBar = { BottomAppBar(navController) },
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
+        if(userId == "utente"){
+            profileModel.actions.update("utente")
+        }
         Column(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,

@@ -61,7 +61,7 @@ class ProfileViewModel(
         } else {
             targetUserId
         }
-        if (resolvedId == currentViewedUserId && _info.value != null) {
+        if (targetUserId != null && (resolvedId == currentViewedUserId && _info.value != null)) {
             return
         }
         currentViewedUserId = resolvedId

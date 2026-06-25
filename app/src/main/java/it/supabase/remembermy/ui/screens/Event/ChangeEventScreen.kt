@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.GpsFixed
@@ -39,11 +41,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
@@ -63,14 +71,15 @@ import kotlinx.coroutines.launch
 fun ChangeEventScreen(navController : NavHostController, viewModel : ProfileViewModel,event : Events){
     if(event.id_user == viewModel.state.collectAsState().value.info?.id_user){
 
-        var name by remember { mutableStateOf(event.name_event) }
-        var details by remember { mutableStateOf(event.event_details) }
-        var place by remember { mutableStateOf(event.place_name) }
-        var date by remember { mutableStateOf(event.date_event) }
-        var isPrivate by remember { mutableStateOf(event.is_private) }
-        val locationFound = remember { mutableStateOf(false) }
-        var pictureUri by remember { mutableStateOf(event.event_photo?.toUri()) }
-        var pictureSelected by remember {mutableStateOf(pictureUri != null)}
+        var name by rememberSaveable() { mutableStateOf(event.name_event) }
+        var details by rememberSaveable() { mutableStateOf(event.event_details?:"") }
+        var place by rememberSaveable() { mutableStateOf(event.place_name?:"") }
+        var date by rememberSaveable() { mutableStateOf(event.date_event) }
+        var isPrivate by rememberSaveable() { mutableStateOf(event.is_private) }
+        val locationFound = rememberSaveable() { mutableStateOf(false) }
+        var pictureUri by rememberSaveable() { mutableStateOf(event.event_photo?.toUri()) }
+        var pictureSelected by rememberSaveable() {mutableStateOf(pictureUri != null)}
+        var osmPlace by rememberSaveable() { mutableStateOf(true) }
 
         val gpsState = rememberGPSState()
         val osmState = rememberOSM()
@@ -78,6 +87,8 @@ fun ChangeEventScreen(navController : NavHostController, viewModel : ProfileView
         val snackbarHostState = remember { SnackbarHostState() }
 
         val scope = rememberCoroutineScope()
+
+        val focusManager = LocalFocusManager.current
 
         Scaffold(
             topBar = { TopAppBar("Modifica Evento", navController) },
@@ -93,7 +104,21 @@ fun ChangeEventScreen(navController : NavHostController, viewModel : ProfileView
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text("Crea evento")
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text="Cambia Info",
+                            modifier = Modifier.padding(8.dp),
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold)
+
+                        ImagePickerButton({
+                            pictureUri = it
+                            pictureSelected = true})
+                    }
                     AnimatedVisibility(visible = pictureSelected) {
                         Image(
                             painter = rememberAsyncImagePainter(pictureUri),
@@ -106,9 +131,8 @@ fun ChangeEventScreen(navController : NavHostController, viewModel : ProfileView
 
 
 
-                    ImagePickerButton({
-                        pictureUri = it
-                        pictureSelected = true})
+
+
                     LaunchedEffect(gpsState.coordinates.value, waitingForLocation) {
                         val currentCoords = gpsState.coordinates.value
                         if (waitingForLocation && currentCoords != null) {
@@ -130,6 +154,7 @@ fun ChangeEventScreen(navController : NavHostController, viewModel : ProfileView
                         onValueChange = {
                             place = it
                             osmState.query.value = place.orEmpty()
+                            osmPlace = false
                         },
                         label = { Text("place") },
                         modifier = Modifier
@@ -138,6 +163,7 @@ fun ChangeEventScreen(navController : NavHostController, viewModel : ProfileView
                         trailingIcon = {
                             IconButton(
                                 onClick = {
+                                    osmPlace = true
                                     waitingForLocation = true
                                     gpsState.getLocationOrRequestPermission()
                                     if (!gpsState.locationPermissions.statuses.entries.all { it.value == PermissionStatus.Granted }) {
@@ -167,7 +193,15 @@ fun ChangeEventScreen(navController : NavHostController, viewModel : ProfileView
                                     Icon(Icons.Filled.GpsFixed, "GPS Icon")
                                 }
                             }
-                        }
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onNext = {
+                                focusManager.moveFocus(FocusDirection.Down)
+                            }
+                        )
                     )
                     LocationDisabledAlert(
                         show = gpsState.showLocationDisabledAlert,
@@ -178,22 +212,62 @@ fun ChangeEventScreen(navController : NavHostController, viewModel : ProfileView
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
-                        label = { Text("Nome evento") }
+                        label = { Text("Nome evento") },
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onNext = {
+                                focusManager.moveFocus(FocusDirection.Down)
+                            }
+                        ),
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .fillMaxWidth()
                     )
 
                     OutlinedTextField(
                         value = details.orEmpty(),
                         onValueChange = { details = it },
-                        label = { Text("Dettagli evento") }
+                        label = { Text("Dettagli evento") },
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onNext = {
+                                focusManager.moveFocus(FocusDirection.Down)
+                            }
+                        ),
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .fillMaxWidth()
                     )
 
                     OutlinedTextField(
                         value = date,
                         onValueChange = { date = it },
-                        label = { Text("Data evento") }
+                        label = { Text("Data evento") },
+                        placeholder = {Text("dd/mm/YY")},
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onNext = {
+                                focusManager.moveFocus(FocusDirection.Down)
+                            }
+                        ),
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .fillMaxWidth()
                     )
 
-                    Row {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        horizontalArrangement = Arrangement.End,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Checkbox(
                             checked = isPrivate,
                             onCheckedChange = { isPrivate = it }
@@ -201,32 +275,52 @@ fun ChangeEventScreen(navController : NavHostController, viewModel : ProfileView
                         Text("Evento privato")
                     }
 
-                    Button(
-                        onClick = {
-                            scope.launch {
-                                osmState.searchPlaces().join()
-                                val result = osmState.result.value
-                                if (result != "Place not found" && result != "Loading..." && result.isNotEmpty()) {
-                                    locationFound.value = true
-                                } else {
-                                    snackbarHostState.showSnackbar(
-                                        message = "Place not found",
-                                        duration = SnackbarDuration.Long
-                                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Button(
+                            onClick = {
+                                scope.launch {
+                                    if(name.isEmpty() || details.isEmpty() || date.isEmpty() || place.isEmpty()){
+                                        snackbarHostState.showSnackbar(
+                                            message = "Nome, dettagli, data e luogo non possono essere vuoti",
+                                            duration = SnackbarDuration.Short
+                                        )
+                                        return@launch
+                                    }
+                                    if(osmPlace){
+                                        osmState.latitudeResult.value =
+                                            event.latitude
+                                        osmState.longitudeResult.value =
+                                            event.longitude
+                                        osmState.result.value =
+                                            place
+                                        locationFound.value = true
+                                    } else {
+                                        osmState.searchPlaces().join()
+                                        val result = osmState.result.value
+                                        if (result != "Place not found" && result != "Loading..." && result.isNotEmpty()) {
+                                            locationFound.value = true
+                                        } else {
+                                            snackbarHostState.showSnackbar(
+                                                message = "Place not found",
+                                                duration = SnackbarDuration.Long
+                                            )
+                                        }
+                                    }
                                 }
                             }
+                        ) {
+                            Text("Modifica il tuo evento")
                         }
-                    ) {
-                        Text("Crea il tuo evento")
                     }
-
                 }
                 if (locationFound.value) {
                     PlaceConfirmationAlert(
                         show = locationFound.value,
                         place = osmState.result.value,
                         onAction = {
-                            Log.d("DEBUG", "The location is $name")
                             scope.launch {
                                 val newEvent = Events(
                                     id_event = event.id_event,
@@ -244,7 +338,7 @@ fun ChangeEventScreen(navController : NavHostController, viewModel : ProfileView
                                     opinions = emptyList()
                                 )
                                 viewModel.actions.editEvent(newEvent,pictureUri)
-                                navController.navigate(NavigationRoute.Profile)
+                                navController.navigate(NavigationRoute.Profile("utente"))
                             }
 
                         },

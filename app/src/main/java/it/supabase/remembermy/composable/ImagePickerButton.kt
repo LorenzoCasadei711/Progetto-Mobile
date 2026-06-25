@@ -10,6 +10,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
@@ -122,7 +123,8 @@ fun ImagePickerButton(
         )
     }
 
-    Button(onClick = { showChoice = true }) {
+    Button(onClick = { showChoice = true },
+        modifier = Modifier.padding(8.dp)) {
         Text("Aggiungi Foto")
     }
     SnackbarHost(hostState = snackbarHostState)
