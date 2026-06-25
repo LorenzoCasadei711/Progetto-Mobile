@@ -51,9 +51,9 @@ fun ProgettoMobileTheme(
         darkTheme -> when(palette){
             AppPalette.Blue -> darkColorScheme(primary = Color(0xFF82A3FD))
             AppPalette.Green -> darkColorScheme(primary = Color(0xFF8FD694))
-            AppPalette.Purple -> darkColorScheme(primary = Color(0xFFCC3CFF))
+            AppPalette.Purple -> darkColorScheme(primary = Color(0xFFD575F8))
             AppPalette.Orange -> darkColorScheme(primary = Color(0xFFFC9E41))
-            AppPalette.Red -> darkColorScheme(primary = Color(0xFFFA3C2D))
+            AppPalette.Red -> darkColorScheme(primary = Color(0xFFFA6C60))
         }
         else -> when(palette){
             AppPalette.Blue -> lightColorScheme(primary = Color(0xFF4F67A5))

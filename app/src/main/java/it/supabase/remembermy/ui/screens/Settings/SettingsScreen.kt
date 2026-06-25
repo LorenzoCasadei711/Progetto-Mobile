@@ -1,6 +1,5 @@
 package it.supabase.remembermy.ui.screens.Settings
 
-import android.Manifest
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -32,7 +31,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import it.supabase.remembermy.utils.rememberMultiplePermissions
+
 
 enum class Theme { Light, Dark, System}
 @Composable
@@ -44,14 +43,6 @@ fun SettingsScreen(navController : NavHostController,
                    selectedPalette: AppPalette,
                    onPaletteChange: (AppPalette) -> Unit
 ) {
-    val cameraPermission = rememberMultiplePermissions(
-        permissions = listOf(
-            Manifest.permission.CAMERA
-        ),
-        onResult = {}
-    )
-    val cameraEnabled = cameraPermission
-        .statuses[Manifest.permission.CAMERA]?.isGranted == true
     Scaffold(
         containerColor = MaterialTheme.colorScheme.secondaryContainer,
         contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -123,33 +114,24 @@ fun SettingsScreen(navController : NavHostController,
                     )
                 }
             }
-            Button(
-                onClick = {
-                    navController.navigate(NavigationRoute.ChangeInfo)
-                }
-            ) {
-                Text("Modifica informazioni profilo.")
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Column() {
                 Text(
-                    text = "Fotocamera",
-                    modifier = Modifier.weight(1f)
+                    "Profilo",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(start = 16.dp, top = 16.dp)
                 )
                 Button(
                     onClick = {
-                        cameraPermission.launcherPermissionRequest()
-                    }
+                        navController.navigate(NavigationRoute.ChangeInfo)
+                    },
+                    modifier = Modifier.padding(4.dp)
                 ) {
-                    Text(
-                        if(cameraEnabled)
-                            "Autorizzata"
-                        else "Abilita"
-                    )
+                    Text("Modifica informazioni profilo.")
                 }
             }
+
+
         }
     }
 }
