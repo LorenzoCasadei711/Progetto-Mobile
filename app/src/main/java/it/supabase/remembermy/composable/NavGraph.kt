@@ -11,9 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
@@ -51,8 +48,8 @@ import it.supabase.remembermy.ui.screens.profile.ChangeInfoProfileScreen
 import it.supabase.remembermy.ui.screens.Map.MapViewModel
 import it.supabase.remembermy.ui.screens.Search.SearchScreen
 import it.supabase.remembermy.ui.screens.Search.SearchViewModel
+import it.supabase.remembermy.ui.screens.Settings.SettingsViewModel
 import it.supabase.remembermy.ui.screens.camera.CameraViewModel
-import it.supabase.remembermy.ui.theme.AppPalette
 import kotlinx.serialization.json.Json
 import kotlin.reflect.typeOf
 
@@ -120,10 +117,11 @@ fun NavGraph(navController: NavHostController, supabase: SupabaseClient, start: 
     val sessionStatus by supabase.auth.sessionStatus.collectAsState()
     val cameraModel = koinViewModel<CameraViewModel>()
     val SearchModel = koinViewModel<SearchViewModel>()
+    val settingsModel = koinViewModel<SettingsViewModel>()
 
-    var selectedTheme by rememberSaveable { mutableStateOf(Theme.System) }
-    var dynamicColor by rememberSaveable { mutableStateOf(true) }
-    var selectedPalette by rememberSaveable { mutableStateOf(AppPalette.Blue) }
+    val selectedTheme by settingsModel.theme.collectAsState()
+    val dynamicColor by settingsModel.dynamicColor.collectAsState()
+    val selectedPalette by settingsModel.palette.collectAsState()
 
     LaunchedEffect(sessionStatus) {
         val currentDestination = navController.currentDestination
@@ -185,11 +183,11 @@ fun NavGraph(navController: NavHostController, supabase: SupabaseClient, start: 
                     SettingsScreen(
                         navController,
                         selectedTheme = selectedTheme,
-                        onThemeChange = { selectedTheme = it },
+                        onThemeChange = settingsModel::setTheme,
                         dynamicColor = dynamicColor,
-                        onDynamicColorChange = { dynamicColor = it },
+                        onDynamicColorChange = settingsModel::setDynamicColor,
                         selectedPalette = selectedPalette,
-                        onPaletteChange = {selectedPalette = it}
+                        onPaletteChange = settingsModel::setPalette
                     )
                 }
                 composable<NavigationRoute.Camera> {

@@ -1,6 +1,5 @@
 package it.supabase.remembermy
 
-import android.content.ContentResolver
 import it.supabase.remembermy.data.supabase.SupabaseAuth
 import it.supabase.remembermy.data.supabase.SupabaseData
 import it.supabase.remembermy.data.supabase.supabase
@@ -16,6 +15,8 @@ import io.ktor.serialization.kotlinx.json.json
 import it.supabase.remembermy.data.repository.OSMDataSource
 import it.supabase.remembermy.ui.screens.Map.MapViewModel
 import it.supabase.remembermy.ui.screens.Search.SearchViewModel
+import it.supabase.remembermy.ui.screens.Settings.SettingsRepository
+import it.supabase.remembermy.ui.screens.Settings.SettingsViewModel
 import org.koin.android.ext.koin.androidContext
 import it.supabase.remembermy.ui.screens.camera.CameraViewModel
 import kotlinx.serialization.json.Json
@@ -35,6 +36,8 @@ val viewModule = module {
     viewModel { CameraViewModel(get()) }
     viewModel { HomeViewModel(get(), get()) }
     viewModel { SearchViewModel(get(), get()) }
+    single { SettingsRepository(androidContext()) }
+    viewModel { SettingsViewModel(get()) }
 }
 
 val httpModule = module {

@@ -87,10 +87,7 @@ fun MapScreen(
 
                     mapView.overlays.add(marker)
                 }
-
                 mapView.invalidate()
-
-
             }
         )
     }

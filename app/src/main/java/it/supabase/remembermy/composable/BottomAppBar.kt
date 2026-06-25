@@ -18,9 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
-import androidx.navigation.Navigation
-import com.example.progettomobile.composable.NavigationRoute
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
