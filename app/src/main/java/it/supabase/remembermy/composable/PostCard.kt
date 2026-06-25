@@ -155,11 +155,6 @@ fun PostCard(
 
         }
 
-        Text(
-            text = "${post.likes} likes",
-            modifier = Modifier.padding(12.dp),
-            fontWeight = FontWeight.Bold
-        )
         Column(modifier = Modifier.padding(8.dp)) {
             AnimatedVisibility(visible = isOpinionsVisible) {
                 OpinionSection(post.idEvent, post.opinion)
