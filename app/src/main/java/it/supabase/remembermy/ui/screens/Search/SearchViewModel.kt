@@ -49,8 +49,6 @@ class SearchViewModel (
                 _state.value = _state.value.copy(
                     followedEvents = followedIds,
                     posts = events.map { event ->
-                        val position = osmDataSource.searchWithCoordinates(event.latitude, event.longitude).displayName
-
                         val profile = profileByUserId[event.id_user]
                         Post(
                             idEvent = event.id_event ?: "",
@@ -63,7 +61,7 @@ class SearchViewModel (
                             dateEvent = event.date_event,
                             latitude = event.latitude,
                             longitude = event.longitude,
-                            position = position,
+                            position = event.place_name?:"",
                             opinion = event.opinions,
                             idUser = event.id_user
                         )

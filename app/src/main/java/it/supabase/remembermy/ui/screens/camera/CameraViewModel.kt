@@ -24,6 +24,7 @@ class CameraViewModel (
     var pictureCoordinates by mutableStateOf<Coordinates?>(null)
         private set
 
+    var error by mutableStateOf<String?>(null)
     var finalUri by mutableStateOf<String?>(null)
     fun setPictureData(uri: Uri,coordinates: Coordinates?){
         pictureUri = uri
