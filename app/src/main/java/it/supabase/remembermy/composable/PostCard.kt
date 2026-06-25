@@ -161,12 +161,19 @@ fun PostCard(
                     fontSize = 16.sp
                 )
             }
+            if(post.descriptionEvent.isNotEmpty()){
+                Text(
+                    text = post.descriptionEvent,
+                    modifier = Modifier.padding(6.dp),
+                    fontSize = 14.sp
+                )
+            }
+
             Text(
                 text = post.dateEvent,
                 modifier = Modifier.padding(6.dp),
                 fontSize = 12.sp
             )
-
             TextButton(
                 onClick = {
                     navController.navigate(
