@@ -51,6 +51,7 @@ import it.supabase.remembermy.ui.screens.Search.SearchViewModel
 import it.supabase.remembermy.ui.screens.Settings.SettingsViewModel
 import it.supabase.remembermy.ui.screens.camera.CameraViewModel
 import kotlinx.serialization.json.Json
+import org.koin.compose.koinInject
 import kotlin.reflect.typeOf
 
 sealed interface NavigationRoute {
@@ -119,7 +120,7 @@ fun NavGraph(navController: NavHostController, supabase: SupabaseClient, start: 
     val accessModel = koinViewModel<AccessViewModel>()
     val sessionStatus by supabase.auth.sessionStatus.collectAsState()
     val cameraModel = koinViewModel<CameraViewModel>()
-    val SearchModel = koinViewModel<SearchViewModel>()
+    val SearchModel = koinInject<SearchViewModel>()
     val settingsModel = koinViewModel<SettingsViewModel>()
 
     val selectedTheme by settingsModel.theme.collectAsState()
